@@ -32,7 +32,7 @@ window.MS.Games = window.MS.Games || {};
       get perQuestion() { return perQuestion(); },
       bonus: 100,
       backTo: '/play',
-      help: 'One wrong answer ends the run. The per-question clock tightens as you go and the questions get harder. A Buffer power-up absorbs one mistake.',
+      help: 'One wrong answer ends the run. The per-question clock tightens as you go and the questions get harder. A Shield power-up absorbs one mistake.',
       onAnswer: function (right) {
         if (right && n % 5 === 0) { Audio.play('survive'); UI.toast('🎖️ ' + n + ' survived', 'good', 1200); }
       },

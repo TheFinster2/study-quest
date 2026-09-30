@@ -28,6 +28,72 @@ MA.Screens.nesaBadge = function (isNesa, compact) {
   });
 };
 
+/* The searchable formula list, UNSCORED (the standalone screen). The in-run
+   version, with the 🧠 reveal and its latched crutch, is the shared tool
+   tray's — this app registers its sheet with SQ.Tools in manifest.js. */
+MA.Screens.formulaPanel = function () {
+  const U = MA.U, UI = MA.UI;
+  const wrap = U.el("div", { class: "tb-panel" });
+  const search = U.el("input", {
+    class: "ref-search", type: "search", autocomplete: "off", "aria-label": "Search formulas",
+    placeholder: "Search — \"quotient rule\", \"annuity\", \"projection\""
+  });
+  let filter = "all";
+  const filterRow = U.el("div", { class: "tb-filters" });
+  [["all", "Everything"], ["sheet", "✅ On the HSC sheet"], ["learn", "🧠 Memorise"]].forEach(([id, label]) => {
+    const b = U.el("button", { class: "chip chip-btn" + (id === "all" ? " on" : ""), text: label, type: "button",
+      on: { click: () => {
+        filter = id;
+        U.$$(".chip", filterRow).forEach(c => c.classList.toggle("on", c === b));
+        draw();
+      } } });
+    filterRow.appendChild(b);
+  });
+  const list = U.el("div", { class: "tb-list" });
+  const disclaimer = U.el("p", { class: "tiny muted tb-disclaimer", html:
+    "✅ <b>On the HSC sheet</b> means NESA prints it on the reference sheet you are given in the exam. " +
+    "🧠 <b>Memorise</b> means they do not. Checked against the current " +
+    "Mathematics Advanced / Extension 1 reference sheet — NESA does revise it, so confirm " +
+    "against the copy in your exam pack before you rely on it." });
+
+  function draw() {
+    list.innerHTML = "";
+    const sections = MA.Formulas.grouped(search.value, filter);
+    if (!sections.length) {
+      list.appendChild(U.el("div", { class: "empty" }, [
+        U.el("div", { class: "empty-ico", text: "🔍" }),
+        U.el("p", { text: "Nothing matches that. Try a shorter word." })
+      ]));
+      return;
+    }
+    sections.forEach(sec => {
+      list.appendChild(U.el("div", { class: "tb-group" }, [
+        U.el("span", { text: sec.group.icon }),
+        U.el("span", { text: sec.group.name }),
+        U.el("span", { class: "tb-group-n", text: String(sec.items.length) })
+      ]));
+      sec.items.forEach(f => list.appendChild(U.el("div", { class: "tb-row" + (f.nesa ? " is-sheet" : " is-learn") }, [
+        U.el("div", { class: "tb-row-head" }, [
+          U.el("span", { class: "tb-row-name", text: f.name }),
+          UI.tierChip(f.tier + "-x"),
+          MA.Screens.nesaBadge(f.nesa)
+        ]),
+        U.el("div", { class: "tb-row-body" }, [
+          U.el("div", { class: "math tb-tex", html: U.math(f.tex) }),
+          f.hint ? U.el("div", { class: "math tb-hint", html: U.math(f.hint) }) : null
+        ])
+      ])));
+    });
+  }
+  search.addEventListener("input", draw);
+  wrap.appendChild(search);
+  wrap.appendChild(filterRow);
+  wrap.appendChild(disclaimer);
+  wrap.appendChild(list);
+  draw();
+  return wrap;
+};
+
 /* ── the flat formula sheet ─────────────────────────────────── */
 MA.Screens.formulas = function (view) {
   const U = MA.U, S = MA.State, UI = MA.UI;
@@ -62,11 +128,11 @@ MA.Screens.formulas = function (view) {
   ]));
 
   /* Unscored: nothing is hidden and nothing is charged. You are not mid-run. */
-  view.appendChild(MA.Toolbelt.formulaPanel({ scored: false }));
+  view.appendChild(MA.Screens.formulaPanel());
 
   view.appendChild(U.el("p", { class: "arcade-note", style: "margin-top:12px", text:
-    "Reading this earns no XP. Inside a game the memorise-only formulas cost 20% of the " +
-    "run's XP to reveal — out here they are free." }));
+    "Reading this earns no XP. Inside a game the tool tray's sheet shows the ✅ formulas free; " +
+    "revealing a 🧠 one costs that run 10% of its XP (latched, capped at 30%). Out here they are all free." }));
 
   view.appendChild(U.el("button", {
     class: "btn btn-block", style: "margin-top:10px", text: "📖 Reference Library — the long-form sheets",
@@ -148,7 +214,7 @@ MA.Screens.reference = function (view, args) {
 
     /* toolbelt:false — this screen IS the reference material. Floating a second
        formula sheet over the top of it would be absurd. */
-    const shell = UI.gameShell(r.icon + " " + r.title, { backTo: "/reference", toolbelt: false });
+    const shell = UI.gameShell(r.icon + " " + r.title, { backTo: "/reference", tools: false });
     view.appendChild(shell.root);
 
     shell.body.appendChild(U.el("p", { text: r.blurb }));

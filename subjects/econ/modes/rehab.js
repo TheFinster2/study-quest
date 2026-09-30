@@ -24,7 +24,7 @@
           : "You have not missed anything yet — or you have already cleared them all. Play a mode and come back." }),
         U.el("div", { class:"row", style:"margin-top:12px;justify-content:center" }, [
           U.el("button", { class:"btn btn-primary", onclick: function () { UI.go("/play/rapidfire"); } }, "Rapid Fire"),
-          U.el("button", { class:"btn", onclick: function () { UI.go("/home"); } }, "Home")
+          U.el("button", { class:"btn", onclick: function () { UI.go("/play"); } }, "Home")
         ])
       ]));
       return;

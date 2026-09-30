@@ -43,6 +43,13 @@ window.MS = window.MS || {};
       if (t.diffMin > 0) out = out.filter(function (q) { return q.diff >= t.diffMin; });
       if (t.diffMax < 3) out = out.filter(function (q) { return q.diff <= t.diffMax; });
     }
+    /* Coverage (StudyQuest): hidden topics drop out of any draw that did not
+       name its topic. A thin result falls back in draw()/stream() below. */
+    if (!o.allTiers && State.hiddenTags && State.hiddenTags().length) {
+      var named = o.mod ? (Array.isArray(o.mod) ? o.mod : [o.mod]) : null;
+      var keep = out.filter(function (q) { return (named && named.length === 1) || !State.tagHidden(q.mod); });
+      if (keep.length) out = keep;
+    }
     if (o.mod) {
       var mods = Array.isArray(o.mod) ? o.mod : [o.mod];
       out = out.filter(function (q) { return mods.indexOf(q.mod) >= 0; });
@@ -67,7 +74,7 @@ window.MS = window.MS || {};
     var rec = d.q[q.id];
     if (rec && rec.w > 0) w *= 3.5;
     if (rec && rec.s > 0 && rec.w === 0) w *= 0.55;         // seen and always right — de-emphasise
-    var m = State.mastery(q.mod);
+    var m = State.masteryFrac(q.mod);
     w *= 1 + (1 - m) * 1.4;
     return w;
   };
@@ -162,13 +169,13 @@ window.MS = window.MS || {};
     var d = State.data;
     return Bank.TOPICS.map(function (t) {
       var pool = Bank.filter({ mod: t.code });
-      var rec = d.topics[t.code] || { seen: 0, right: 0 };
+      var rec = State.topicRecord(t.code);
       return {
         code: t.code, nm: t.nm, ic: t.ic, yr: t.yr, strand: t.strand,
         total: pool.length, seen: rec.seen, right: rec.right,
         accuracy: rec.seen ? rec.right / rec.seen : 0,
-        mastery: State.mastery(t.code),
-        tier: State.masteryTier(State.mastery(t.code))
+        mastery: State.masteryFrac(t.code),
+        tier: State.tierOf(State.masteryFrac(t.code))
       };
     });
   };

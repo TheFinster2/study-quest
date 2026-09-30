@@ -6,27 +6,25 @@
 window.MS = window.MS || {};
 (function () {
   'use strict';
-  var A = { on: true, vol: 0.5, ctx: null };
-  var master = null, unlocked = false;
+  /* StudyQuest: one AudioContext for the whole app. This vocabulary plays
+     through SQ.Sound.shared()'s context and master bus, so the app's volume
+     slider, limiter and autoplay unlock apply; `on` follows the app setting. */
+  var A = { ctx: null };
+  Object.defineProperty(A, 'on', {
+    get: function () { return !SQ.Sound || SQ.Sound.isEnabled(); },
+    set: function () { /* the app's Settings own this */ }
+  });
+  var master = null;
 
   function ac() {
-    if (!A.ctx) {
-      var C = window.AudioContext || window.webkitAudioContext;
-      if (!C) return null;
-      A.ctx = new C();
-      master = A.ctx.createGain();
-      master.gain.value = A.vol;
-      master.connect(A.ctx.destination);
-    }
-    if (A.ctx.state === 'suspended') A.ctx.resume();
+    var sh = SQ.Sound && SQ.Sound.shared ? SQ.Sound.shared() : null;
+    if (!sh) return null;
+    A.ctx = sh.ctx; master = sh.master;
     return A.ctx;
   }
-  A.unlock = function () {
-    if (unlocked) return;
-    unlocked = true;
-    ac();
-  };
-  A.setVolume = function (v) { A.vol = Math.max(0, Math.min(1, v)); if (master) master.gain.value = A.vol; };
+  A.unlock = function () { ac(); };
+  A.setEnabled = function () { /* global */ };
+  A.setVolume = function () { /* global master gain */ };
 
   /* -------------------------------------------------------------- builders */
   function tone(o) {

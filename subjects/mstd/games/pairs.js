@@ -122,7 +122,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       State.bump('pairsCleared');
       if (misses === 0) State.bump('perfect');
-      State.recordAnswer(null, acc >= 0.6, set.mod, 9999);
+      State.answer(null, acc >= 0.6, set.mod, 9999);
       var res = UI.award({
         xp: pool.xp, bonus: 80, coins: Math.max(0, matched * 8 - misses * 3),
         accuracy: acc, answered: attempts, mode: 'pairs', node: scoreChip
@@ -142,7 +142,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: misses === 0 ? 'Perfect recall — six attempts, six pairs.' : 'Mismatches subtract, so this board rewards memory over speed.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.pairs(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
   };

@@ -241,7 +241,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       if (acc >= 0.999) State.bump('perfect');
       State.bump('pathsSolved');
-      State.recordAnswer(null, acc >= 0.7, 'MS-N2', 9999);
+      State.answer(null, acc >= 0.7, 'MS-N2', 9999);
 
       var res = UI.award({
         xp: pool.xp, bonus: 140, coins: Math.round(totalRight * 5),
@@ -265,7 +265,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: 'Every activity on ' + sol.critical.join(' → ') + ' has zero float, so delaying any of them delays the whole project. The others have slack you can spend.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.critpath(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
 

@@ -85,7 +85,7 @@ MA.DATA.achievements = [
 {id:"a_card60",  icon:"📇", name:"Total Recall",      desc:"Master 60 flashcards",                 reward:800,  check:s=>s.cardsMastered>=60},
 {id:"a_bookmark",icon:"🔖", name:"Notebook",          desc:"Star 15 questions for review",         reward:120,  check:s=>s.bookmarks>=15},
 {id:"a_themes3", icon:"🎨", name:"Redecorated",       desc:"Own 3 themes",                         reward:200,  check:s=>s.themesOwned>=3},
-{id:"a_themes_all",icon:"🖼️",name:"Full Palette",     desc:"Own every theme",                      reward:2000, check:s=>s.themesOwned>=MA.DATA.shop.themes.length},
+{id:"a_themes_all",icon:"🖼️",name:"Full Palette",     desc:"Own every Maths Advanced theme",       reward:2000, check:s=>s.madvThemesOwned>=MA.DATA.shop.themes.length},
 {id:"a_avatars8",icon:"🎭", name:"Wardrobe",          desc:"Own 8 avatars",                        reward:300,  check:s=>s.avatarsOwned>=8},
 {id:"a_rich",    icon:"💰", name:"Prime Hoarder",     desc:"Hold 5,000 Primes at once",            reward:400,  check:s=>s.peakCoins>=5000},
 {id:"a_modes",   icon:"🎮", name:"Sampler",           desc:"Play 8 different game modes",          reward:300,  check:s=>Object.keys(s.modesPlayed||{}).length>=8},

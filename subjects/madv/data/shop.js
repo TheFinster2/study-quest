@@ -3,28 +3,27 @@
 window.MA = window.MA || {};
 MA.DATA = MA.DATA || {};
 
+MA.DATA.LEGACY_THEMES = { graph:"midnight", golden:"golden", paper:"paper", complex:"ocean",
+  euler:"ember", chalk:"chalk", imaginary:"neon", montecarlo:"aurora", manifold:"mono", radian:"lime" };
+
 MA.DATA.shop = {
+  /* MathQuest's ten themes were promoted to the app's general themes (graph →
+     midnight, golden, paper, complex → ocean, euler → ember, chalk,
+     imaginary → neon, montecarlo → aurora, manifold → mono, radian → lime), so
+     the subject shop sells a new set of maths-flavoured themes, defined on the
+     core tokens in subjects/madv/css/themes.css. `LEGACY_THEMES` maps an old
+     save's theme ids onto the app themes for importLegacy(). */
   themes: [
-    { id:"graph",      name:"Graph Paper",   cost:0,    desc:"Teal and violet on midnight. The default grid.",
-      dots:["#39d6c8","#7c5cff","#0a0f1c"] },
-    { id:"complex",    name:"Complex Plane", cost:600,  desc:"Cyan on deep blue — easy on the eyes at 1 a.m.",
-      dots:["#28e0ff","#0f7aa8","#04141a"] },
-    { id:"golden",     name:"Golden Ratio",  cost:900,  desc:"Warm amber in a pleasing proportion.",
-      dots:["#ffc861","#ff7a3d","#150e05"] },
-    { id:"chalk",      name:"Chalkboard",    cost:900,  desc:"Pale chalk on board green. Old school.",
-      dots:["#a8f0c8","#e8f5b8","#08160f"] },
-    { id:"euler",      name:"Euler",         cost:1400, desc:"Red hot. e to the i pi, and all that follows.",
-      dots:["#ff4d3d","#ffb03a","#170406"] },
-    { id:"paper",      name:"Squared Paper", cost:1400, desc:"A bright, high-contrast light mode.",
-      dots:["#1d5fc4","#6d5cff","#f4f7fb"] },
-    { id:"imaginary",  name:"Imaginary",     cost:2200, desc:"Magenta and cyan. Strictly off the real line.",
-      dots:["#ff3df0","#28e0ff","#12021c"], minLevel:15 },
-    { id:"montecarlo", name:"Monte Carlo",   cost:2800, desc:"Green over violet. Converges eventually.",
-      dots:["#7dffb0","#a86bff","#050818"], minLevel:22 },
-    { id:"manifold",   name:"Manifold",      cost:3600, desc:"Monochrome. For people who find colour distracting.",
-      dots:["#d8dee9","#8892a4","#050506"], minLevel:30 },
-    { id:"radian",     name:"Radian",        cost:5000, desc:"Luminous lime on black. 57.3 degrees of attitude.",
-      dots:["#b6ff2e","#6fdc00","#060a02"], minLevel:40 }
+    { id:"madv-graphpaper", name:"Graph Paper",  cost:500,  desc:"Green ruled grid on deep ink. The default notebook, grown up.",
+      dots:["#0b1a12","#5fe39a","#c8f5a0"] },
+    { id:"madv-blackboard", name:"Blackboard",   cost:900,  desc:"Chalk white and yellow on slate. Somebody left a proof up.",
+      dots:["#14191c","#f2f0e6","#ffd866"] },
+    { id:"madv-blueprint",  name:"Blueprint",    cost:1400, desc:"Violet-blue drafting sheet with cyan construction lines.",
+      dots:["#0d1030","#8f7bff","#5ad1ff"], minLevel:10 },
+    { id:"madv-parchment",  name:"Parchment",    cost:2200, desc:"A light, warm page for long proofs. Ink brown and red pen.",
+      dots:["#f6efe0","#6b3f1f","#c2412d"], minLevel:18 },
+    { id:"madv-contour",    name:"Contour Map",  cost:3600, desc:"Level curves in teal and amber over midnight — f(x, y) = c.",
+      dots:["#061418","#2fd1b8","#ffb347"], minLevel:30 }
   ],
 
   avatars: [

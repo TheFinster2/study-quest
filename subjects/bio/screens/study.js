@@ -1,21 +1,22 @@
-/* Cards tab — the flashcard deck overview. */
+/* Study — the flashcard deck overview, leeches, and links to the Atlas and the glossary. */
 (function (root) {
   "use strict";
   var BIO = root.BIO, U = BIO.U, UI = BIO.UI, S = BIO.State;
 
-  UI.route("/cards", function (view) {
+  UI.route("/study", function (view) {
     UI.hideTabs(false);
     view.appendChild(U.el("h1", { text:"Flashcards" }));
 
     var all = BIO.Bank.all("card");
     var active = BIO.Bank.active("card");
-    var due = S.dueCards(active.map(function (c) { return c.id; }));
+    var activeIds = {}; active.forEach(function (c) { activeIds[c.id] = true; });
+    var due = S.dueCards(function (c) { return activeIds[c.id]; });
 
     var boxes = [0, 0, 0, 0, 0];
     var started = 0;
     all.forEach(function (c) {
-      var cs = S.data.cards[c.id];
-      if (cs) { boxes[cs.box]++; started++; }
+      var cs = S.data.srs[c.id];
+      if (cs) { boxes[Math.max(0, Math.min(4, cs.box - 1))]++; started++; }
     });
 
     view.appendChild(U.el("div", { class:"card" }, [
@@ -41,11 +42,33 @@
         text:"Nothing is due, so a review session right now pays nothing. That is not a bug — spaced repetition only works if you come back when the interval is up." }));
     }
 
+    /* Leeches: cards graded "again" four or more times. Named, so a student can
+       change how they learn them instead of grinding them. */
+    var lee = S.leeches();
+    if (lee.length) {
+      view.appendChild(U.el("h2", { text:"Leeches  " + lee.length }));
+      view.appendChild(U.el("p", { class:"muted small", text:"Cards you have missed four or more times. Rewrite them in your own words, draw them, or ask about them — reviewing them the same way again is not working." }));
+      var ll = U.el("div", { class:"list" });
+      lee.slice(0, 12).forEach(function (x) {
+        ll.appendChild(U.el("div", { class:"li" }, [
+          U.el("div", { class:"grow" }, [U.el("b", { text: x.q.front }), U.el("small", { text: x.q.back })]),
+          U.el("span", { class:"badge badge-bad", text: x.c.lapses + "×" })
+        ]));
+      });
+      view.appendChild(ll);
+    }
+
+    view.appendChild(U.el("div", { class:"row", style:"margin-top:12px" }, [
+      U.el("button", { class:"btn grow", onclick: function () { UI.go("/reference"); } }, "📖 Glossary — free to read"),
+      U.el("button", { class:"btn grow", onclick: function () { UI.go("/atlas"); } }, "🔬 Atlas of diagrams")
+    ]));
+
     view.appendChild(U.el("h2", { text:"By module" }));
     var list = U.el("div", { class:"list" });
     U.MODULES.forEach(function (m) {
       var mine = BIO.Bank.active("card", function (c) { return c.mod === m.id; });
-      var mineDue = S.dueCards(mine.map(function (c) { return c.id; })).length;
+      var mineIds = {}; mine.forEach(function (c) { mineIds[c.id] = true; });
+      var mineDue = S.dueCards(function (c) { return mineIds[c.id]; }).length;
       var row = U.el("button", { class:"li", style:"width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer" }, [
         U.el("span", { class:"badge badge-accent", text: m.id }),
         U.el("div", { class:"grow" }, [

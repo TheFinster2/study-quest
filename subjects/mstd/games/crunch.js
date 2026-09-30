@@ -111,7 +111,7 @@ window.MS.Games = window.MS.Games || {};
         Audio.play('wrong');
         FX.shake(5);
       }
-      State.recordAnswer(null, right, current.mod, ms);
+      State.answer(null, right, current.mod, ms);
       State.noteStreak(pool.bestStreak);
       scoreChip.textContent = pool.correct + '/' + LIMIT;
       multChip.textContent = '×' + pool.stepMult();
@@ -160,7 +160,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: pool.fast ? pool.fast + ' answer' + (pool.fast === 1 ? '' : 's') + ' came in faster than the question could be read, so they paid nothing.' : null,
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.crunch(null, params); }
+        again: function () { UI.go(UI.path()); }
       });
     }
 

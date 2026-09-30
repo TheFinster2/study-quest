@@ -15,11 +15,8 @@
   UI.route("/play/termmatch", function (view) {
     var pool = ECON.Bank.active("card");
     if (pool.length < 6) { if (ECON.Coverage.warnIfEmpty("card")) return; }
-
-    ECON.Tools.startRun("termmatch");
-    var shell = UI.gameShell(view, { title:"Term Match", sub:"Reference withheld", onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Term Match", sub:"Glossary withheld", tools:{ calc:true, sheet:false, pad:true }, onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("termmatch");
 
     var st = { i:0, counted:0, correct:0, answered:0, streak:0, xp:0, review:[], done:false, shownAt:0 };
     next();
@@ -104,14 +101,16 @@
 
     function resolve(ok, qa, card, host) {
       st.answered++;
-      var counts = (Date.now() - st.shownAt) >= S.MIN_READ_MS;
+      var counts = (Date.now() - st.shownAt) >= UI.readFloor(qa.q);
       if (counts) st.counted++;
+      S.tally(card.mod, ok, card.topic);
+      if (SQ.Sound) { if (ok) SQ.Sound.correct(); else SQ.Sound.wrong(); }
       if (ok) {
-        st.correct++; st.streak++;
+        st.correct++; st.streak++; S.noteStreak(st.streak); S.bump("termsMatched");
         if (counts) st.xp += S.XP_PER_CORRECT * S.streakMult(st.streak);
       } else st.streak = 0;
       st.review.push({ ok: ok, q: U.trunc(qa.q, 110), mod: card.mod, a: qa.options[qa.answer], why: qa.why });
-      S.saveSoon();
+      S.save();
 
       var w = U.el("div", { class:"why " + (ok ? "ok" : "no") });
       w.appendChild(U.el("div", { class:"why-h", text: ok ? "Correct" : "Not quite" }));
@@ -128,22 +127,20 @@
       st.done = true;
       UI._gsRefresh = null;
       var acc = st.answered ? st.correct / st.answered : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), bonus: 100, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"termmatch", score: st.correct });
-      rec.questions = st.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
-      UI.results(view, {
+      var rec = UI.award({ questions: st.answered, xp: Math.round(st.xp), bonus: 100, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"termmatch", score: st.correct });
+      UI.report(view, { rec: rec,
         title:"Term Match complete", correct: st.correct, total: st.answered,
         rows:[
           ["Correct", st.correct + " / " + st.answered],
           ["XP from answers", U.fmtInt(Math.round(st.xp))],
           ["Completion bonus", rec.bonusWithheld ? "0  (withheld below 50%)" : "+" + U.fmtInt(rec.bonus)],
-          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
+          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]
         ],
         review: st.review.filter(function (x) { return !x.ok; }),
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

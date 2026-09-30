@@ -44,7 +44,8 @@ window.MS.Games = window.MS.Games || {};
     }
 
     var pool = UI.pool();
-    var maxHp = boss.hp, hp = boss.hp;
+    /* StudyQuest difficulty: bosses are sturdier on Hard/Nightmare, lighter on Gentle. */
+    var maxHp = Math.round(boss.hp * (State.difficulty().boss || 1)), hp = maxHp;
     var lives = boss.yourHp, turns = boss.turns || 0, turnsUsed = 0;
     var qNum = 0, ended = false, startedAt = Date.now();
     var rotateTimer = 0, perTimer = 0;
@@ -108,7 +109,7 @@ window.MS.Games = window.MS.Games || {};
     function renderPowerups(ctl, q) {
       U.clear(powerRow);
       if (boss.final) { U.add(powerRow, U.el('.tiny.dim', 'No power-ups in The Final Paper.')); return; }
-      [['fifty', '✂️'], ['skip', '⏭️'], ['insight', '💡'], ['boost', '⚡'], ['buffer', '🛡️']].forEach(function (p) {
+      [['fifty', '✂️'], ['skip', '⏭️'], ['insight', '💡'], ['double', '✨'], ['shield', '🛡️']].forEach(function (p) {
         var k = p[0], n = State.powerupCount(k);
         if (!n) return;
         if ((k === 'fifty' || k === 'skip') && !State.powerupsAllowed()) return;
@@ -118,8 +119,8 @@ window.MS.Games = window.MS.Games || {};
             if (k === 'fifty') { if (State.usePowerup(k)) { ctl.fifty(q.a); Audio.play('fifty'); } }
             else if (k === 'skip') { if (State.usePowerup(k)) { Audio.play('skip'); pool.skip(); nextQ(); } }
             else if (k === 'insight') { if (State.usePowerup(k)) { Audio.play('insight'); UI.toast('💡 ' + hint(q), 'warn', 4000); } }
-            else if (k === 'boost') { if (State.usePowerup(k)) { pool.boost = 2; Audio.play('boost'); UI.toast('⚡ Double XP', 'good'); } }
-            else if (k === 'buffer') { UI.toast('🛡️ Buffer is automatic — it absorbs your next wrong answer', 'acc', 2200); }
+            else if (k === 'double') { if (State.usePowerup(k)) { pool.boost = 2; Audio.play('boost'); UI.toast('✨ Double XP', 'good'); } }
+            else if (k === 'shield') { UI.toast('🛡️ Shield is automatic — it absorbs your next wrong answer', 'acc', 2200); }
             renderPowerups(ctl, q);
           }
         }, p[1] + ' ' + n));
@@ -216,9 +217,9 @@ window.MS.Games = window.MS.Games || {};
           if (gained > 0) FX.floatText('+' + gained, c.x, c.y);
         }
       } else {
-        if (State.powerupCount('buffer') > 0 && State.usePowerup('buffer')) {
+        if (State.powerupCount('shield') > 0 && State.usePowerup('shield')) {
           Audio.play('shield');
-          UI.toast('🛡️ Buffer absorbed that', 'acc');
+          UI.toast('🛡️ Shield absorbed that', 'acc');
         } else {
           lives--;
           pool.wrongAnswer(q.diff);
@@ -226,7 +227,7 @@ window.MS.Games = window.MS.Games || {};
           FX.shake(9);
         }
       }
-      if (q.id) State.recordAnswer(q.id, right, q.mod, ms);
+      if (q.id) State.answer(q.id, right, q.mod, ms);
       State.noteStreak(pool.bestStreak);
 
       /* -- The Taxman claims a deduction every third question ------------ */
@@ -263,7 +264,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
 
       var firstKill = false;
-      if (win) firstKill = State.beatBoss(boss.id);
+      if (win) firstKill = State.beatBoss(boss.id, { flawless: lives === boss.yourHp });
 
       /* The boss reward rides on top of the run pool and still passes through
          the accuracy gate in UI.award(). */
@@ -300,7 +301,7 @@ window.MS.Games = window.MS.Games || {};
                         : firstKill ? boss.blurb + ' The next fight is open.' : 'Beaten again — the unlock was already yours.')
           : boss.gimmickDs,
         backTo: '/bosses',
-        again: function () { UI.closeModal(); UI.go('/game/boss/' + boss.id); UI.handleRoute(); }
+        again: function () { UI.go('/game/boss/' + boss.id); }
       });
     }
 
@@ -311,7 +312,7 @@ window.MS.Games = window.MS.Games || {};
       body: U.el('.stack', [
         U.el('.why', boss.gimmickDs),
         U.el('.row', [
-          UI.chip(boss.hp + ' HP', 'bad'),
+          UI.chip(maxHp + ' HP', 'bad'),
           UI.chip(boss.yourHp + ' ' + (boss.yourHp === 1 ? 'life' : 'lives'), 'good'),
           UI.chip(boss.perQuestion + 's per question', 'warn'),
           UI.chip('+' + U.commas(boss.reward.xp) + ' XP', 'acc')

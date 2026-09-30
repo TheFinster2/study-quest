@@ -329,7 +329,7 @@ CHEM.Games.calc = (function () {
           `<b>${ok ? "Correct." : `Answer: ${shown} ${U.escapeHtml(prob.unit)}`}</b>${note}<br>${U.formula(prob.why)}` });
 
         const next = U.el("button", {
-          class: "btn btn-primary",
+          class: "btn btn-primary js-next",
           text: idx >= c.count - 1 ? "See results" : "Next →",
           on: { click: () => { if (idx >= c.count - 1) return finish(); idx++; render(); } }
         });

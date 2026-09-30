@@ -21,16 +21,15 @@
     var pool = ECON.Bank.active("card", r.query.mod ? function (c) { return c.mod === r.query.mod; } : null);
     if (!pool.length) { ECON.Coverage.warnIfEmpty("card"); return; }
 
-    var due = S.dueCards(pool.map(function (c) { return c.id; }));
+    var due = S.dueIds(pool.map(function (c) { return c.id; }));
     var dueCards = pool.filter(function (c) { return due.indexOf(c.id) >= 0; });
     var deck = (dueCards.length ? U.sample(dueCards, SESSION) : U.sample(pool, SESSION));
     var onlyReview = dueCards.length === 0;
-
-    ECON.Tools.startRun("flashcards");
-    var shell = UI.gameShell(view, {
+    var shell = UI.shell(view, {
       title:"Flashcards",
       sub: onlyReview ? "Nothing due — free review, pays nothing" : U.plural(dueCards.length, "card") + " due",
-      onQuit: function () { UI.go("/cards"); }
+      tools: false, backTo: "/study",
+      onQuit: function () { UI.go("/study"); }
     });
     UI._gsRefresh = paint;
 
@@ -52,12 +51,13 @@
       paint();
       var card = deck[st.i];
       var host = shell.clear();
-      var cs = S.cardState(card.id);
+      var cs = S.data.srs[card.id] || { box: 0, lapses: 0 };
 
       host.appendChild(U.el("div", { class:"qmeta" }, [
         U.el("span", { class:"badge badge-accent", text: card.mod }),
         U.el("span", { class:"badge", text: U.trunc(card.topic || "", 26) }),
-        U.el("span", { class:"badge", text:"box " + (cs.box + 1) + "/" + S.BOX_DAYS.length })
+        U.el("span", { class:"badge", text: cs.box ? "box " + cs.box + "/5" : "new" }),
+        S.isLeech(card.id) ? U.el("span", { class:"badge badge-bad", text:"leech" }) : null
       ]));
 
       var face = U.el("div", { class:"card", style:"min-height:180px;display:grid;place-items:center;text-align:center;padding:26px 16px" }, [
@@ -93,10 +93,13 @@
 
     function grade(card, g) {
       var readMs = Date.now() - st.flippedAt;
-      var wasDue = !onlyReview && !st.paidToday[card.id];
-      S.reviewCard(card.id, g);
+      // Pays once per card per day, only when it was genuinely due (the shared
+      // cardXpEligible ledger) — checked BEFORE the review moves its due date.
+      var wasDue = !onlyReview && !st.paidToday[card.id] && S.cardXpEligible(card.id);
+      S.reviewCard(card.id, S.GRADES[g]);
       st.reviewed++;
-      if (wasDue && readMs >= S.MIN_READ_MS && g >= 1) {
+      if (wasDue && readMs >= UI.readFloor(card.back) && g >= 1) {
+        S.markCardXp(card.id);
         // "Again" pays nothing — you did not know it, and paying for a miss is
         // exactly how a self-graded mode becomes free XP.
         st.xp += XP_PER_CARD;
@@ -111,14 +114,12 @@
       if (st.done) return;
       st.done = true;
       UI._gsRefresh = null;
-      var rec = UI.award({ xp: Math.round(st.xp), mode:"flashcards", score: st.reviewed, accuracy: st.reviewed ? 1 - st.again / st.reviewed : null });
-      rec.questions = st.reviewed;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
+      var rec = UI.award({ questions: st.reviewed, xp: Math.round(st.xp), mode:"flashcards", score: st.reviewed, accuracy: st.reviewed ? 1 - st.again / st.reviewed : null });
 
       var boxes = [0, 0, 0, 0, 0];
-      Object.keys(S.data.cards).forEach(function (id) { boxes[S.data.cards[id].box]++; });
+      Object.keys(S.data.srs).forEach(function (id) { var b = S.data.srs[id].box; if (b >= 1 && b <= 5) boxes[b - 1]++; });
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title:"Session complete",
         subtitle: st.reviewed + " cards reviewed",
         correct: st.reviewed - st.again, total: st.reviewed,
@@ -126,13 +127,13 @@
           ["Reviewed", String(st.reviewed)],
           ["Marked 'again'", String(st.again)],
           ["Box distribution", boxes.join(" · ")],
-          ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"],
+          ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"],
           onlyReview ? ["Note", "Nothing was due, so this session paid nothing."] : null
         ].filter(Boolean),
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

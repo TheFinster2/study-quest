@@ -1,0 +1,105 @@
+/* Close Reading's ten themes, on the core tokens (the Chemistry-lineage apps share them
+   exactly). Unscoped on purpose: an owned theme can dress any subject. Each also sets
+   English's two extra tokens, --mark-bg / --mark-ink (the highlight behind a technique's
+   span); css/eng.css gives them a zero-specificity fallback for every other theme. */
+[data-theme="eng-marginalia"] {
+  --bg-0:#141210; --bg-1:#1e1a16; --bg-2:#282320;
+  --glow-a:#c8b48a; --glow-b:#e0574a;
+  --ink:#f4efe6; --ink-dim:#bdb3a3; --ink-faint:#8d8478;
+  --card:rgba(255,250,240,.045); --card-2:rgba(255,250,240,.085);
+  --line:rgba(255,245,225,.12);
+  --accent:#c8b48a; --accent-ink:#1a1510;
+  --good:#7fc98a; --bad:#e0574a; --warn:#e0b04a; --info:#8ab4d8;
+  --mark-bg:rgba(224,176,74,.32); --mark-ink:#fff6e0;
+}
+[data-theme="eng-foolscap"]{
+  --bg-0:#f6f1e2; --bg-1:#efe8d4; --bg-2:#e5dcc4;
+  --glow-a:#4a6fa5; --glow-b:#a5624a;
+  --ink:#2b2b28; --ink-dim:#5b5850; --ink-faint:#87837a;
+  --card:rgba(40,38,32,.05); --card-2:rgba(40,38,32,.09);
+  --line:rgba(40,38,32,.16);
+  --accent:#3d5f92; --accent-ink:#ffffff;
+  --good:#2e7d4f; --bad:#b3382c; --warn:#8a6416; --info:#31608f;
+  --mark-bg:rgba(74,111,165,.22); --mark-ink:#16233a;
+}
+[data-theme="eng-redpen"]{
+  --bg-0:#1a0d0d; --bg-1:#251313; --bg-2:#331a1a;
+  --glow-a:#ff4d4d; --glow-b:#ff9a6b;
+  --ink:#ffe9e9; --ink-dim:#d3a8a8; --ink-faint:#a37c7c;
+  --card:rgba(255,220,220,.05); --card-2:rgba(255,220,220,.09);
+  --line:rgba(255,200,200,.14);
+  --accent:#ff5c5c; --accent-ink:#2a0808;
+  --good:#7fd18a; --bad:#ff7a6b; --warn:#ffc46b; --info:#ff9a8a;
+  --mark-bg:rgba(255,77,77,.3); --mark-ink:#fff0f0;
+}
+[data-theme="eng-iambic"]{
+  --bg-0:#0c1a12; --bg-1:#112418; --bg-2:#173021;
+  --glow-a:#4fd18b; --glow-b:#e8c96a;
+  --ink:#e9f7ee; --ink-dim:#a6c6b2; --ink-faint:#7a9686;
+  --card:rgba(210,255,225,.05); --card-2:rgba(210,255,225,.09);
+  --line:rgba(190,245,210,.13);
+  --accent:#4fd18b; --accent-ink:#052014;
+  --good:#6ee39d; --bad:#ff7a7a; --warn:#e8c96a; --info:#7cc9d8;
+  --mark-bg:rgba(232,201,106,.28); --mark-ink:#fdf6e0;
+}
+[data-theme="eng-palimpsest"]{
+  --bg-0:#241c14; --bg-1:#30251a; --bg-2:#3d3023;
+  --glow-a:#b98d54; --glow-b:#8a6f9e;
+  --ink:#f5ecdd; --ink-dim:#c2ae95; --ink-faint:#95836d;
+  --card:rgba(255,240,215,.05); --card-2:rgba(255,240,215,.09);
+  --line:rgba(240,220,190,.13);
+  --accent:#c9a06a; --accent-ink:#231a10;
+  --good:#8dc98a; --bad:#d9695c; --warn:#dfb069; --info:#a08ab8;
+  --mark-bg:rgba(138,111,158,.34); --mark-ink:#f6eeff;
+}
+[data-theme="eng-folio"]{
+  --bg-0:#efe5d0; --bg-1:#e6dac1; --bg-2:#dbcdaf;
+  --glow-a:#7a5c3a; --glow-b:#9c5f43;
+  --ink:#2e2519; --ink-dim:#5c4f3c; --ink-faint:#8a7c66;
+  --card:rgba(46,37,25,.055); --card-2:rgba(46,37,25,.1);
+  --line:rgba(46,37,25,.18);
+  --accent:#6d5130; --accent-ink:#f6efdf;
+  --good:#3c6f3f; --bad:#a3382c; --warn:#7d5a12; --info:#4a5a86;
+  --mark-bg:rgba(122,92,58,.2); --mark-ink:#241c12;
+}
+[data-theme="eng-newspeak"]{
+  --bg-0:#101418; --bg-1:#161c22; --bg-2:#1e262e;
+  --glow-a:#4a90c2; --glow-b:#d64545;
+  --ink:#e7eef4; --ink-dim:#a4b4c1; --ink-faint:#78868f;
+  --card:rgba(220,238,255,.045); --card-2:rgba(220,238,255,.085);
+  --line:rgba(200,224,245,.13);
+  --accent:#5aa3d4; --accent-ink:#08131c;
+  --good:#63c98f; --bad:#e05555; --warn:#d9b155; --info:#6fb2e0;
+  --mark-bg:rgba(214,69,69,.3); --mark-ink:#fdeaea;
+}
+[data-theme="eng-vellum"]{
+  --bg-0:#f2e8d5; --bg-1:#ebe0c9; --bg-2:#e1d4b8;
+  --glow-a:#8b3a3a; --glow-b:#2f3b4a;
+  --ink:#241f18; --ink-dim:#544c3e; --ink-faint:#847a68;
+  --card:rgba(36,31,24,.05); --card-2:rgba(36,31,24,.095);
+  --line:rgba(36,31,24,.17);
+  --accent:#8b3a3a; --accent-ink:#fdf5e6;
+  --good:#376b45; --bad:#96302a; --warn:#7a5a14; --info:#2f4a68;
+  --mark-bg:rgba(139,58,58,.18); --mark-ink:#1e1712;
+}
+[data-theme="eng-quarto"]{
+  --bg-0:#1c1a17; --bg-1:#26231f; --bg-2:#322e28;
+  --glow-a:#c9a227; --glow-b:#a8b5c4;
+  --ink:#f2ece1; --ink-dim:#b8b0a2; --ink-faint:#8b8478;
+  --card:rgba(250,244,232,.045); --card-2:rgba(250,244,232,.085);
+  --line:rgba(240,232,215,.13);
+  --accent:#c9a227; --accent-ink:#1c1607;
+  --good:#86c78c; --bad:#d9695c; --warn:#d8b23f; --info:#a8b5c4;
+  --mark-bg:rgba(201,162,39,.28); --mark-ink:#fff8e2;
+}
+[data-theme="eng-blankpage"]{
+  --bg-0:#ffffff; --bg-1:#f7f7f7; --bg-2:#eeeeee;
+  --glow-a:#111111; --glow-b:#8c8c8c;
+  --ink:#141414; --ink-dim:#4a4a4a; --ink-faint:#7c7c7c;
+  --card:rgba(0,0,0,.038); --card-2:rgba(0,0,0,.075);
+  --line:rgba(0,0,0,.15);
+  --accent:#141414; --accent-ink:#ffffff;
+  --good:#1f6b39; --bad:#a3241c; --warn:#6e5000; --info:#1d4e8f;
+  --mark-bg:rgba(0,0,0,.11); --mark-ink:#000000;
+}
+

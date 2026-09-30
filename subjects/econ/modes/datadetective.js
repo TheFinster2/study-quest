@@ -12,13 +12,10 @@
   UI.route("/play/datadetective", function (view) {
     var pool = ECON.Bank.active("dataset");
     if (!pool.length) { ECON.Coverage.warnIfEmpty("dataset"); return; }
-
-    ECON.Tools.startRun("datadetective");
     var set = U.pick(pool);
     var qs = U.shuffle(set.questions);
-    var shell = UI.gameShell(view, { title:"Data Detective", sub: set.title, onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Data Detective", sub: set.title, onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("datadetective");
 
     var st = { i:0, counted:0, correct:0, answered:0, xp:0, review:[], done:false, shownAt:0 };
     next();
@@ -75,14 +72,17 @@
 
     function resolve(ok, q, chosen, host) {
       st.answered++;
-      var counts = (Date.now() - st.shownAt) >= S.MIN_READ_MS;
+      var counts = (Date.now() - st.shownAt) >= UI.readFloor(q.q);
       if (counts) st.counted++;
+      S.tally(set.mod, ok, set.topic);
+      if (SQ.Sound) { if (ok) SQ.Sound.correct(); else SQ.Sound.wrong(); }
       if (ok) {
         st.correct++;
         if (counts) st.xp += S.XP_PER_CORRECT * (set.diff || 2);
+        S.bump("dataRead");
       }
       st.review.push({ ok: ok, q: U.trunc(q.q, 110), mod: set.mod, a: q.options[q.answer], why: q.why });
-      S.saveSoon();
+      S.save();
       host.appendChild(UI.explain(q, ok, chosen));
       host.appendChild(U.el("div", { class:"row", style:"margin-top:14px" }, [
         U.el("button", { class:"btn btn-primary btn-block", onclick: function () { st.i++; next(); } },
@@ -95,24 +95,22 @@
       st.done = true;
       UI._gsRefresh = null;
       var acc = st.answered ? st.correct / st.answered : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), bonus: 110, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"datadetective", score: st.correct });
-      rec.questions = st.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
-      UI.results(view, {
+      var rec = UI.award({ questions: st.answered, xp: Math.round(st.xp), bonus: 110, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"datadetective", score: st.correct });
+      UI.report(view, { rec: rec,
         title:"Data Detective complete", subtitle: set.title,
         correct: st.correct, total: st.answered,
         rows:[
           ["Correct", st.correct + " / " + st.answered],
           ["XP from answers", U.fmtInt(Math.round(st.xp))],
           ["Completion bonus", rec.bonusWithheld ? "0  (withheld)" : "+" + U.fmtInt(rec.bonus)],
-          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
+          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]
         ],
         review: st.review.filter(function (x) { return !x.ok; }),
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 
   /* ── renderers ───────────────────────────────────────────────────── */

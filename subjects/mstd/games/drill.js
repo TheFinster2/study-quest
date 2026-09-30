@@ -28,7 +28,7 @@ window.MS.Games = window.MS.Games || {};
       ])));
       var grid = U.el('.tiles.one');
       list.forEach(function (t) {
-        var m = State.mastery(t.code), tier = State.masteryTier(m);
+        var m = State.masteryFrac(t.code), tier = State.tierOf(m);
         U.add(grid, U.el('button.tile', {
           onclick: function () { Audio.play('tap'); UI.go('/game/drill/' + t.code); }
         }, [
@@ -73,6 +73,21 @@ window.MS.Games = window.MS.Games || {};
         if (s.accuracy >= 0.8) State.bump('perfect', 0);
       },
       note: 'Mastery is confidence-weighted: it needs about 25 questions in a topic before it will read as mastered.'
+    });
+  };
+
+  /* StudyQuest upgrade: practise bookmarked questions. Pays like Topic Drill. */
+  MS.Games.bookmarks = function (root) {
+    var ids = (State.data.bookmarks || []).filter(function (id) { return !!Bank.byId(id); });
+    if (!ids.length) { UI.go('/study/bookmarks'); return; }
+    var queue = U.shuffle(ids).slice(0, 15).map(Bank.byId).map(Bank.shuffleChoices);
+    var i = 0;
+    MS.Games.quiz({
+      title: '🔖 Bookmarks', sub: queue.length + ' saved', mode: 'bookmarks',
+      limit: queue.length, backTo: '/study/bookmarks',
+      supply: function () { return queue[i++]; },
+      bonus: 120, daily: false,
+      help: 'The questions you saved with 🏷️ Save. No clock.'
     });
   };
 })();

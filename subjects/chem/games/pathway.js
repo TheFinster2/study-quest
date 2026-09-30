@@ -166,7 +166,7 @@ CHEM.Games.pathway = (function () {
       function drawPool() {
         pool.innerHTML = "";
         CHEM.DATA.reagents.filter(rg => reagentOn(rg.id)).forEach(rg => {
-          const b = U.el("button", { class: "reagent", type: "button", disabled: done }, [
+          const b = U.el("button", { class: "reagent", type: "button", disabled: done, "data-id": rg.id }, [
             U.el("span", { html: U.formula(rg.label) }),
             U.el("small", { text: rg.sub })
           ]);
@@ -226,7 +226,7 @@ CHEM.Games.pathway = (function () {
             `<b>Route complete in ${steps} step${steps === 1 ? "" : "s"}</b> (optimal ${optimal}). ${U.escapeHtml(p.note)}` }));
 
           const next = U.el("button", {
-            class: "btn btn-primary",
+            class: "btn btn-primary js-next",
             text: round >= puzzles.length - 1 ? "See results" : "Next puzzle →",
             on: { click: () => { if (round >= puzzles.length - 1) return finish(); round++; render(); } }
           });

@@ -124,7 +124,7 @@ CHEM.Games.naming = (function () {
           `${U.escapeHtml(round.why)}<br><span class="tiny muted">Functional group: ` +
           `${U.escapeHtml(item.family)}</span>` });
         const next = U.el("button", {
-          class: "btn btn-primary",
+          class: "btn btn-primary js-next",
           text: idx >= items.length - 1 ? "See results" : "Next →",
           on: { click: () => { if (idx >= items.length - 1) return finish(); idx++; render(); } }
         });

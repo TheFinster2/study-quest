@@ -8,11 +8,24 @@ window.MS.Screens = window.MS.Screens || {};
   'use strict';
   var MS = window.MS, U = MS.U, UI = MS.UI, State = MS.State, Bank = MS.Bank, Audio = MS.Audio, FX = MS.FX;
 
+  /* Weekly quests in NumberCrunch's shape, over the core's weekly state. */
+  MS.Screens.questRows = function () {
+    return State.weeklyQuests().map(function (e) {
+      var q = e.quest;
+      return { id: q.id, nm: q.name, ds: q.desc, need: e.target, xp: q.xp, coins: q.coins,
+               prog: e.done, done: e.complete, claimed: e.claimed };
+    });
+  };
+  function unlockedOn(v) {
+    if (typeof v === 'number') return U.dayKey(new Date(v));
+    return String(v);
+  }
+
   /* ========================================================= achievements */
   MS.Screens.achievements = function (root) {
     var defs = MS.ACHIEVEMENTS;
     var d = State.data;
-    var unlocked = defs.filter(function (a) { return d.ach[a.id]; });
+    var unlocked = defs.filter(function (a) { return d.achievements[a.id]; });
 
     U.add(root, U.el('.card', [
       U.el('.spread', [
@@ -42,7 +55,7 @@ window.MS.Screens = window.MS.Screens || {};
     function render() {
       U.clear(list);
       defs.forEach(function (a) {
-        var got = !!d.ach[a.id];
+        var got = !!d.achievements[a.id];
         if (mode === 'unlocked' && !got) return;
         if (mode === 'locked' && got) return;
         var prog = State.achProgress(a);
@@ -50,10 +63,10 @@ window.MS.Screens = window.MS.Screens || {};
           U.el('.ic', got ? a.ic : '🔒'),
           U.el('div', [
             U.el('.nm', a.nm),
-            U.el('.ds', a.ds + (got ? ' · ' + d.ach[a.id] : a.stat ? ' · ' + Math.round(prog * 100) + '%' : '')),
+            U.el('.ds', a.ds + (got ? ' · ' + unlockedOn(d.achievements[a.id]) : a.stat ? ' · ' + Math.round(prog * 100) + '%' : '')),
             !got && a.stat ? U.el('.bar', { style: { marginTop: '4px', height: '4px' } }, U.el('i', { style: { width: Math.round(prog * 100) + '%' } })) : null
           ]),
-          U.el('.chip' + (got ? '.good' : '.dim'), got ? '✓' : '💵' + a.coins)
+          U.el('.chip' + (got ? '.good' : '.dim'), got ? '✓' : '💳' + a.coins)
         ]));
       });
       if (!list.children.length) U.add(list, U.el('.sub.center', 'Nothing here yet.'));
@@ -63,7 +76,7 @@ window.MS.Screens = window.MS.Screens || {};
 
   /* ========================================================= weekly quests */
   MS.Screens.quests = function (root) {
-    var quests = State.weeklyQuests();
+    var quests = MS.Screens.questRows();
     var wk = State.weekly();
 
     U.add(root, U.el('.card', [
@@ -71,7 +84,7 @@ window.MS.Screens = window.MS.Screens || {};
         U.el('strong', '🗓️ Weekly quests'),
         UI.chip(wk.week)
       ]),
-      U.el('.sub', 'Three quests, drawn from a pool of twelve by a seeded shuffle of the week number — so they are the same for everyone and they change on Monday.')
+      U.el('.sub', 'Three quests, drawn from a pool of twelve by a seeded shuffle of the week number. They change on Monday.')
     ]));
 
     quests.forEach(function (q) {
@@ -82,15 +95,14 @@ window.MS.Screens = window.MS.Screens || {};
         ]),
         U.el('.sub', q.ds),
         U.el('.bar' + (q.done ? '.good' : ''), U.el('i', { style: { width: U.clamp(100 * q.prog / q.need, 0, 100) + '%' } })),
-        U.el('.row', [UI.chip('+' + U.commas(q.xp) + ' XP', 'acc'), UI.chip('+' + q.coins + ' 💵', 'warn')]),
+        U.el('.row', [UI.chip('+' + U.commas(q.xp) + ' XP', 'acc'), UI.chip('+' + q.coins + ' 💳', 'warn')]),
         q.claimed ? U.el('.tiny.dim', 'Done for this week.')
           : q.done ? U.el('button.btn.pri.wide', {
               onclick: function () {
-                var got = State.claimQuest(q.id);
-                if (!got) return;
+                if (!State.claimQuest(q.id)) return;       // the core pays it
+                State.bump('coinsEarned', q.coins);
                 Audio.play('questDone');
                 FX.confetti(60);
-                UI.award({ xp: got.xp, coins: Math.round(got.coins / 0.6), accuracy: 1, streakBonus: false });
                 UI.handleRoute();
               }
             }, '🎁 Claim')
@@ -104,8 +116,9 @@ window.MS.Screens = window.MS.Screens || {};
 
   /* ======================================================= daily challenge */
   MS.Screens.daily = function (root) {
-    var spec = State.dailySpec();
+    var spec = State.dailyInfo();
     var dy = State.daily();
+    dy.prog = dy.progress;
     var ready = State.dailyReady();
 
     U.add(root, U.el('.card', [
@@ -120,15 +133,14 @@ window.MS.Screens = window.MS.Screens || {};
         U.el('.tiny.dim', dy.prog + ' / ' + spec.target),
         U.el('.tiny.dim', dy.claimed ? 'claimed' : ready ? 'ready to claim' : 'in progress')
       ]),
-      U.el('.row', [UI.chip('+' + U.commas(spec.xp) + ' XP', 'acc'), UI.chip('+' + spec.coins + ' 💵', 'warn')]),
+      U.el('.row', [UI.chip('+' + U.commas(spec.xp) + ' XP', 'acc'), UI.chip('+' + spec.coins + ' 💳', 'warn')]),
       dy.claimed ? U.el('.why', 'Back tomorrow — the challenge is derived from the date, so everyone gets the same one.')
         : ready ? U.el('button.btn.pri.wide', {
             onclick: function () {
-              var got = State.claimDaily();
-              if (!got) return;
+              if (!State.claimDaily()) return;              // the core pays it
+              State.bump('coinsEarned', spec.coins);
               Audio.play('dailyClaim');
               FX.confetti(60);
-              UI.award({ xp: got.xp, coins: Math.round(got.coins / 0.6), accuracy: 1, streakBonus: false });
               UI.handleRoute();
             }
           }, '🎁 Claim reward')
@@ -149,23 +161,22 @@ window.MS.Screens = window.MS.Screens || {};
         : 'Available at level 60. You are level ' + State.level() + '.'),
       U.el('.hr'),
       U.el('.stack', [
-        U.el('.spread', [U.el('span.sub', 'Ascensions so far'), U.el('strong', String(d.ascensions || 0))]),
-        U.el('.spread', [U.el('span.sub', 'Permanent XP bonus'), U.el('strong', '+' + ((d.ascensions || 0) * 12) + '%')]),
-        U.el('.spread', [U.el('span.sub', 'After ascending'), U.el('strong', '+' + (((d.ascensions || 0) + 1) * 12) + '%')]),
+        U.el('.spread', [U.el('span.sub', 'Ascensions so far'), U.el('strong', String(d.prestige || 0))]),
+        U.el('.spread', [U.el('span.sub', 'Permanent XP bonus'), U.el('strong', '+' + ((d.prestige || 0) * 12) + '%')]),
+        U.el('.spread', [U.el('span.sub', 'After ascending'), U.el('strong', '+' + (((d.prestige || 0) + 1) * 12) + '%')]),
         U.el('.spread', [U.el('span.sub', 'Current level'), U.el('strong', String(State.level()) + ' / 60')])
       ]),
-      U.el('.why', { style: { marginTop: '10px' } }, 'Kept: themes, avatars, achievements, flashcard boxes, boss victories, high scores and every statistic. Reset: level and XP only.'),
+      U.el('.why', { style: { marginTop: '10px' } }, 'Kept: themes, avatars, achievements, flashcard boxes, boss victories and every statistic. Reset: level and XP only. Ascending also pays 2,500 Credits and three Double XP power-ups.'),
       can ? U.el('button.btn.pri.wide', {
         onclick: function () {
           UI.confirmDialog('Ascend now?',
-            'Your level goes back to 1 and your XP to zero. Everything else stays, and you keep a permanent +' + (((d.ascensions || 0) + 1) * 12) + '% XP.',
+            'Your level goes back to 1 and your XP to zero. Everything else stays, and you keep a permanent +' + (((d.prestige || 0) + 1) * 12) + '% XP.',
             function () {
               if (!State.doPrestige()) return;
               Audio.play('prestige');
               FX.confetti(140);
               UI.toast('✦ Ascended — +12% XP forever', 'good', 3200);
               UI.go('/');
-              UI.handleRoute();
             }, '✦ Ascend');
         }
       }, '✦ Ascend') : U.el('.bar', U.el('i', { style: { width: Math.round(100 * State.level() / 60) + '%' } }))
@@ -174,7 +185,7 @@ window.MS.Screens = window.MS.Screens || {};
 
   /* ============================================================ boss ladder */
   MS.Screens.bosses = function (root) {
-    var beaten = Object.keys(State.data.bosses || {}).length;
+    var beaten = Object.keys(State.data.bossesBeaten || {}).length;
     U.add(root, U.el('.card', [
       U.el('.spread', [
         U.el('strong', '💀 Boss ladder'),
@@ -197,7 +208,7 @@ window.MS.Screens = window.MS.Screens || {};
         open ? U.el('.stack', [
           U.el('.why', b.gimmickDs),
           U.el('.row', [
-            UI.chip(b.hp + ' HP', 'bad'),
+            UI.chip(Math.round(b.hp * (State.difficulty().boss || 1)) + ' HP', 'bad'),
             UI.chip(b.yourHp + (b.yourHp === 1 ? ' life' : ' lives'), 'good'),
             UI.chip(b.perQuestion + 's/question', 'warn'),
             UI.chip('+' + U.commas(b.reward.xp) + ' XP', 'acc')

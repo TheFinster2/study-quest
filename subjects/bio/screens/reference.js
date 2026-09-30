@@ -1,6 +1,6 @@
 /* Reference — the glossary as a full screen.
    Free to read HERE, because this is not a scored run. The same glossary
-   inside a run costs 25% and latches (js/core/tools.js). */
+   inside a run costs XP and latches (the shared tool tray). */
 (function (root) {
   "use strict";
   var BIO = root.BIO, U = BIO.U, UI = BIO.UI;
@@ -9,7 +9,7 @@
     UI.hideTabs(false);
     view.appendChild(U.el("h1", { text:"Reference" }));
     view.appendChild(U.el("div", { class:"honesty",
-      text:"Free here, because you are not being scored. Opening the same glossary from inside a run costs 25% of that run's XP and biocredits, and it is withheld entirely from Term Match and Label It, where it is the answer key." }));
+      text:"Free here, because you are not being scored. Revealing a term from the tool tray inside a scored run costs XP for that run and the charge latches, and it is withheld entirely from Term Match and Label It, where it is the answer key." }));
 
     var search = U.el("input", { class:"calc-disp", type:"search", placeholder:"Search a term…", style:"text-align:left;font-size:15px;font-weight:500" });
     view.appendChild(search);

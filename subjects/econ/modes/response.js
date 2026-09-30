@@ -28,11 +28,8 @@
   UI.route("/play/response", function (view, r) {
     var pool = ECON.Bank.active("short", r.query.mod ? function (q) { return q.mod === r.query.mod; } : null);
     if (!pool.length) { ECON.Coverage.warnIfEmpty("short"); return; }
-
-    ECON.Tools.startRun("response");
-    var shell = UI.gameShell(view, { title:"Response Builder", sub:"You mark your own work — honestly", onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Response Builder", sub:"You mark your own work — honestly", onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("response");
 
     var st = { i:0, marksGot:0, marksTotal:0, xp:0, done:false, answered:0, log:[] };
     next();
@@ -172,6 +169,8 @@
           // 10 XP per criterion actually claimed, scaled by question difficulty.
           st.xp += got * S.XP_PER_CORRECT;
           S.markShortPaid(q.id);
+          S.bump("responses");
+          S.recordSkill(q.topic, got >= Math.ceil(q.criteria.length / 2));
         }
         st.log.push({ id: q.id, got: got, of: q.criteria.length, paid: pays, chars: effort.chars });
         st.i++;
@@ -187,31 +186,28 @@
       var acc = st.marksTotal ? st.marksGot / st.marksTotal : 0;
       // No completion bonus here at all. A completion bonus on self-marked work
       // is the exact shape of a per-item score floor (defect C1).
-      var rec = UI.award({ xp: Math.round(st.xp), accuracy: acc, mode:"response", score: st.marksGot });
-      rec.questions = st.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
+      var rec = UI.award({ questions: st.answered, xp: Math.round(st.xp), accuracy: acc, mode:"response", score: st.marksGot });
 
       var unpaid = st.log.filter(function (l) { return !l.paid; }).length;
       var rows = [
         ["Self-marked", st.marksGot + " / " + st.marksTotal + " criteria"],
         ["Questions attempted", String(st.answered)],
-        ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
+        ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]
       ];
       if (unpaid) rows.push(["Paid nothing", unpaid + " (already paid today, too short, or revealed too fast)"]);
       if (rec.refPenalty) rows.push(["Reference penalty", "−" + U.fmtInt(rec.refPenalty) + " XP"]);
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title:"Response Builder complete",
         subtitle:"You marked yourself " + st.marksGot + " / " + st.marksTotal,
         correct: st.marksGot, total: st.marksTotal,
         rows: rows,
         again: function () { UI.render(); }
       });
-      var v = U.$("#view");
-      v.appendChild(U.el("div", { class:"honesty", style:"margin-top:14px",
+      view.appendChild(U.el("div", { class:"honesty", style:"margin-top:14px",
         text:"These marks are yours, not the app's. Nothing here read your writing. Compare your answer with the sample and with a marking guide from a past paper — that is where the real improvement comes from." }));
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

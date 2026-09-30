@@ -63,17 +63,15 @@ BIO.DATA.shop = {
     { emoji:"🔱", name:"Last Universal Ancestor", cost:12000, minLevel:60, note:"Level 60. The end of the road." }
   ],
 
-  tickets: [
-    { id:"tkt-5",  name:"Arcade ticket — 5 minutes",  minutes:5,  cost:315 },
-    { id:"tkt-15", name:"Arcade ticket — 15 minutes", minutes:15, cost:840 },
-    { id:"tkt-40", name:"Arcade ticket — 40 minutes", minutes:40, cost:1980 }
-  ],
   themes: [
-    { id:"verdant",  name:"Verdant",  cost:0,    blurb:"The default. Eucalypt greens." },
-    { id:"reef",     name:"Reef",     cost:1200, blurb:"Cool blues, for the marine ecology weeks." },
-    { id:"savanna",  name:"Savanna",  cost:1800, blurb:"Warm ochres and grass gold." },
-    { id:"tundra",   name:"Tundra",   cost:2400, blurb:"Cold slate and pale indigo." },
-    { id:"light",    name:"Daylight", cost:3000, blurb:"A light theme, for reading in the sun." }
+    /* StudyQuest: ids prefixed bio-; defined on the core tokens in css/themes.css.
+       Verdant was Biosphere's free default; here it is a cheap first purchase
+       (the app's default theme is shared). */
+    { id:"bio-verdant",  legacy:"verdant", name:"Verdant",  cost:150,  level:1, swatch:["#07100c","#4ade80"], blurb:"Biosphere's original. Eucalypt greens." },
+    { id:"bio-reef",     legacy:"reef",    name:"Reef",     cost:1200, level:3, swatch:["#04101a","#38bdf8"], blurb:"Cool blues, for the marine ecology weeks." },
+    { id:"bio-savanna",  legacy:"savanna", name:"Savanna",  cost:1800, level:6, swatch:["#150f04","#fbbf24"], blurb:"Warm ochres and grass gold." },
+    { id:"bio-tundra",   legacy:"tundra",  name:"Tundra",   cost:2400, level:9, swatch:["#0a0d12","#a5b4fc"], blurb:"Cold slate and pale indigo." },
+    { id:"bio-daylight", legacy:"light",   name:"Daylight", cost:3000, level:12, swatch:["#f3f8f4","#15803d"], blurb:"A light theme, for reading in the sun." }
   ]
 };
 
@@ -141,17 +139,8 @@ BIO.DATA.levelTitles = [
   "Biosphere Legend"            // 60+
 ];
 
-/* Difficulty modes. `xp` MULTIPLIES what a run earns — it never adds, so a
-   run worth nothing is still worth nothing on Nightmare. `timeScale` shortens
-   every clock and `lock` names power-ups that difficulty refuses to allow. */
-BIO.DATA.difficulties = [
-  { id:"standard",  name:"Standard",  icon:"🌿", xp:1.0,  timeScale:1.0,  lock:[],
-    desc:"The default balance. Full timers, every power-up available." },
-  { id:"hard",      name:"Hard",      icon:"🔥", xp:1.45, timeScale:0.75, lock:["fifty"],
-    desc:"A quarter less time on every clock and no Halve the field — but 45% more XP." },
-  { id:"nightmare", name:"Nightmare", icon:"☠️", xp:2.0,  timeScale:0.55, lock:["fifty","skip"],
-    desc:"Barely any time, no Halve the field and no Pass. Double XP for the reckless." }
-];
+/* Difficulty now comes from the shared factory (four tiers, SQ.SubjectState).
+   Biosphere's three (Standard/Hard/Nightmare) map onto it by id. */
 
 /* Per-module mastery tiers, measured against State.mastery(). */
 BIO.DATA.masteryTiers = [

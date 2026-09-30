@@ -20,14 +20,11 @@
     if (!pool.length) {
       if (ECON.Coverage.warnIfEmpty("mcq")) return;
       UI.modal({ title:"No diagrams available", body:"Course coverage is hiding every diagram this mode would use.",
-        actions:[{ label:"Settings", kind:"primary", onclick: function () { UI.go("/settings"); } }] });
+        actions:[{ label:"Settings", kind:"primary", onclick: function () { UI.go("/options"); } }] });
       return;
     }
-
-    ECON.Tools.startRun("labelit");
-    var shell = UI.gameShell(view, { title:"Label It", sub:"Diagrams — reference withheld", onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Label It", sub:"Diagrams — glossary withheld", tools:{ calc:true, sheet:false, pad:true }, onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("labelit");
 
     var st = { i:0, counted:0, correct:0, answered:0, xp:0, review:[], done:false, shownAt:0 };
     next();
@@ -124,12 +121,14 @@
 
     function finishItem(ok, def, info, host) {
       st.answered++;
-      var counts = (Date.now() - st.shownAt) >= S.MIN_READ_MS;
+      var counts = (Date.now() - st.shownAt) >= UI.readFloor(info.q);
       if (counts) st.counted++;
-      if (ok) { st.correct++; if (counts) st.xp += S.XP_PER_CORRECT * 2; }
+      S.tally(def.mod, ok, def.topic);
+      if (SQ.Sound) { if (ok) SQ.Sound.correct(); else SQ.Sound.wrong(); }
+      if (ok) { st.correct++; S.bump("labelled"); if (counts) st.xp += S.XP_PER_CORRECT * 2; }
       S.data.diagramSeen[def.id] = Date.now();
       st.review.push({ ok: ok, q: U.trunc(info.q, 110), mod: def.mod, a: info.a, why: info.why });
-      S.saveSoon();
+      S.save();
 
       var w = U.el("div", { class:"why " + (ok ? "ok" : "no") });
       w.appendChild(U.el("div", { class:"why-h", text: ok ? "Correct" : "Not quite" }));
@@ -146,17 +145,15 @@
       st.done = true;
       UI._gsRefresh = null;
       var acc = st.answered ? st.correct / st.answered : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), bonus: 130, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"labelit", score: st.correct });
-      rec.questions = st.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
+      var rec = UI.award({ questions: st.answered, xp: Math.round(st.xp), bonus: 130, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"labelit", score: st.correct });
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title:"Label It complete", correct: st.correct, total: st.answered,
         rows:[
           ["Correct", st.correct + " / " + st.answered],
           ["XP from answers", U.fmtInt(Math.round(st.xp))],
           ["Completion bonus", rec.bonusWithheld ? "0  (withheld below 50%)" : "+" + U.fmtInt(rec.bonus)],
-          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"],
+          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"],
           ["Diagrams explored", Object.keys(S.data.diagramSeen).length + " / " + ECON.Bank.diagrams().length]
         ],
         review: st.review.filter(function (x) { return !x.ok; }),
@@ -164,6 +161,6 @@
       });
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

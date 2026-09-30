@@ -159,7 +159,7 @@ window.MS.Games = window.MS.Games || {};
             pool.wrongAnswer(2);
             Audio.play('wrong');
           }
-          State.recordAnswer(null, right, 'MS-F5', 9999);
+          State.answer(null, right, 'MS-F5', 9999);
           scoreChip.textContent = used + '/' + ROUNDS;
           U.add(card, U.el('.stack', { style: { marginTop: '10px' } }, [
             U.el('.spread', [
@@ -260,7 +260,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: 'The rate per period, not the annual rate, picks the column. Monthly compounding at 6% p.a. is the 0.5% column with n counted in months.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.trek(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
 

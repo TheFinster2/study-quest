@@ -20,12 +20,9 @@
   UI.route("/play/calculate", function (view) {
     var templates = (ECON.DATA.calc_core || []).filter(function (t) { return !ECON.Coverage.isHiddenItem(t); });
     if (!templates.length) { ECON.Coverage.warnIfEmpty("calc"); return; }
-
-    ECON.Tools.startRun("calculate");
-    var shell = UI.gameShell(view, { title:"Calculation Lab", sub:"Read the scenario, then choose the value",
-                                     onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Calculation Lab", sub:"Read the scenario, then choose the value",
+                                     onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("calculate");
 
     var st = { i:0, counted:0, correct:0, answered:0, xp:0, review:[], done:false, shownAt:0 };
     next();
@@ -54,6 +51,7 @@
       ]));
       host.appendChild(U.el("div", { class:"card card-tight small muted", text: q.context }));
       host.appendChild(U.el("div", { class:"qtext", text: q.ask }));
+      host.appendChild(U.el("div", { class:"muted2 small", text:"The calculator is in the tool tray. Pick the option that matches your working." }));
 
       var box = U.el("div", { class:"opts" });
       var order = U.shuffle(q.options.map(function (_, k) { return k; }));
@@ -76,6 +74,7 @@
             else if (bb === b) bb.classList.add("wrong");
             else bb.classList.add("dim");
           });
+          if (SQ.Sound) { if (ok) SQ.Sound.correct(); else SQ.Sound.wrong(); }
           score(ok, q, tpl);
 
           var w = U.el("div", { class:"why " + (ok ? "ok" : "no") });
@@ -111,16 +110,17 @@
 
     function score(ok, q, tpl) {
       st.answered++;
-      var counts = (Date.now() - st.shownAt) >= S.MIN_READ_MS;
+      var counts = (Date.now() - st.shownAt) >= UI.readFloor(q.context + " " + q.ask);
       if (counts) st.counted++;
+      S.tally(tpl.mod, ok, tpl.title);
       if (ok) {
         st.correct++;
         if (counts) st.xp += S.XP_PER_CORRECT * (tpl.diff || 2);
-        S.data.bests.calcSolved = (S.data.bests.calcSolved || 0) + 1;
+        S.bump("calcSolved");
       }
       st.review.push({ ok: ok, q: q.context + " " + q.ask, mod: tpl.mod,
                        a: C.format(q.answer, q.dp, q.unit), why: tpl.note });
-      S.saveSoon();
+      S.save();
     }
 
     function finish() {
@@ -128,11 +128,9 @@
       st.done = true;
       UI._gsRefresh = null;
       var acc = st.answered ? st.correct / st.answered : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), bonus: 150,
+      var rec = UI.award({ questions: st.answered, xp: Math.round(st.xp), bonus: 150,
                            readRatio: st.answered ? st.counted / st.answered : 0,
                            accuracy: acc, mode:"calculate", score: st.correct });
-      rec.questions = st.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
 
       var rows = [
         ["Calculations correct", st.correct + " / " + st.answered],
@@ -141,17 +139,17 @@
         ["Completion bonus", rec.bonusWithheld ? "0  (withheld below 50%)" : "+" + U.fmtInt(rec.bonus)]
       ];
       if (rec.refPenalty) rows.push(["Reference penalty", "−" + U.fmtInt(rec.refPenalty) + " XP"]);
-      rows.push(["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]);
-      rows.push(["Lifetime calculations", U.fmtInt(S.data.bests.calcSolved || 0)]);
+      rows.push(["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]);
+      rows.push(["Lifetime calculations", U.fmtInt(S.data.stats.calcSolved || 0)]);
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title:"Calculation Lab complete", correct: st.correct, total: st.answered,
         rows: rows, review: st.review.filter(function (r) { return !r.ok; }),
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 
 })(typeof window !== "undefined" ? window : globalThis);

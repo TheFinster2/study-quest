@@ -11,21 +11,22 @@ window.MS.Screens = window.MS.Screens || {};
 
   MS.Screens.progress = function (root) {
     var d = State.data, p = State.levelProgress();
+    var prof = SQ.Store.data.profile, streak = SQ.Store.data.streak;
     var stats = Bank.statsByTopic();
 
     /* ---------------------------------------------------------- headline */
     U.add(root, U.el('.card', [
       U.el('.spread', [
         U.el('div', [
-          U.el('.big', 'Level ' + p.level + (d.ascensions ? ' ✦' + d.ascensions : '')),
+          U.el('.big', 'Level ' + p.level + (d.prestige ? ' ✦' + d.prestige : '')),
           U.el('.sub', State.levelTitle(p.level))
         ]),
-        U.el('.huge', d.avatar)
+        U.el('.huge', prof.avatar)
       ]),
       U.el('.bar', U.el('i', { style: { width: (p.need ? U.clamp(100 * p.into / p.need, 0, 100) : 100) + '%' } })),
       U.el('.spread', [
         U.el('.tiny.dim', p.need ? U.commas(p.into) + ' / ' + U.commas(p.need) + ' XP this level' : 'Level 60 — ascension available'),
-        U.el('.tiny.dim', U.commas(d.stats.xpEarned) + ' XP all time')
+        U.el('.tiny.dim', U.commas(d.lifetimeXp || 0) + ' XP all time')
       ]),
       p.need ? null : U.el('button.btn.pri.wide', { style: { marginTop: '10px' }, onclick: function () { UI.go('/ascend'); } }, '✦ Ascend')
     ]));
@@ -39,19 +40,21 @@ window.MS.Screens = window.MS.Screens || {};
         row('Questions answered', U.commas(d.stats.answered)),
         row('Correct', U.commas(d.stats.correct) + ' (' + U.pct(d.stats.correct, Math.max(1, d.stats.answered)) + ')'),
         row('Best answer streak', U.commas(d.stats.bestStreak || 0)),
-        row('Day streak', (d.streak.count || 0) + ' (best ' + (d.streak.best || 0) + ')'),
+        row('Day streak', (streak.count || 0) + ' (best ' + (streak.longest || 0) + ')'),
         row('Days studied', U.commas(d.stats.daysActive || 0)),
         row('Games finished', U.commas(d.stats.gamesFinished || 0)),
         row('Perfect runs', U.commas(d.stats.perfect || 0)),
         row('Time played', U.fmtTime(d.stats.playSecs || 0)),
         row('Flashcards reviewed', U.commas(d.stats.cardsReviewed || 0)),
+        row('Flashcards mastered (box 5)', U.commas(State.cardsMastered())),
+        row('Leeches (4+ lapses)', U.commas(State.leeches().length)),
         row('Crunch problems solved', U.commas(d.stats.crunchSolved || 0)),
         row('Unit chains completed', U.commas(d.stats.chainsDone || 0)),
         row('Network puzzles solved', U.commas(d.stats.pathsSolved || 0)),
         row('Lab challenges passed', U.commas(d.stats.labsPassed || 0)),
         row('Annuity table lookups', U.commas(d.stats.tablesRead || 0)),
-        row('Bosses beaten', Object.keys(d.bosses || {}).length + ' / ' + MS.BOSSES.length),
-        row('Achievements', Object.keys(d.ach || {}).length + ' / ' + MS.ACHIEVEMENTS.length),
+        row('Bosses beaten', Object.keys(d.bossesBeaten || {}).length + ' / ' + MS.BOSSES.length),
+        row('Achievements', Object.keys(d.achievements || {}).length + ' / ' + MS.ACHIEVEMENTS.length),
         row('Credits earned all time', U.commas(d.stats.coinsEarned || 0))
       ])
     ]));
@@ -103,7 +106,9 @@ window.MS.Screens = window.MS.Screens || {};
     U.add(root, U.el('.card.tight', U.el('.row', [
       U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/achievements'); } }, '🏆 Achievements'),
       U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/quests'); } }, '🗓️ Weekly quests'),
-      U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/settings'); } }, '⚙️ Settings')
+      U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/ascend'); } }, '✦ Ascension'),
+      U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/options'); } }, '⚙️ Maths options'),
+      U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/about'); } }, 'ℹ️ About')
     ])));
   };
 
@@ -149,8 +154,8 @@ window.MS.Screens = window.MS.Screens || {};
   MS.Screens.topicDetail = function (root, params) {
     var t = Bank.topic(params.topic);
     if (!t) { UI.go('/progress'); return; }
-    var rec = State.data.topics[t.code] || { seen: 0, right: 0 };
-    var m = State.mastery(t.code), tier = State.masteryTier(m);
+    var rec = State.topicRecord(t.code);
+    var m = State.masteryFrac(t.code), tier = State.tierOf(m);
     var subs = Bank.subStats(t.code);
     var total = Bank.filter({ mod: t.code }).length;
     var cards = (MS.CARDS || []).filter(function (c) { return c.mod === t.code; });

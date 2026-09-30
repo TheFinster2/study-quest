@@ -1,13 +1,15 @@
-/* You — progress, achievements, coverage by module. */
+/* Progress — level, Ascension, daily + weekly, mastery, coverage, bosses, achievements. */
 (function (root) {
   "use strict";
   var BIO = root.BIO, U = BIO.U, UI = BIO.UI, S = BIO.State;
 
-  UI.route("/you", function (view) {
+  UI.route("/progress", function (view) {
     UI.hideTabs(false);
-    var d = S.data, lv = S.levelFromXp(d.xp);
+    var d = S.data;
+    var lv = { level: d.level, into: d.xpIntoLevel, need: d.level >= S.MAX_LEVEL ? 0 : S.xpNeeded(d.level) };
+    var streak = SQ.Store.data.streak;
 
-    view.appendChild(U.el("h1", { text:"You" }));
+    view.appendChild(U.el("h1", { text:"Biology progress" }));
 
     // A dev-unlocked save must always say so. Numbers that were not earned
     // should never be able to pass as numbers that were.
@@ -21,16 +23,16 @@
     view.appendChild(U.el("div", { class:"card" }, [
       U.el("div", { class:"spread" }, [
         U.el("div", { class:"row", style:"align-items:center;gap:10px" }, [
-          U.el("span", { style:"font-size:34px;line-height:1", text: d.avatar || "🧬" }),
+          U.el("span", { style:"font-size:34px;line-height:1", text: SQ.Store.data.profile.avatar || "🧬" }),
           U.el("div", {}, [
-            U.el("div", { style:"font-size:26px;font-weight:800;color:var(--accent)", text:"Level " + lv.level }),
+            U.el("div", { style:"font-size:26px;font-weight:800;color:var(--accent)", text:"Level " + lv.level + (d.prestige ? "  ✦" + d.prestige : "") }),
             U.el("div", { style:"font-weight:700", text: S.levelTitle(lv.level) }),
-            U.el("div", { class:"muted2", text: U.fmtInt(d.xp) + " XP total" })
+            U.el("div", { class:"muted2", text: U.fmtInt(d.lifetimeXp || d.xp) + " XP earned in Biology" })
           ])
         ]),
         U.el("div", { style:"text-align:right" }, [
           U.el("div", { style:"font-size:20px;font-weight:800;color:var(--warn)", text:"◉ " + U.fmtInt(d.coins) }),
-          U.el("div", { class:"muted2", text: U.plural(d.streakDays || 0, "day") + " streak" })
+          U.el("div", { class:"muted2", text: U.plural(streak.count || 0, "day") + " streak" })
         ])
       ]),
       U.el("div", { class:"bar", style:"margin-top:10px" }, [
@@ -39,6 +41,10 @@
       U.el("div", { class:"muted2 small", style:"margin-top:6px",
         text: lv.need ? U.fmtInt(lv.into) + " / " + U.fmtInt(lv.need) + " XP to level " + (lv.level + 1) : "Maximum level reached." })
     ]));
+
+    view.appendChild(BIO.Screens.ascension());
+    view.appendChild(BIO.Screens.dailyCard());
+    view.appendChild(BIO.Screens.weeklyCard());
 
     /* ── mastery ──────────────────────────────────────────────────────
        Coverage times accuracy, per module. Answering three questions
@@ -69,14 +75,14 @@
     U.MODULES.forEach(function (m) {
       var st = stats[m.id];
       var pct = st.total ? Math.round(st.seen / st.total * 100) : 0;
-      var boss = d.bosses[m.id] || {};
+      var boss = { cleared: !!(d.bossesBeaten && d.bossesBeaten["b-" + m.id]) };
       list.appendChild(U.el("div", { class:"li", style:"flex-direction:column;align-items:stretch;gap:6px" }, [
         U.el("div", { class:"spread" }, [
           U.el("div", {}, [
             U.el("b", { text: m.id + " — " + m.name }),
             U.el("small", { text: st.seen + "/" + st.total + " seen · " + st.missed + " in rehab" })
           ]),
-          boss.cleared ? U.el("span", { class:"badge badge-good", text:"boss cleared" }) : null
+          boss.cleared ? U.el("span", { class:"badge badge-good", text:"boss beaten" }) : null
         ]),
         U.el("div", { class:"bar" }, [U.el("i", { style:"width:" + pct + "%" })])
       ]));
@@ -90,13 +96,15 @@
     var totals = [
       ["Runs completed", U.fmtInt(d.runs || 0)],
       ["Questions seen", seenMcq + " / " + counts.mcq],
-      ["Flashcards started", Object.keys(d.cards).length + " / " + counts.card],
+      ["Flashcards started", Object.keys(d.srs).length + " / " + counts.card],
+      ["Flashcards in the final box", U.fmtInt(S.cardsMastered())],
+      ["Bosses beaten", Object.keys(d.bossesBeaten || {}).length + " / " + (BIO.DATA.bosses || []).length],
       ["Written responses marked", String(Object.keys(d.shortLog).length)],
       ["Diagrams explored", Object.keys(d.diagramSeen).length + " / " + counts.diagram],
       ["Punnett crosses solved", U.fmtInt(d.stats.punnettSolved || 0)],
       ["Pedigrees solved", U.fmtInt(d.stats.pedigreeSolved || 0)],
-      ["Best Survival run", U.fmtInt(d.bests.survival || 0)],
-      ["Longest daily streak", U.plural(d.bestStreakDays || 0, "day")]
+      ["Best Survival run", U.fmtInt(d.stats.survivalBest || d.bests.survival || 0)],
+      ["Longest daily streak (any subject)", U.plural(streak.longest || 0, "day")]
     ];
     var tl = U.el("div", { class:"list" });
     totals.forEach(function (t) {
@@ -115,14 +123,15 @@
       var have = S.has(a.id);
       ag.appendChild(U.el("div", { class:"li", style: have ? "" : "opacity:.5" }, [
         U.el("span", { style:"font-size:20px", text: a.icon }),
-        U.el("div", { class:"grow" }, [U.el("b", { text: a.name }), U.el("small", { text: a.desc })]),
+        U.el("div", { class:"grow" }, [U.el("b", { text: a.name }), U.el("small", { text: a.desc + (a.reward ? "  · +" + a.reward + " ◉" : "") })]),
         have ? U.el("span", { class:"badge badge-good", text:"✓" }) : null
       ]));
     });
     view.appendChild(ag);
 
     view.appendChild(U.el("div", { class:"row", style:"margin-top:16px" }, [
-      U.el("button", { class:"btn grow", onclick: function () { UI.go("/settings"); } }, "Settings")
+      U.el("button", { class:"btn grow", onclick: function () { UI.go("/options"); } }, "⚙️ Biology options"),
+      U.el("button", { class:"btn grow", onclick: function () { UI.go("/shop"); } }, "◉ Biology shop")
     ]));
   });
 })(typeof window !== "undefined" ? window : globalThis);

@@ -11,12 +11,11 @@
 
   UI.route("/play/survival", function (view) {
     if (ECON.Coverage.warnIfEmpty("mcq")) return;
-    ECON.Tools.startRun("survival");
 
     var stream = ECON.Bank.stream("mcq");
-    var shell = UI.gameShell(view, { title:"Survival", sub:"One life · the clock tightens", onQuit: function () { UI.go("/home"); }, progress:false });
+    var diffTime = S.difficulty().time || 1;
+    var shell = UI.shell(view, { title:"Survival", sub:"One life · the clock tightens", onQuit: function () { UI.go("/play"); }, progress:false });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("survival");
 
     var st = { n:0, correct:0, xp:0, done:false, review:[], shownAt:0, limitMs:0, deadline:0 };
     var tick = setInterval(function () {
@@ -27,7 +26,7 @@
 
     next();
 
-    function limitFor(n) { return Math.max(6000, 22000 - n * 900); }
+    function limitFor(n) { return Math.round(Math.max(6000, 22000 - n * 900) * diffTime); }
 
     function paint() {
       var left = st.deadline ? Math.max(0, st.deadline - Date.now()) : 0;
@@ -55,15 +54,24 @@
         st.n++;
         if (ok) {
           st.correct++;
-          if (Date.now() - st.shownAt >= S.MIN_READ_MS) st.xp += S.XP_PER_CORRECT * (q.diff || 1) * (1 + st.correct * 0.06);
-          S.markSeen(q.id, true);
+          S.noteStreak(st.correct);
+          if (Date.now() - st.shownAt >= UI.readFloor(q.q)) st.xp += S.XP_PER_CORRECT * (q.diff || 1) * (1 + st.correct * 0.06);
+          S.markSeen(q.id, true, q.mod, q.topic);
           host.appendChild(U.el("div", { class:"row", style:"margin-top:14px" }, [
             U.el("button", { class:"btn btn-primary btn-block", onclick: next }, "Next — " + (limitFor(st.n) / 1000).toFixed(1) + "s")
           ]));
           paint();
         } else {
-          S.markSeen(q.id, false);
+          S.markSeen(q.id, false, q.mod, q.topic);
           st.review.push({ ok:false, q: U.trunc(q.q, 120), mod: q.mod, a: q.options[q.answer], why: q.why });
+          if (!st.revived && S.usePowerup("revive")) {
+            st.revived = true;
+            UI.toast("💉 Second wind — you stay in the run", "good");
+            host.appendChild(U.el("div", { class:"row", style:"margin-top:14px" }, [
+              U.el("button", { class:"btn btn-primary btn-block", onclick: next }, "Carry on")
+            ]));
+            return;
+          }
           host.appendChild(U.el("div", { class:"row", style:"margin-top:14px" }, [
             U.el("button", { class:"btn btn-primary btn-block", onclick: function () { finish("Eliminated"); } }, "See results")
           ]));
@@ -83,23 +91,21 @@
       clearInterval(tick);
       UI._gsRefresh = null;
       var acc = st.n ? st.correct / st.n : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), accuracy: acc, mode:"survival", score: st.correct });
-      rec.questions = st.n;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
+      var rec = UI.award({ questions: st.n, xp: Math.round(st.xp), accuracy: acc, mode:"survival", score: st.correct });
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title: reason, subtitle:"You survived " + U.plural(st.correct, "question"),
         correct: st.correct, total: Math.max(1, st.n),
         rows:[
           ["Survived", String(st.correct)],
-          ["Personal best", U.fmtInt(S.data.bests.survival || 0)],
-          ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
+          ["Personal best", U.fmtInt(Math.max(S.data.scores.survival || 0, st.correct))],
+          ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]
         ],
         review: st.review,
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; clearInterval(tick); UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; clearInterval(tick); UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

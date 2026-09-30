@@ -361,11 +361,6 @@ window.EN = window.EN || {};
     return U.clamp((list || []).reduce((n, c) => n + (c && c.cost ? c.cost() : 0), 0), 0, 0.8);
   }
 
-      body
-    ]);
-    return { root, body, meta };
-  }
-
   /** Grade a run. → { rank, cls, blurb }. */
   function rank(accuracy, bonus) {
     const score = accuracy + (bonus || 0);

@@ -21,11 +21,8 @@
   UI.route("/play/processorder", function (view) {
     var pool = ECON.Bank.active("sequence");
     if (!pool.length) { ECON.Coverage.warnIfEmpty("sequence"); return; }
-
-    ECON.Tools.startRun("processorder");
-    var shell = UI.gameShell(view, { title:"Process Order", sub:"Sequence the steps", onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Process Order", sub:"Sequence the steps", onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("processorder");
 
     var st = { i:0, counted:0, solved:0, xp:0, done:false, review:[], attemptsTotal:0 };
     next();
@@ -136,13 +133,15 @@
         }
 
         // Payment decays with attempts, all the way to zero. No floor. (C1)
-        var counts = (Date.now() - shownAt) >= S.MIN_READ_MS;
+        var counts = (Date.now() - shownAt) >= UI.readFloor(seq.steps.join(" "));
         var value = Math.max(0, (7 - attempts)) / 6;          // 1st try = 1.0, 7th = 0
         var earned = counts ? Math.round(S.XP_PER_CORRECT * (seq.diff || 2) * seq.steps.length * 0.5 * value) : 0;
         st.finished = (st.finished || 0) + 1;
         if (counts) st.counted++;
         st.xp += earned;
         if (attempts === 1) st.solved++;
+        S.tally(seq.mod, attempts === 1, seq.topic);
+        S.bump("sequences");
 
         var g = U.el("div", { class:"why ok", style:"margin-top:12px" });
         g.appendChild(U.el("div", { class:"why-h", text: attempts === 1 ? "Correct, first time" : "Correct after " + attempts + " attempts" }));
@@ -167,11 +166,9 @@
       st.done = true;
       UI._gsRefresh = null;
       var acc = ROUND ? st.solved / ROUND : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), bonus: 80, readRatio: st.finished ? st.counted / st.finished : 0, accuracy: acc, mode:"processorder", score: st.solved });
-      rec.questions = ROUND;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
+      var rec = UI.award({ questions: ROUND, xp: Math.round(st.xp), bonus: 80, readRatio: st.finished ? st.counted / st.finished : 0, accuracy: acc, mode:"processorder", score: st.solved });
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title:"Process Order complete",
         subtitle: st.solved + " of " + ROUND + " solved first time",
         correct: st.solved, total: ROUND,
@@ -180,13 +177,13 @@
           ["Total attempts used", String(st.attemptsTotal)],
           ["XP from sequences", U.fmtInt(Math.round(st.xp))],
           ["Completion bonus", rec.bonusWithheld ? "0  (withheld below 50%)" : "+" + U.fmtInt(rec.bonus)],
-          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
+          ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]
         ],
         review: st.review.filter(function (x) { return !x.ok; }),
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

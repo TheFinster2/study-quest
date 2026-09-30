@@ -1,0 +1,160 @@
+/* Progress — level, Ascension, mastery, coverage, totals, achievements.
+   (The stand-alone app's "You" screen.) */
+(function (root) {
+  "use strict";
+  var ECON = root.ECON, U = ECON.U, UI = ECON.UI, S = ECON.State;
+
+  UI.route("/you", progress);
+  UI.route("/progress", progress);
+  function progress(view) {
+    var d = S.data, lv = S.levelInfo();
+    var avatar = SQ.Store.data.profile.avatar;
+
+    view.appendChild(U.el("h1", { text:"Progress" }));
+
+    // A dev-unlocked save must always say so. Numbers that were not earned
+    // should never be able to pass as numbers that were.
+    if (d.devUnlocked) {
+      view.appendChild(U.el("div", { class:"why no" }, [
+        U.el("div", { class:"why-h", text:"Dev-unlocked save" }),
+        U.el("div", { class:"small", text:"XP, Dollars or progress in Economics were set from the developer menu rather than earned." })
+      ]));
+    }
+
+    view.appendChild(U.el("div", { class:"card" }, [
+      U.el("div", { class:"spread" }, [
+        U.el("div", { class:"row", style:"align-items:center;gap:10px" }, [
+          U.el("span", { style:"font-size:34px;line-height:1", text: avatar || "📊" }),
+          U.el("div", {}, [
+            U.el("div", { style:"font-size:26px;font-weight:800;color:var(--accent)", text:"Level " + lv.level + (d.prestige ? "  ✦" + d.prestige : "") }),
+            U.el("div", { style:"font-weight:700", text: S.levelTitle(lv.level) }),
+            U.el("div", { class:"muted2", text: U.fmtInt(d.lifetimeXp || 0) + " XP lifetime" })
+          ])
+        ]),
+        U.el("div", { style:"text-align:right" }, [
+          U.el("div", { style:"font-size:20px;font-weight:800;color:var(--warn)", text:"💲 " + U.fmtInt(d.coins) }),
+          U.el("div", { class:"muted2", text: U.plural(SQ.Store.data.streak.count || 0, "day") + " streak" })
+        ])
+      ]),
+      U.el("div", { class:"bar", style:"margin-top:10px" }, [
+        U.el("i", { style:"width:" + (lv.need ? Math.min(100, lv.into / lv.need * 100) : 100) + "%" })
+      ]),
+      U.el("div", { class:"muted2 small", style:"margin-top:6px",
+        text: lv.need ? U.fmtInt(lv.into) + " / " + U.fmtInt(lv.need) + " XP to level " + (lv.level + 1) : "Maximum level reached." })
+    ]));
+
+    /* ── mastery ──────────────────────────────────────────────────────
+       Coverage times accuracy, per topic. Answering three questions perfectly
+       is not mastery of a topic with sixty, so both factors matter — and
+       neither can be bought in the Shop. */
+    /* ── Ascension (prestige) ── */
+    var canP = S.canPrestige();
+    view.appendChild(U.el("div", { class:"card econ-ascend" + (canP ? " ready" : "") }, [
+      U.el("div", { class:"spread" }, [
+        U.el("div", {}, [
+          U.el("b", { text:"🔱 Ascension" + (d.prestige ? " ✦" + d.prestige : "") }),
+          U.el("div", { class:"muted2", text: canP
+            ? "You are level " + S.MAX_LEVEL + ". Ascend to return to level 1 with a permanent +12% XP, 2,500 💲 and three Double XP."
+            : "At level " + S.MAX_LEVEL + " you can Ascend: back to level 1 with a permanent +12% XP per Ascension. Current bonus ×" + (1 + (d.prestige || 0) * 0.12).toFixed(2) + "." })
+        ]),
+        canP ? U.el("button", { class:"btn btn-primary btn-sm js-ascend", onclick: function () {
+          UI.confirm("Ascend?", "Your Economics level returns to 1. You keep mastery, cards, achievements and Dollars, and gain a permanent +12% XP.", function () {
+            if (S.doPrestige()) { if (SQ.Sound && SQ.Sound.prestige) SQ.Sound.prestige(); SQ.FX.confetti(140); UI.render(); }
+          }, "Ascend");
+        } }, "Ascend") : null
+      ])
+    ]));
+
+    /* ── bosses ── */
+    if (ECON.Boss) {
+      view.appendChild(U.el("h2", { text:"Bosses" }));
+      view.appendChild(U.el("div", { class:"row-tight" }, ECON.Boss.BOSSES.map(function (b) {
+        var beat = !!d.bossesBeaten[b.id];
+        return U.el("span", { class:"badge " + (beat ? "badge-good" : ""), text: (beat ? b.icon + " " : "🔒 ") + b.name });
+      })));
+    }
+
+    view.appendChild(U.el("h2", { text:"Mastery by topic" }));
+
+    var mlist = U.el("div", { class:"list" });
+    U.MODULES.forEach(function (m) {
+      var pct = S.mastery(m.id);
+      var tier = S.masteryTier(pct) || { icon:"▪️", name:"Unranked" };
+      mlist.appendChild(U.el("div", { class:"li" }, [
+        U.el("span", { style:"font-size:18px;width:26px;text-align:center", text: tier.icon }),
+        U.el("div", { class:"grow" }, [
+          U.el("b", { text: m.id + " — " + m.name }),
+          U.el("div", { class:"mst", style:"margin-top:5px" }, [
+            U.el("div", { class:"mst-bar" }, [U.el("i", { style:"width:" + pct + "%" })]),
+            U.el("small", { style:"width:60px;text-align:right", text: tier.name })
+          ])
+        ])
+      ]));
+    });
+    view.appendChild(mlist);
+
+    /* ── module coverage ── */
+    view.appendChild(U.el("h2", { text:"Coverage by topic" }));
+    var stats = ECON.Bank.moduleStats();
+    var list = U.el("div", { class:"list" });
+    U.MODULES.forEach(function (m) {
+      var st = stats[m.id];
+      var pct = st.total ? Math.round(st.seen / st.total * 100) : 0;
+      list.appendChild(U.el("div", { class:"li", style:"flex-direction:column;align-items:stretch;gap:6px" }, [
+        U.el("div", { class:"spread" }, [
+          U.el("div", {}, [
+            U.el("b", { text: m.id + " — " + m.name }),
+            U.el("small", { text: st.seen + "/" + st.total + " seen · " + st.missed + " in rehab" })
+          ]),
+        ]),
+        U.el("div", { class:"bar" }, [U.el("i", { style:"width:" + pct + "%" })])
+      ]));
+    });
+    view.appendChild(list);
+
+    /* ── stats ── */
+    view.appendChild(U.el("h2", { text:"Totals" }));
+    var counts = ECON.Bank.counts();
+    var seenMcq = ECON.Bank.all("mcq").filter(function (q) { return d.seen[q.id]; }).length;
+    var totals = [
+      ["Runs completed", U.fmtInt(d.stats.runs || 0)],
+      ["Answers", U.fmtInt(d.stats.answered || 0) + " (" + S.overallAccuracy() + "% right)"],
+      ["Questions seen", seenMcq + " / " + counts.mcq],
+      ["Flashcards started", Object.keys(d.srs).length + " / " + counts.card],
+      ["Flashcards reviewed", U.fmtInt(d.stats.cardsReviewed || 0)],
+      ["Written responses paid", String(d.stats.responses || 0)],
+      ["Diagrams explored", Object.keys(d.diagramSeen).length + " / " + counts.diagram],
+      ["Calculations solved", U.fmtInt(d.stats.calcSolved || 0)],
+      ["Market shocks solved", U.fmtInt(d.stats.shiftsSolved || 0)],
+      ["Best Survival run", U.fmtInt(d.scores.survival || 0)],
+      ["Longest daily streak", U.plural(SQ.Store.data.streak.longest || 0, "day")]
+    ];
+    var tl = U.el("div", { class:"list" });
+    totals.forEach(function (t) {
+      tl.appendChild(U.el("div", { class:"li" }, [
+        U.el("div", { class:"grow", text: t[0] }),
+        U.el("b", { text: t[1] })
+      ]));
+    });
+    view.appendChild(tl);
+
+    /* ── achievements ── */
+    var ap = ECON.Achievements.progress();
+    view.appendChild(U.el("h2", { text:"Achievements  " + ap.have + "/" + ap.total }));
+    var ag = U.el("div", { class:"list" });
+    ECON.Achievements.all().forEach(function (a) {
+      var have = S.has(a.id);
+      ag.appendChild(U.el("div", { class:"li", style: have ? "" : "opacity:.5" }, [
+        U.el("span", { style:"font-size:20px", text: a.icon }),
+        U.el("div", { class:"grow" }, [U.el("b", { text: a.name }), U.el("small", { text: a.desc + (a.reward ? " · " + a.reward + " 💲" : "") })]),
+        have ? U.el("span", { class:"badge badge-good", text:"✓" }) : null
+      ]));
+    });
+    view.appendChild(ag);
+
+    view.appendChild(U.el("div", { class:"row", style:"margin-top:16px" }, [
+      U.el("button", { class:"btn grow", onclick: function () { UI.go("/options"); } }, "Economics options"),
+      U.el("button", { class:"btn grow", onclick: function () { UI.go("/settings"); } }, "App settings")
+    ]));
+  }
+})(typeof window !== "undefined" ? window : globalThis);

@@ -199,7 +199,7 @@ window.MS.Games = window.MS.Games || {};
             Audio.play('dimBad');
             FX.shake(5);
           }
-          State.recordAnswer(null, right, 'MS-M7', ms);
+          State.answer(null, right, 'MS-M7', ms);
           State.noteStreak(pool.bestStreak);
           scoreChip.textContent = solved + '/' + ROUNDS;
           U.clear(answerHost);
@@ -271,7 +271,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: 'The unit line is the point. If the symbols do not cancel to the target, no amount of multiplying by 1000 will make the number right.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.chain(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
 

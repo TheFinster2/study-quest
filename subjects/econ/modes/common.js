@@ -36,11 +36,9 @@
        onFinish    optional extra rows for the results screen
      ══════════════════════════════════════════════════════════════════ */
   R.start = function (view, cfg) {
-    ECON.Tools.startRun(cfg.id);
-
-    var shell = UI.gameShell(view, {
-      title: cfg.title, sub: cfg.sub,
-      onQuit: function () { UI.go("/home"); }
+    var shell = UI.shell(view, {
+      title: cfg.title, sub: cfg.sub, tools: cfg.tools, help: cfg.help,
+      onQuit: function () { UI.go("/play"); }
     });
     UI._gsRefresh = paintMeters;
 
@@ -54,7 +52,7 @@
     /* Difficulty shortens every clock. It is applied here rather than in each
        mode so a new mode cannot forget to honour it. */
     var diff = S.difficulty();
-    var runTimeMs = cfg.timeMs ? Math.round(cfg.timeMs * (diff.timeScale || 1)) : null;
+    var runTimeMs = cfg.timeMs ? Math.round(cfg.timeMs * (diff.time || 1)) : null;
 
     var timer = null;
     if (runTimeMs) {
@@ -66,7 +64,6 @@
       }, 250);
     }
 
-    if (ECON.Tools) ECON.Tools.attach(cfg.id);
     var powerBar = buildPowerBar();
 
     next();
@@ -83,6 +80,7 @@
       if (!q) return finish("Out of questions");
       state.current = q;
       state.shownAt = Date.now();
+      state.floor = UI.readFloor(q.q);
 
       var host = shell.clear();
       paintMeters();
@@ -92,16 +90,17 @@
         // MIN_READ_MS: answering faster than a human can read earns nothing
         // for that item. It is not a punishment — it simply does not count.
         var readMs = Date.now() - state.shownAt;
-        var counts = readMs >= S.MIN_READ_MS;
+        var counts = readMs >= state.floor;
 
         state.answered++;
         if (counts) state.counted++;
-        S.markSeen(q.id, ok);
+        S.markSeen(q.id, ok, q.mod, q.topic);
 
         if (ok) {
           state.correct++;
           state.streak++;
           state.bestStreak = Math.max(state.bestStreak, state.streak);
+          S.noteStreak(state.streak);
           if (counts) {
             var mult = cfg.streakBonus ? S.streakMult(state.streak) : 1;
             state.xp += S.XP_PER_CORRECT * (q.diff || 1) * mult;
@@ -155,7 +154,7 @@
        directly, and the one that touches XP multiplies rather than adds. */
     function buildPowerBar() {
       var defs = (ECON.DATA.shop && ECON.DATA.shop.powerups) || [];
-      var locked = diff.lock || [];
+      var locked = diff.bans || [];
       var usable = defs.filter(function (p) {
         if (locked.indexOf(p.id) >= 0) return false;
         if (p.id === "freeze" && !runTimeMs) return false;      // nothing to extend
@@ -199,7 +198,7 @@
             var wrong = [];
             for (var k = 0; k < q.options.length; k++) if (k !== q.answer) wrong.push(k);
             U.shuffle(wrong).slice(0, 2).forEach(function (k) {
-              var el = document.querySelectorAll("#view .opt")[k];
+              var el = document.querySelector('#view .opt[data-oi="' + k + '"]');
               if (el) { el.disabled = true; el.classList.add("dim"); }
             });
           }
@@ -264,12 +263,11 @@
         bonus: bonus,
         readRatio: state.answered ? state.counted / state.answered : 0,
         accuracy: state.answered ? acc : null,
-        multiplier: S.runMultiplier(state.boosted),
+        questions: state.answered,
+        boost: state.boosted ? 2 : 1,
         mode: cfg.id,
         score: state.correct
       });
-      rec.questions = state.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
 
       var rows = [
         ["Answered", String(state.answered)],
@@ -281,7 +279,7 @@
         rows.push(["Completion bonus", rec.bonusWithheld
           ? (rec.readRatio !== null && rec.readRatio < 0.5
               ? "0  (answered faster than it can be read)"
-              : "0  (withheld below 50%)")
+              : "0  (withheld: under 50% or fewer than 5 answers)")
           : "+" + U.fmtInt(rec.bonus)]);
       }
       if (rec.refPenalty) rows.push(["Reference penalty", "−" + U.fmtInt(rec.refPenalty) + " XP"]);
@@ -293,13 +291,13 @@
       rows.push(["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]);
       if (cfg.extraRows) cfg.extraRows(state).forEach(function (r) { rows.push(r); });
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title: reason === "Complete" ? "Run complete" : reason,
         subtitle: state.correct + " / " + state.answered + " correct",
         correct: state.correct, total: state.answered,
         rows: rows,
         review: state.review.filter(function (r) { return !r.ok; }).slice(0, 12),
-        again: function () { UI.go(root.location.hash, true); UI.render(); }
+        again: function () { UI.render(); }
       });
     }
 
@@ -307,8 +305,6 @@
       state.done = true;
       if (timer) clearInterval(timer);
       UI._gsRefresh = null;
-      ECON.Tools.detach();
-      UI.hideTabs(false);
     };
   };
 

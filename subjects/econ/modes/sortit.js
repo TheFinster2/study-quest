@@ -5,7 +5,7 @@
 
   R.register({
     id:"sortit", name:"Sort It", icon:"🗂️", route:"/play/sortit",
-    blurb:"Classify items against the clock: biotic/abiotic, mitosis/meiosis, pathogen types.",
+    blurb:"Classify items against the clock: goods and services, policy types, BOP accounts.",
     group:"Core"
   });
 
@@ -14,15 +14,12 @@
   UI.route("/play/sortit", function (view) {
     var pool = ECON.Bank.active("sort");
     if (!pool.length) { ECON.Coverage.warnIfEmpty("sort"); return; }
-
-    ECON.Tools.startRun("sortit");
     var set = U.pick(pool);
     var items = U.shuffle(set.items);
-    var shell = UI.gameShell(view, { title:"Sort It", sub: set.title, onQuit: function () { UI.go("/home"); } });
+    var shell = UI.shell(view, { title:"Sort It", sub: set.title, onQuit: function () { UI.go("/play"); } });
     UI._gsRefresh = paint;
-    ECON.Tools.attach("sortit");
 
-    var st = { i:0, counted:0, correct:0, answered:0, streak:0, xp:0, wrong:[], done:false, endsAt: Date.now() + TIME_MS };
+    var st = { i:0, counted:0, correct:0, answered:0, streak:0, xp:0, wrong:[], done:false, endsAt: Date.now() + Math.round(TIME_MS * (S.difficulty().time || 1)) };
     var timer = setInterval(function () {
       if (st.done) return;
       if (Date.now() >= st.endsAt) finish("Time");
@@ -72,9 +69,11 @@
             else bb.classList.add("dim");
           });
           st.answered++;
+          S.tally(set.mod, ok, set.topic || set.title);
+          if (SQ.Sound) { if (ok) SQ.Sound.correct(); else SQ.Sound.wrong(); }
           if (Date.now() - shownAt >= S.MIN_READ_MS) st.counted++;
           if (ok) {
-            st.correct++; st.streak++;
+            st.correct++; st.streak++; S.noteStreak(st.streak); S.bump("sorted");
             if (Date.now() - shownAt >= S.MIN_READ_MS) st.xp += S.XP_PER_CORRECT * (set.diff || 1) * S.streakMult(st.streak) * 0.6;
           } else {
             st.streak = 0;
@@ -102,23 +101,21 @@
       clearInterval(timer);
       UI._gsRefresh = null;
       var acc = st.answered ? st.correct / st.answered : 0;
-      var rec = UI.award({ xp: Math.round(st.xp), bonus: st.i >= items.length ? 90 : 0, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"sortit", score: st.correct });
-      rec.questions = st.answered;
-      if (ECON.Achievements) ECON.Achievements.check(rec);
+      var rec = UI.award({ questions: st.answered, xp: Math.round(st.xp), bonus: st.i >= items.length ? 90 : 0, readRatio: st.answered ? st.counted / st.answered : 0, accuracy: acc, mode:"sortit", score: st.correct });
 
-      UI.results(view, {
+      UI.report(view, { rec: rec,
         title: reason, subtitle: set.title,
         correct: st.correct, total: st.answered,
         rows:[
           ["Sorted", st.correct + " / " + st.answered],
           ["Accuracy", Math.round(acc * 100) + "%"],
-          ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
+          ["XP earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " 💲"]
         ],
         review: st.wrong.slice(0, 12),
         again: function () { UI.render(); }
       });
     }
 
-    return function () { st.done = true; clearInterval(timer); UI._gsRefresh = null; ECON.Tools.detach(); UI.hideTabs(false); };
+    return function () { st.done = true; clearInterval(timer); UI._gsRefresh = null; };
   });
 })(typeof window !== "undefined" ? window : globalThis);

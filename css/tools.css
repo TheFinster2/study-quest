@@ -1,0 +1,121 @@
+/* ============================================================
+   The shared tool tray (js/sq/tools.js) — calculator, sheet, working pad.
+   Builds on the toolbelt primitives in core.css (.tb-*, .calc-*, .nesa-badge)
+   and core tokens only, so every theme dresses it.
+   ============================================================ */
+
+/* ---------- the floating buttons ----------
+   One ROW above the navbar, not a column: a column of three is ~170 px tall and
+   lands on the answer buttons. A 48 px row at bottom:92px tops out at ~140 px,
+   inside the .view's bottom padding (148 px on a phone, raised below for wider). */
+.sqt-fab{ grid-auto-flow:column; gap:8px; }
+.sqt-fab-btn{ width:48px; height:48px; font-size:20px; border-radius:15px; }
+.sqt-fab-btn.on{ border-color:var(--accent); color:var(--accent); }
+:root[data-tools="on"] .view{ padding-bottom:calc(160px + env(safe-area-inset-bottom)); }
+:root[data-tools="on"][data-sheet="on"] .view{ padding-bottom:calc(var(--sheet-h,0px) + 28px); }
+:root[data-sheet="on"] .sqt-fab{ display:none; }
+
+/* ---------- the dock ----------
+   Docked to the bottom and NOT modal: no scrim, the page above stays readable and
+   tappable. Above the navbar and FX, below toasts and modals. */
+.sqt-dock{ position:fixed; left:0; right:0; bottom:0; z-index:1150; display:flex;
+  justify-content:center; pointer-events:none; }
+.sqt-sheet{ pointer-events:auto; max-height:min(calc(100vh - 72px), 900px);
+  padding:0 12px calc(10px + env(safe-area-inset-bottom)); }
+.sqt-sheet[data-tab="calc"]{ max-height:min(calc(100vh - 72px), 900px); }
+.sqt-sheet[data-tab="sheet"], .sqt-sheet[data-tab="pad"]{ max-height:min(80vh, 780px); }
+.sqt-sheet .tb-grab{ margin:6px auto 2px; }
+.sqt-head{ padding:2px 0 6px; gap:6px; }
+.sqt-tabs{ gap:4px; }
+.sqt-tab{ min-height:44px; padding:8px 6px; }
+.sqt-short{ display:none; }
+.sqt-icon{ width:44px; height:44px; font-size:14px; }
+.sqt-icon:disabled{ opacity:.35; cursor:default; }
+.sqt-sizes{ display:flex; gap:6px; flex:none; }
+.sqt-body{ padding:8px 0 2px; }
+
+/* the mirrored question: ▲/▼ set how MUCH of it shows, not the tray's height */
+.sqt-q{ margin:4px 0 0; padding:7px 11px; max-height:none; overflow:hidden; }
+.sqt-q-body{ max-height:calc(var(--sqt-q-h,3.8em) * 1.6); overflow-y:auto; -webkit-overflow-scrolling:touch;
+  font-size:14px; line-height:1.6; overflow-wrap:anywhere; }
+.sqt-q-body *{ max-width:100%; }
+
+/* ---------- calculator ---------- */
+.sqt-calc{ gap:8px; }
+.sqt-calc .calc-display{ min-height:62px; padding:8px 11px; }
+.sqt-calc .calc-display-top{ min-width:0; }
+.sqt-calc .calc-expr{ min-width:0; }
+.sqt-calc .calc-result{ font-size:22px; }
+.sqt-calc .calc-pad{ gap:4px; }
+.sqt-calc .calc-key{ min-height:44px; min-width:0; }
+.sqt-calc .calc-key.send{ font-size:11px; padding:4px 1px; }
+@media (min-height:760px){ .sqt-calc .calc-key{ min-height:48px; } }
+.sqt-kbd{ flex:none; width:44px; height:36px; margin:-4px 0 -4px -4px; border-radius:10px; cursor:pointer;
+  border:1px solid var(--line); background:var(--card); color:var(--ink-dim); font-size:17px; }
+.sqt-kbd.on{ color:var(--accent); border-color:color-mix(in srgb,var(--accent) 50%,transparent); }
+.sqt-type{ flex:1; min-width:0; font:inherit; font-family:"Cascadia Code",ui-monospace,Menlo,Consolas,monospace;
+  font-size:15px; padding:6px 8px; border-radius:10px; border:1px solid var(--accent);
+  background:var(--card-2); color:var(--ink); }
+.sqt-type:focus{ outline:none; }
+.sqt-mem{ background:color-mix(in srgb,var(--warn) 18%,transparent); color:var(--warn);
+  border-color:color-mix(in srgb,var(--warn) 45%,transparent); }
+
+/* the constants picker takes the keypad's place, so it costs no height */
+.sqt-consts{ display:grid; gap:6px; }
+.sqt-consts-head{ display:flex; align-items:center; gap:8px; }
+.sqt-consts-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:5px;
+  max-height:330px; overflow-y:auto; }
+.sqt-const{ min-height:44px; text-align:left; padding:6px 9px; border-radius:12px; cursor:pointer; min-width:0;
+  border:1px solid var(--line); background:var(--card-2); color:var(--ink); font:inherit; font-size:13px; }
+.sqt-const code{ color:var(--accent); font-weight:800; }
+.sqt-const.locked{ opacity:.6; border-style:dashed; }
+.sqt-const-name{ display:block; font-size:11px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ---------- sheet ---------- */
+.sqt-sheet-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+.sqt-cost{ background:color-mix(in srgb,var(--warn) 18%,transparent); color:var(--warn);
+  border:1px solid color-mix(in srgb,var(--warn) 42%,transparent); font-weight:800; }
+.sqt-search{ width:100%; min-height:44px; padding:10px 13px; border-radius:13px; font:inherit; font-size:14px;
+  border:1px solid var(--line); background:var(--card-2); color:var(--ink); }
+.sqt-search:focus{ outline:none; border-color:var(--accent); }
+.sqt-sheetp .tb-filters .chip{ min-height:40px; }
+.sqt-row{ overflow-wrap:anywhere; }
+.sqt-row.paid{ border-left-color:color-mix(in srgb,var(--warn) 85%,transparent); }
+.sqt-pay{ min-height:44px; }
+.sqt-const-wrap{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; min-width:0; }
+.sqt-const-line{ flex:1; min-width:0; font-size:15px; line-height:1.8; }
+.sqt-val{ font-weight:800; font-variant-numeric:tabular-nums; }
+.sqt-unit{ color:var(--ink-dim); }
+.sqt-use{ min-height:40px; font-size:12px; }
+
+/* ---------- working pad ---------- */
+.sqt-pad{ gap:8px; }
+.sqt-canvas{ height:min(40vh,300px); }
+.sqt-pen{ width:44px; height:44px; background:transparent; position:relative; border-color:transparent; }
+.sqt-pen::after{ content:""; position:absolute; inset:9px; border-radius:50%; background:var(--pen,var(--accent));
+  border:2px solid var(--line); }
+.sqt-pen.on{ transform:none; }
+.sqt-pen.on::after{ border-color:var(--ink); inset:7px; }
+.sqt-width{ min-width:44px; min-height:44px; justify-content:center; }
+.sqt-pad-tools .btn{ min-height:44px; }
+.sqt-tape{ display:grid; gap:4px; }
+.sqt-tape .tb-group{ margin-top:4px; }
+.sqt-tape-line{ display:flex; align-items:center; gap:8px; min-width:0; padding:2px 0; border-bottom:1px solid var(--line); }
+.sqt-tape-src{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  font-family:"Cascadia Code",ui-monospace,Menlo,Consolas,monospace; font-size:13px; color:var(--ink-dim); }
+.sqt-tape-val{ flex:none; min-height:40px; font-variant-numeric:tabular-nums; }
+.sqt-tape-clear{ margin-left:8px; min-height:36px; }
+
+/* ---------- narrow phones ---------- */
+@media (max-width:430px){
+  .sqt-long{ display:none; }
+  .sqt-short{ display:inline; }
+  .sqt-tab{ font-size:12.5px; padding:8px 4px; }
+}
+
+/* ---------- motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  .sqt-sheet{ animation:none; }
+  .sqt-fab-btn, .calc-key{ transition:none; }
+}
+:root[data-motion="off"] .sqt-sheet{ animation:none; }

@@ -208,7 +208,7 @@ window.MS.Games = window.MS.Games || {};
             pool.wrongAnswer(3);
             Audio.play('wrong');
           }
-          State.recordAnswer(null, right, 'MS-F5', 9999);
+          State.answer(null, right, 'MS-F5', 9999);
           scoreChip.textContent = passed + '/' + ROUNDS;
           var sched = M.schedule(M.c(principal), r, exact, months);
           U.add(card, U.el('.stack', { style: { marginTop: '10px' } }, [
@@ -254,7 +254,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: 'The curve is the intuition; the PV factor is the mark. A repayment just above the monthly interest takes decades — that flat curve is worth remembering.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.loanlab(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
 

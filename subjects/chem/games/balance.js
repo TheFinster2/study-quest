@@ -218,7 +218,7 @@ CHEM.Games.balance = (function () {
           inputs.forEach(i => (i.disabled = true));
 
           const next = U.el("button", {
-            class: "btn btn-primary", text: idx >= set.length - 1 ? "See results" : "Next equation →",
+            class: "btn btn-primary js-next", text: idx >= set.length - 1 ? "See results" : "Next equation →",
             on: { click: () => {
               if (idx >= set.length - 1) return finish();
               idx++; hintsUsed = 0; render();

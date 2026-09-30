@@ -254,7 +254,7 @@ window.MS.Games = window.MS.Games || {};
             pool.wrongAnswer(3);
             Audio.play('wrong');
           }
-          State.recordAnswer(null, right, 'MS-M6', 9999);
+          State.answer(null, right, 'MS-M6', 9999);
           scoreChip.textContent = passed + '/' + ROUNDS;
           var work = sol.parts.map(function (p) {
             return '\\frac{1}{2} × ' + p.a + ' × ' + p.b + ' × \\sin ' + U.round(p.angle, 1) + '\\deg = ' + U.round(p.area, 2);
@@ -295,7 +295,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: 'A radial survey always splits into triangles from the central point. The area rule needs the angle BETWEEN two arms, which is the difference of their bearings.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.bearings(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
 

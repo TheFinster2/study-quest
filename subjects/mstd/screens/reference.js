@@ -14,12 +14,8 @@ window.MS.Screens = window.MS.Screens || {};
       U.el('.sub', 'Everything you are allowed to look up, and the traps that come with it. Works offline like the rest of the app.'),
       /* §C3 — the count is information, not a scold. NESA gives you this
          sheet in the exam, so reaching for it costs nothing here either. */
-      U.el('.why', State.data.stats.sheetRuns
-        ? 'You have opened the sheet during ' + State.data.stats.sheetRuns + ' run' +
-          (State.data.stats.sheetRuns === 1 ? '' : 's') + '. That costs no XP and never will — ' +
-          'you get this exact sheet in the exam. The marks are in knowing which formula to reach for, ' +
-          'so if one topic keeps sending you here, that is the topic to drill.'
-        : 'Press 📄 or F during any run to pull this up mid-question. It costs no XP — you get the same sheet in the exam.')
+      U.el('.why', 'During any run, open 📄 in the tool tray (or press F) for the Standard 2 reference sheet. Everything NESA prints on the exam sheet is free. Formulas the exam does NOT give you are marked — revealing one costs 10% of that run’s XP.' +
+        (State.data.stats.sheetRuns ? ' You have used the sheet in ' + State.data.stats.sheetRuns + ' run' + (State.data.stats.sheetRuns === 1 ? '' : 's') + '.' : ''))
     ]));
     var grid = U.el('.tiles.one');
     (MS.REFERENCE || []).forEach(function (r) {

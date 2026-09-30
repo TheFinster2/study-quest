@@ -66,6 +66,8 @@ window.MS = window.MS || {};
       if (o.diff && g.diff !== o.diff) return false;
       if (tier && g.diff > tier.diffMax) return false;
       if (tier && tier.diffMin > 1 && g.diff < tier.diffMin) return false;
+      /* Coverage: a topic the student has hidden drops out of mixed runs. */
+      if (tier && !o.mod && window.MS.State.tagHidden && window.MS.State.tagHidden(g.mod)) return false;
       return true;
     });
   };

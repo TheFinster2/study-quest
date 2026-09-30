@@ -203,7 +203,7 @@ CHEM.Games.boss = (function () {
       if (playerHp > 0 && playerHp <= boss.playerHp * 0.2) CHEM.Sound.lowHealth();
 
       const next = U.el("button", {
-        class: "btn btn-primary", text: "Continue ⚔️",
+        class: "btn btn-primary js-next", text: "Continue ⚔️",
         on: { click: () => { qIndex++; renderQuestion(); } }
       });
       fb.appendChild(U.el("div", { class: "row", style: "margin-top:12px" }, [next]));

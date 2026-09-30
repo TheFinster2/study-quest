@@ -17,7 +17,7 @@ window.MS.Screens = window.MS.Screens || {};
   MS.Screens.study = function (root) {
     var all = MS.CARDS || [];
     var ids = all.map(function (c) { return c.id; });
-    var due = State.dueCards(ids);
+    var due = State.dueIds(ids);
     var spread = State.deckSpread(ids);
 
     U.add(root, U.el('.card', [
@@ -25,7 +25,7 @@ window.MS.Screens = window.MS.Screens || {};
         U.el('strong', '🃏 Flashcards'),
         UI.chip(due.length + ' due today', due.length ? 'good' : 'dim')
       ]),
-      U.el('.sub', 'A 5-box Leitner deck. Get a card right and it moves up a box and comes back later; miss it and it drops straight to box 1.'),
+      U.el('.sub', 'A 5-box Leitner deck with graded review. Good moves a card up a box, Easy moves it up two, Hard keeps it and brings it back tomorrow, Again drops it to box 1 and counts a lapse. Four lapses makes a card a leech.'),
       U.el('.hr'),
       U.el('.row', spread.map(function (n, i) {
         return UI.chip('Box ' + (i + 1) + ': ' + n, i === 4 ? 'good' : i === 0 ? 'warn' : null);
@@ -36,6 +36,14 @@ window.MS.Screens = window.MS.Screens || {};
                '▶️ Review ' + Math.min(20, due.length) + ' due card' + (Math.min(20, due.length) === 1 ? '' : 's'))
         : U.el('.why', { style: { marginTop: '10px' } }, 'Nothing is due. Cards return on their own schedule — you can still browse a topic below, but only genuinely due cards pay XP.')
     ]));
+
+    var leeches = State.leeches();
+    var marks = (State.data.bookmarks || []).filter(function (id) { return !!Bank.byId(id); });
+    U.add(root, U.el('.card.tight', U.el('.row', [
+      U.el('button.btn.sm' + (leeches.length ? '.pri' : '.ghost'), { onclick: function () { UI.go('/study/leeches'); } }, '🩸 Leeches (' + leeches.length + ')'),
+      U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/study/bookmarks'); } }, '🔖 Bookmarks (' + marks.length + ')'),
+      U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/reference'); } }, '📖 Reference')
+    ])));
 
     /* ---------------------------------------------------------- by topic */
     var byTopic = {};
@@ -48,7 +56,7 @@ window.MS.Screens = window.MS.Screens || {};
     Bank.TOPICS.forEach(function (t) {
       var list = byTopic[t.code];
       if (!list || !list.length) return;
-      var dueHere = State.dueCards(list.map(function (c) { return c.id; })).length;
+      var dueHere = State.dueIds(list.map(function (c) { return c.id; })).length;
       U.add(grid, U.el('button.tile', {
         onclick: function () { Audio.play('tap'); UI.go('/study/deck/' + t.code); }
       }, [
@@ -68,7 +76,7 @@ window.MS.Screens = window.MS.Screens || {};
     var t = Bank.topic(params.topic);
     var list = (MS.CARDS || []).filter(function (c) { return c.mod === params.topic; });
     if (!t || !list.length) { UI.go('/study'); return; }
-    var dueHere = State.dueCards(list.map(function (c) { return c.id; }));
+    var dueHere = State.dueIds(list.map(function (c) { return c.id; }));
     U.add(root, U.el('.card', [
       U.el('strong', t.ic + ' ' + t.nm),
       U.el('.sub', list.length + ' cards, ' + dueHere.length + ' due today.'),
@@ -94,6 +102,48 @@ window.MS.Screens = window.MS.Screens || {};
       ]));
     });
     U.add(root, U.el('.card', boxes));
+  };
+
+  /* ============================================================ leeches */
+  MS.Screens.leeches = function (root) {
+    var list = State.leeches();
+    U.add(root, U.el('.card', [
+      U.el('.spread', [U.el('strong', '🩸 Leeches'), UI.chip(list.length + ' card' + (list.length === 1 ? '' : 's'), list.length ? 'bad' : 'dim')]),
+      U.el('.sub', 'Cards you have graded "Again" four or more times. Re-reading them the same way is not working — read the worked back, then drill the topic.'),
+      list.length ? U.el('button.btn.pri.wide', { style: { marginTop: '10px' }, onclick: function () { runDeck(list.map(function (x) { return x.q.id; })); } }, '▶️ Review all leeches') : null
+    ]));
+    if (!list.length) { U.add(root, U.el('.why', 'No leeches. Nice.')); }
+    var box = U.el('.stack');
+    list.forEach(function (x) {
+      U.add(box, U.el('.ach', [
+        U.el('.ic', '🩸'),
+        U.el('div', [U.el('.nm', { html: U.mathHtml(x.q.front) }), U.el('.ds', x.q.mod + ' · ' + x.c.lapses + ' lapses · box ' + x.c.box)]),
+        U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/game/drill/' + x.q.mod); } }, 'Drill')
+      ]));
+    });
+    if (list.length) U.add(root, U.el('.card', box));
+    U.add(root, U.el('.card.tight', U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/study'); } }, '‹ Flashcards')));
+  };
+
+  /* ========================================================== bookmarks */
+  MS.Screens.bookmarks = function (root) {
+    var ids = (State.data.bookmarks || []).filter(function (id) { return !!Bank.byId(id); });
+    U.add(root, U.el('.card', [
+      U.el('.spread', [U.el('strong', '🔖 Bookmarked questions'), UI.chip(String(ids.length))]),
+      U.el('.sub', 'Tap 🏷️ Save under any question to keep it here. Practise them as a run — it pays like Topic Drill.'),
+      ids.length ? U.el('button.btn.pri.wide', { style: { marginTop: '10px' }, onclick: function () { UI.go('/game/bookmarks'); } }, '▶️ Practise ' + Math.min(15, ids.length)) : null
+    ]));
+    var box = U.el('.stack');
+    ids.forEach(function (id) {
+      var q = Bank.byId(id);
+      U.add(box, U.el('.ach', [
+        U.el('.ic', Bank.topicIcon(q.mod)),
+        U.el('div', [U.el('.nm', { html: U.mathHtml(q.q) }), U.el('.ds', q.mod + ' · ' + q.topic)]),
+        U.el('button.btn.sm.ghost', { 'aria-label': 'Remove bookmark', onclick: function () { State.toggleBookmark(id); UI.handleRoute(); } }, '✕')
+      ]));
+    });
+    if (ids.length) U.add(root, U.el('.card', box));
+    U.add(root, U.el('.card.tight', U.el('button.btn.sm.ghost', { onclick: function () { UI.go('/study'); } }, '‹ Flashcards')));
   };
 
   /* ======================================================== the review run */
@@ -141,9 +191,11 @@ window.MS.Screens = window.MS.Screens || {};
         U.el('.face.back', U.el('div', { html: U.mathHtml(card.back) }))
       ]));
       var flipBtn = U.el('button.btn.pri.wide', { onclick: doFlip }, 'Flip the card');
-      var grade = U.el('.row', { hidden: true }, [
-        U.el('button.btn.grow', { onclick: function () { answer(false, shownAt, minMs, eligible, card); } }, '✗ Missed it'),
-        U.el('button.btn.pri.grow', { onclick: function () { answer(true, shownAt, minMs, eligible, card); } }, '✓ Got it')
+      function g(label, grade, cls) {
+        return U.el('button.btn.grow' + (cls || ''), { onclick: function () { answer(grade, shownAt, minMs, eligible, card); } }, label);
+      }
+      var grade = U.el('.row.ms-grades', { hidden: true }, [
+        g('✗ Again', 'again'), g('😬 Hard', 'hard'), g('✓ Good', 'good', '.pri'), g('⚡ Easy', 'easy')
       ]);
 
       U.add(host, [
@@ -153,7 +205,10 @@ window.MS.Screens = window.MS.Screens || {};
         ])),
         flip, flipBtn, grade
       ]);
-      UI.keys({ ' ': doFlip, Enter: function () { if (flipped) grade.children[1].click(); else doFlip(); } });
+      UI.keys({ ' ': doFlip,
+        Enter: function () { if (flipped) grade.children[2].click(); else doFlip(); },
+        '1': function () { if (flipped) grade.children[0].click(); }, '2': function () { if (flipped) grade.children[1].click(); },
+        '3': function () { if (flipped) grade.children[2].click(); }, '4': function () { if (flipped) grade.children[3].click(); } });
 
       function doFlip() {
         if (flipped) return;
@@ -165,10 +220,15 @@ window.MS.Screens = window.MS.Screens || {};
       }
     }
 
-    function answer(right, shownAt, minMs, eligible, card) {
+    function answer(grade, shownAt, minMs, eligible, card) {
       if (ended) return;
       var ms = Date.now() - shownAt;
-      var moved = State.reviewCard(card.id, right);
+      var right = grade !== 'again';
+      var from = State.cardState(card.id).box;
+      var wasLeech = State.isLeech(card.id);
+      var after = State.reviewCard(card.id, grade);
+      var moved = { from: from, to: after.box, days: Math.max(0, U.daysBetween(U.dayKey(), after.due)) };
+      if (!wasLeech && State.isLeech(card.id)) UI.toast('🩸 That card is now a leech — it is on the Leeches list', 'bad', 2600);
       if (right) gotRight++; else gotWrong++;
       Audio.play(right ? 'cardEasy' : 'cardHard');
       Audio.play(moved.to > moved.from ? 'boxUp' : moved.to < moved.from ? 'boxDown' : 'tapSoft');
@@ -176,6 +236,7 @@ window.MS.Screens = window.MS.Screens || {};
       /* §9.8, all three gates. */
       if (right && eligible && ms >= minMs) {
         State.markCardXp(card.id);
+        State.bump('cardsPaid');
         paid++;
         xp += 10 * Math.min(3, moved.from);       // deeper boxes are worth more
       } else if (right && eligible && ms < minMs) {
@@ -184,7 +245,7 @@ window.MS.Screens = window.MS.Screens || {};
       paidChip.textContent = paid + ' paid';
       UI.toast(right
         ? '★ Box ' + moved.from + ' → ' + moved.to + ', back in ' + moved.days + ' day' + (moved.days === 1 ? '' : 's')
-        : 'Back to box 1 — you will see it tomorrow', right ? 'good' : 'warn', 1500);
+        : 'Back to box 1 — you will see it again soon', right ? 'good' : 'warn', 1500);
       i++;
       show();
     }
@@ -207,8 +268,8 @@ window.MS.Screens = window.MS.Screens || {};
         accuracy: acc,
         rows: [
           ['Cards reviewed', deck.length],
-          ['Marked correct', gotRight],
-          ['Marked missed', gotWrong],
+          ['Graded hard/good/easy', gotRight],
+          ['Graded again', gotWrong],
           ['Cards that paid XP', paid + ' / ' + deck.length],
           ['XP earned', U.commas(res.xp)],
           ['Credits', '+' + res.coins]

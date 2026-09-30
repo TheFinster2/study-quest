@@ -241,7 +241,7 @@ CHEM.Games.titration = (function () {
            only chance to see where the number came from. Every other mode already
            gates its results behind a button; this one didn't. */
         const seeResults = U.el("button", {
-          class: "btn btn-primary btn-block", text: "See results →",
+          class: "btn btn-primary btn-block js-next", text: "See results →",
           // Removed once used, so reviewing doesn't leave two buttons that both claim
           // to show the results — the floating one is the way back from here on.
           on: { click: () => { seeResults.remove(); finish(error, perfect, good, ok, calcOk); } }

@@ -30,7 +30,7 @@ window.MS.Games = window.MS.Games || {};
     var asked = 0, ended = false, wrongCount = 0;
     var seconds = opts.seconds ? Math.round(opts.seconds * State.timeScale()) : 0;
     var timeLeft = seconds;
-    var tick = 0, frozen = 0, adrenaline = false;
+    var tick = 0, frozen = 0;
     var startedAt = Date.now();
 
     var timerChip = UI.chip(seconds ? U.fmtTime(seconds) : '∞');
@@ -62,12 +62,11 @@ window.MS.Games = window.MS.Games || {};
       if (!State.powerupsAllowed() && opts.allowPowerups !== true) {
         U.add(powerRow, U.el('.tiny.dim', 'Nightmare mode — no 50/50 or Skip.'));
       }
-      [['fifty', '✂️'], ['skip', '⏭️'], ['freeze', '❄️'], ['insight', '💡'], ['boost', '⚡'], ['adrenaline', '🩸']].forEach(function (p) {
+      [['fifty', '✂️'], ['skip', '⏭️'], ['freeze', '❄️'], ['insight', '💡'], ['double', '✨']].forEach(function (p) {
         var k = p[0], n = State.powerupCount(k);
         if (!n) return;
         if ((k === 'fifty' || k === 'skip') && !State.powerupsAllowed()) return;
         if (k === 'freeze' && !seconds) return;
-        if (k === 'adrenaline' && !seconds) return;
         var b = U.el('button.btn.sm.ghost', {
           onclick: function () { usePower(k, b); }
         }, p[1] + ' ' + n);
@@ -98,16 +97,11 @@ window.MS.Games = window.MS.Games || {};
         Audio.play('insight');
         var hint = currentQ.hint || firstSentence(currentQ.why);
         UI.toast('💡 ' + hint, 'warn', 3800);
-      } else if (k === 'boost') {
-        if (!State.usePowerup('boost')) return;
+      } else if (k === 'double') {
+        if (!State.usePowerup('double')) return;
         pool.boost = 2;
         Audio.play('boost');
-        UI.toast('⚡ Double XP for the rest of the run', 'good');
-      } else if (k === 'adrenaline') {
-        if (!State.usePowerup('adrenaline')) return;
-        adrenaline = true; pool.boost = Math.max(pool.boost, 1.5);
-        Audio.play('adrenaline');
-        UI.toast('🩸 +50% XP, clock 25% faster', 'bad');
+        UI.toast('✨ Double XP for the rest of the run', 'good');
       }
       renderPowerups();
     }
@@ -122,7 +116,7 @@ window.MS.Games = window.MS.Games || {};
       tick = setInterval(function () {
         if (ended) return;
         if (frozen > 0) { frozen -= 1; timerChip.textContent = '❄️ ' + U.fmtTime(timeLeft); return; }
-        timeLeft -= adrenaline ? 1.25 : 1;
+        timeLeft -= 1;
         timerChip.textContent = U.fmtTime(timeLeft);
         timerChip.classList.toggle('low', timeLeft <= 10);
         if (timeLeft <= 5 && timeLeft > 0) Audio.play('tickLow');
@@ -191,9 +185,9 @@ window.MS.Games = window.MS.Games || {};
         if (gained === 0 && ms < minMs) UI.toast('Too fast to have read that — no XP', 'warn', 1600);
       } else {
         wrongCount++;
-        if (State.powerupCount('buffer') > 0 && State.usePowerup('buffer')) {
+        if (State.powerupCount('shield') > 0 && State.usePowerup('shield')) {
           Audio.play('shield');
-          UI.toast('🛡️ Buffer absorbed that one', 'acc');
+          UI.toast('🛡️ Shield absorbed that one', 'acc');
           wrongCount--;
         } else {
           pool.wrongAnswer(currentQ.diff);
@@ -201,7 +195,7 @@ window.MS.Games = window.MS.Games || {};
           FX.shake(5);
         }
       }
-      State.recordAnswer(currentQ.id, right, currentQ.mod, ms);
+      State.answer(currentQ.id, right, currentQ.mod, ms);
       State.noteStreak(pool.bestStreak);
       scoreChip.textContent = String(pool.correct);
       multChip.textContent = '×' + pool.stepMult();
@@ -264,7 +258,7 @@ window.MS.Games = window.MS.Games || {};
         title: reason === 'time' ? 'Time!' : reason === 'dead' ? 'Out of lives' : 'Run complete',
         outcome: reason === 'dead' ? 'loss' : null,     // §H4
         accuracy: acc, rows: rows, backTo: opts.backTo || '/play',
-        again: function () { UI.closeModal(); UI.go(UI.path()); UI.handleRoute(); },
+        again: function () { UI.go(UI.path()); },
         note: perfect ? 'Perfect run. That counts towards the weekly quest.' : opts.note
       });
     }

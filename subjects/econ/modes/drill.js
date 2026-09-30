@@ -4,8 +4,8 @@
   var ECON = root.ECON, U = ECON.U, UI = ECON.UI, R = ECON.Run, S = ECON.State;
 
   R.register({
-    id:"drill", name:"Module Drill", icon:"🎯", route:"/play/drill",
-    blurb:"15 adaptive questions from one module. Untimed.",
+    id:"drill", name:"Topic Drill", icon:"🎯", route:"/play/drill",
+    blurb:"15 adaptive questions from one syllabus topic. Untimed.",
     group:"Core"
   });
 
@@ -19,7 +19,7 @@
 
     return R.start(view, {
       id:"drill",
-      title:"Module Drill",
+      title:"Topic Drill",
       sub: mod + " — " + U.moduleName(mod),
       questions: qs,
       limit: qs.length,
@@ -30,7 +30,7 @@
 
   function chooser(view) {
     UI.hideTabs(false);
-    view.appendChild(U.el("h1", { text: "Module Drill" }));
+    view.appendChild(U.el("h1", { text: "Topic Drill" }));
     view.appendChild(U.el("p", { class: "muted", text: "15 adaptive questions from one module. Questions you have missed before come up more often." }));
 
     var stats = ECON.Bank.moduleStats();
@@ -52,6 +52,6 @@
     });
     view.appendChild(grid);
     view.appendChild(U.el("p", { class: "muted2", style: "margin-top:14px",
-      text: "A module with no questions available is hidden by a coverage pack. Settings → Course coverage." }));
+      text: "A module with no questions available is hidden by a coverage pack. Options → Course coverage." }));
   }
 })(typeof window !== "undefined" ? window : globalThis);

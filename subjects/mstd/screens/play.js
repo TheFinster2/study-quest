@@ -62,8 +62,8 @@ window.MS.Screens = window.MS.Screens || {};
       tierRow,
       U.el('.tiny.dim', { style: { marginTop: '6px' } }, tier.ds + ' ' + tier.note),
       U.el('.hr'),
-      U.el('.tiny.dim', 'Difficulty: ' + State.difficulty().nm + ' — ' + State.difficulty().note +
-        ' (that is the clock and the XP; the question level above is which questions you see.)')
+      U.el('.tiny.dim', 'Difficulty: ' + State.difficulty().icon + ' ' + State.difficulty().name + ' — ' + State.difficulty().desc +
+        ' (that is the clock and the XP; the question level above is which questions you see. Change it in the Shop.)')
     ]);
 
     var starred = MODES.filter(function (m) { return m.star; });
@@ -93,18 +93,15 @@ window.MS.Screens = window.MS.Screens || {};
     var bossCard = U.el('.card', [
       U.el('.spread', [
         U.el('strong', '💀 Boss fights'),
-        UI.chip(Object.keys(State.data.bosses).length + '/5 beaten')
+        UI.chip(Object.keys(State.data.bossesBeaten).filter(function (k) { return k !== 'final'; }).length + '/5 beaten')
       ]),
       U.el('.sub', 'Five HP duels, each with a gimmick. Beat one to unlock the next; all five open The Final Paper.'),
       U.el('button.btn.pri.wide', { onclick: function () { UI.go('/bosses'); } }, 'Enter the ladder →')
     ]);
 
     var arcadeCard = U.el('.card', [
-      U.el('.spread', [
-        U.el('strong', '🕹️ Arcade'),
-        UI.chip(State.ticketLeft() > 0 ? U.fmtTime(State.ticketLeft() / 1000) + ' left' : 'Closed', State.ticketLeft() > 0 ? 'good' : 'dim')
-      ]),
-      U.el('.sub', 'Three games rented with Credits. They pay no XP, no Credits and no achievements — spend Credits, earn nothing but bragging rights.'),
+      U.el('strong', '🕹️ Arcade'),
+      U.el('.sub', 'The arcade is shared by every subject now, and paid in Stars. It still pays no XP, no Credits and no achievements — only a high score.'),
       U.el('button.btn.wide', { onclick: function () { UI.go('/arcade'); } }, 'Open the arcade →')
     ]);
 

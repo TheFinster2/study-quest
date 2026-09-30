@@ -238,7 +238,7 @@ window.MS.Games = window.MS.Games || {};
       if (reason === 'done' && acc >= 0.75) timeBonus = Math.round(timeLeft * 2 * acc);
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       if (wrong === 0 && right === items.length) State.bump('perfect');
-      State.recordAnswer(null, acc >= 0.7, board.mod, 9999);
+      State.answer(null, acc >= 0.7, board.mod, 9999);
 
       var res = UI.award({
         xp: pool.xp + timeBonus,
@@ -266,7 +266,7 @@ window.MS.Games = window.MS.Games || {};
         ],
         note: 'Scored net of mistakes: ' + right + ' − ' + wrong + ' = ' + net + '. Filling every cell with a guess would score zero.',
         backTo: '/play',
-        again: function () { UI.closeModal(); MS.Games.panic(); }
+        again: function () { UI.go(UI.path()); }
       });
     }
   };

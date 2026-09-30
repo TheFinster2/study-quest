@@ -91,3 +91,4 @@
   --accent:#b6ff2e; --accent-ink:#0a1800;
   --good:#b6ff2e; --bad:#ff6b5e; --warn:#ffe14a; --info:#8ef0b8;
 }
+[data-theme="chem-acid"] .btn-primary{ color:#fff; }

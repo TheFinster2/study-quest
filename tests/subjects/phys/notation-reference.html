@@ -1,0 +1,91 @@
+<!doctype html>
+<!-- Fixture for PHYSICS-BRIEF.md §6. Open it in a browser to look at it; run
+     tests/notation.js to measure it.
+
+     Deliberately built on the SHIPPED stylesheet and the SHIPPED renderer rather
+     than a copy of either, so the test measures the app rather than a snapshot of
+     it that can silently drift. Every row below is written in the §6.3 source
+     syntax and passed through PHYS.U.math().
+
+     The first row is what the maths briefs specified and is WRONG on purpose: an
+     inline-flex column baseline-aligns by the bottom of the block, so the bar
+     lands about 1.5 x-heights below the maths axis. The test asserts that this row
+     is still misaligned — otherwise the comparison proves nothing.
+-->
+<html data-subject="phys" data-theme="phys-graphite">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notation alignment probe — Newton's Notebook</title>
+<link rel="stylesheet" href="../../../css/core.css">
+<link rel="stylesheet" href="../../../subjects/phys/css/themes.css">
+<link rel="stylesheet" href="../../../subjects/phys/css/phys.css">
+<style>
+  /* Plain page chrome; the notation classes all come from the app stylesheet. */
+  body{ font-size:17px; line-height:1.65; padding:28px; max-width:780px; margin:0 auto; }
+  body::before,body::after{ display:none; }
+  h3{ color:var(--accent); font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; margin:26px 0 8px; }
+  .nrow{ padding:7px 0; border-bottom:1px dashed var(--line); }
+
+  /* BAD: what the maths brief told the sibling apps to build. Kept only as the
+     control for the measurement. Never use this. */
+  .bad-frac{ display:inline-flex; flex-direction:column; text-align:center; }
+  .bad-frac > span:last-child{ border-top:1px solid currentColor; }
+</style>
+
+<h3>The problem — inline-flex column (what the maths brief specified)</h3>
+<div class="nrow" id="bad">
+  Average velocity is <span class="bad-frac"><span>&Delta;x</span><span>&Delta;t</span></span>
+  and the bar sits below the baseline.
+</div>
+
+<h3>Fixed — inline-grid + vertical-align:middle</h3>
+<div class="nrow" id="good"></div>
+<div class="nrow" id="nested"></div>
+
+<h3>Superscript / subscript do not disturb the line box</h3>
+<div class="nrow" id="plain"></div>
+<div class="nrow" id="withsup"></div>
+
+<h3>Simultaneous sub + superscript</h3>
+<div class="nrow" id="nuc"></div>
+
+<h3>Vectors, roots, units, scientific notation</h3>
+<div class="nrow" id="vecs"></div>
+<div class="nrow" id="sentence"></div>
+
+<h3>Function names, words in working, and Greek against a letter</h3>
+<div class="nrow" id="funcs"></div>
+<div class="nrow" id="words"></div>
+<div class="nrow" id="greek"></div>
+
+<h3>Escaping happens first</h3>
+<div class="nrow" id="xss"></div>
+
+<script src="../../../subjects/phys/core/util.js"></script>
+<script>
+  const U = PHYS.U;
+  const put = (id, src) => { document.getElementById(id).innerHTML += U.math(src); };
+
+  put("good",     "Average velocity is \\f{Δx}{Δt} and the bar sits on the maths axis.");
+  put("nested",   "Bigger numerator: \\f{m_1m_2}{r^2} \\cdot nested: \\f{1}{\\f{1}{u} + \\f{1}{v}}");
+  put("plain",    "A line with no superscripts at all, for comparison of height.");
+  put("withsup",  "A line with E_k = ½mv^2 and v^2 = u^2 + 2as in it.");
+  put("nuc",      "\\nuc{235}{92}U \\to \\nuc{231}{90}Th + \\nuc{4}{2}He");
+  /* These three lines are in the screenshot because all three were broken in
+     production and no measurement noticed: \\sin, \\text and \\left were not
+     implemented at all, and Greek written against a letter printed as a word. */
+  put("funcs",    "tau = rF\\sin theta \\cdot n_1\\sin i = n_2\\sin r \\cdot " +
+                  "theta = \\tan^-1\\f{5}{2} \\cdot \\ln 2");
+  put("words",    "\\text{North: }300\\cos40\\deg + 400\\cos100\\deg = 160 \\u{m} " +
+                  "\\cdot E = \\left(\\f{1}{2}\\right)mv^2");
+  put("greek",    "emf = -N\\f{\\Delta\\Phi}{\\Deltat} \\cdot Q = mc_s\\DeltaT \\cdot " +
+                  "L = A\\sigmaT^4 \\cdot lambda_{max}T = b");
+  put("vecs",     "\\v{F} = m\\v{a} \\cdot \\sqrt{u^2 + 2as} \\cdot \\u{m s^-2} \\cdot " +
+                  "\\u{N m^2 kg^-2} \\cdot 3.00 \\times 10^8 \\u{m s^-1}");
+  put("sentence", "In a sentence: the escape velocity is \\sqrt{\\f{2GM}{r}} which for Earth is " +
+                  "1.12 \\times 10^4 \\u{m s^-1}.");
+  // The closing tag is split so this inline <script> is not terminated by its own
+  // test data — writing it whole silently ends the block and kills every line after it.
+  put("xss",      "A stem containing <script>alert(1)<" + "/script> and 5 < 6 & \"quoted\" " +
+                  "text renders as characters, not markup.");
+</script>

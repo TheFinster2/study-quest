@@ -48,7 +48,7 @@ SQ.Expr = (function () {
     sin: (x, d) => Math.sin(d ? x * DEG : x),
     cos: (x, d) => Math.cos(d ? x * DEG : x),
     tan: (x, d) => {
-      if (d && Math.abs(((x % 180) + 180) % 180 - 90) < 1e-9) throw err("tan is undefined there");
+      if (d && Math.abs(((x % 180) + 180) % 180 - 90) < 1e-9) throw err("tan has no value at 90° (or 270°…)");
       return Math.tan(d ? x * DEG : x);
     },
     asin: (x, d) => inverse(Math.asin, x, d, "sin⁻¹"),
