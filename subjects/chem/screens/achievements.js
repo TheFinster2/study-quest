@@ -1,4 +1,5 @@
-/* Achievements, Settings and the profile sheet. */
+/* Achievements and Chemistry's own options (course coverage). App-wide settings —
+   sound, motion, save import/export, updates — are the app's (#/settings). */
 window.CHEM = window.CHEM || {};
 CHEM.Screens = CHEM.Screens || {};
 
@@ -46,354 +47,54 @@ CHEM.Screens.achievements = function (view) {
   view.appendChild(grid);
 };
 
-/* ── settings ──────────────────────────────────────────────── */
-CHEM.Screens.settings = function (view) {
+/* ── options: subject-only settings ─────────────────────────── */
+CHEM.Screens.options = function (view) {
   const U = CHEM.U, S = CHEM.State, UI = CHEM.UI;
-  const d = S.data;
 
-  view.appendChild(U.el("h1", { text: "Settings" }));
-
-  /* profile */
-  const nameInput = U.el("input", {
-    class: "numin", type: "text", value: d.profile.name, maxlength: "18",
-    style: "text-align:left; font-size:15px; padding:10px 14px"
-  });
-  nameInput.addEventListener("change", () => {
-    d.profile.name = nameInput.value.trim().slice(0, 18) || "Chemist";
-    S.emit();
-    UI.toast({ icon: "✅", text: "Name saved." });
-  });
-
-  view.appendChild(U.el("div", { class: "card" }, [
-    U.el("h3", { text: "Profile" }),
-    U.el("div", { class: "srow" }, [
-      U.el("div", { class: "srow-body" }, [
-        U.el("div", { text: "Display name" }),
-        U.el("div", { class: "tiny muted", text: "Shown on the home screen." })
-      ])
-    ]),
-    nameInput,
-    U.el("div", { class: "srow", style: "margin-top:12px" }, [
-      U.el("div", { class: "srow-body" }, [
-        U.el("div", { text: "Avatar" }),
-        U.el("div", { class: "tiny muted", text: "Unlock more in the Shop." })
-      ])
-    ]),
-    U.el("div", { class: "emoji-pick" }, CHEM.DATA.shop.avatars.map(a => {
-      const owned = S.ownsAvatar(a.emoji);
-      const b = U.el("button", {
-        class: "emoji-opt" + (d.profile.avatar === a.emoji ? " on" : "") + (owned ? "" : " lock"),
-        text: owned ? a.emoji : "🔒", title: a.name, disabled: !owned
-      });
-      if (owned) b.addEventListener("click", () => {
-        d.profile.avatar = a.emoji;
-        S.emit();
-        CHEM.Sound.click();
-        UI.handleRoute();
-      });
-      return b;
-    }))
-  ]));
-
-  /* appearance */
-  view.appendChild(U.el("h2", { text: "Appearance" }));
-  view.appendChild(U.el("div", { class: "card" }, [
-    U.el("div", { class: "row" }, CHEM.DATA.shop.themes.map(t => {
-      const owned = S.ownsTheme(t.id);
-      return U.el("button", {
-        class: "chip chip-btn" + (d.profile.theme === t.id ? " on" : ""),
-        text: owned ? t.name : "🔒 " + t.name,
-        disabled: !owned,
-        on: { click: () => { UI.applyTheme(t.id); UI.handleRoute(); } }
-      });
-    }))
-  ]));
-
-  /* difficulty */
-  view.appendChild(U.el("h2", {}, [
-    document.createTextNode("Difficulty"),
-    U.el("span", { class: "h2-sub", text: "applies to every mode" })
-  ]));
-  view.appendChild(U.el("div", { class: "grid g3" }, CHEM.DATA.difficulties.map(diff => {
-    const on = (d.settings.difficulty || "standard") === diff.id;
-    const card = U.el("button", {
-      class: "game-card" + (on ? "" : ""),
-      style: `--gc:${diff.id === "nightmare" ? "#ff4d3d" : diff.id === "hard" ? "#ffab3d" : "var(--glow-a)"};` +
-             (on ? "border-color:var(--accent)" : "")
-    }, [
-      U.el("div", { class: "game-ico", text: diff.icon }),
-      U.el("div", { class: "game-name", text: diff.name }),
-      U.el("div", { class: "game-desc", text: diff.desc }),
-      U.el("div", { class: "game-foot" }, [
-        U.el("span", { class: "chip" + (on ? " on" : ""), text: `×${diff.xp} XP` }),
-        on ? U.el("span", { class: "chip on lock-tag", text: "Active" }) : null
-      ])
-    ]);
-    card.addEventListener("click", () => {
-      d.settings.difficulty = diff.id;
-      S.save();
-      CHEM.Sound.rankUp();
-      UI.toast({ icon: diff.icon, kind: "good", text: `<b>${diff.name}</b> mode — ×${diff.xp} XP.` });
-      UI.handleRoute();
-    });
-    return card;
-  })));
-
-  /* toggles */
-  view.appendChild(U.el("h2", { text: "Preferences" }));
-  const card = U.el("div", { class: "card" });
-  card.appendChild(toggleRow("Sound effects", "Blips, fizzes and fanfares.", d.settings.sound, v => {
-    d.settings.sound = v;
-    CHEM.Sound.setEnabled(v);
-    if (v) CHEM.Sound.click();
-    S.save();
-  }));
-  card.appendChild(toggleRow("Particle effects", "Confetti, sparks and floating XP.", d.settings.motion, v => {
-    d.settings.motion = v;
-    CHEM.FX.setReduced(!v);
-    S.save();
-  }));
-
-  /* volume */
-  const vol = U.el("input", {
-    type: "range", min: "0", max: "100", step: "5",
-    value: String(Math.round((d.settings.volume ?? 0.8) * 100)),
-    style: "width:140px; accent-color:var(--accent)"
-  });
-  const volLabel = U.el("b", { text: Math.round((d.settings.volume ?? 0.8) * 100) + "%" });
-  vol.addEventListener("input", () => {
-    const v = Number(vol.value) / 100;
-    d.settings.volume = v;
-    CHEM.Sound.setVolume(v);
-    volLabel.textContent = vol.value + "%";
-    S.save();
-  });
-  // Preview on release rather than on every drag step.
-  vol.addEventListener("change", () => CHEM.Sound.coin());
-  card.appendChild(U.el("div", { class: "srow" }, [
-    U.el("div", { class: "srow-body" }, [
-      U.el("div", { text: "Volume" }),
-      U.el("div", { class: "tiny muted", text: "Master level for all sound effects." })
-    ]),
-    volLabel, vol
-  ]));
-  view.appendChild(card);
+  view.appendChild(U.el("h1", { text: "Chemistry options" }));
+  view.appendChild(U.el("p", { class: "muted", html:
+    `Difficulty is in the <a href="${UI.href("/shop")}">Chemistry shop</a>; sound, motion and your save are in ` +
+    `<a href="${UI.href("/settings")}">app settings</a>.` }));
 
   function toggleRow(title, desc, value, onChange) {
-    const sw = U.el("div", { class: "switch" + (value ? " on" : ""), role: "switch", tabindex: "0" });
+    const sw = U.el("div", { class: "switch" + (value ? " on" : ""), role: "switch", tabindex: "0",
+      "aria-checked": value ? "true" : "false", "aria-label": title });
     const flip = () => {
       value = !value;
       sw.classList.toggle("on", value);
+      sw.setAttribute("aria-checked", value ? "true" : "false");
       onChange(value);
     };
     sw.addEventListener("click", flip);
     sw.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } });
     return U.el("div", { class: "srow" }, [
-      U.el("div", { class: "srow-body" }, [
-        U.el("div", { text: title }),
-        U.el("div", { class: "tiny muted", text: desc })
-      ]),
+      U.el("div", { class: "srow-body" }, [U.el("div", { text: title }), U.el("div", { class: "tiny muted", text: desc })]),
       sw
     ]);
   }
 
-  /* course coverage */
   view.appendChild(U.el("h2", { text: "Course coverage" }));
   view.appendChild(U.el("p", { class: "tiny muted", text:
     "Schools finish modules at different times, so a trial exam may not include everything the " +
-    "syllabus does. Switch off anything your class hasn't covered and it stops being asked. " +
+    "syllabus does. Switch off anything your class hasn't covered and it stops being asked — its " +
+    "questions, flashcards, naming entries and (in Pathway Puzzle) its compounds and reagents. " +
     "Turning a topic off never changes what the rest is worth, and achievement targets still " +
     "count the whole bank." }));
   const cov = U.el("div", { class: "card" });
   CHEM.DATA.coverage.forEach(pack => {
-    cov.appendChild(toggleRow(
-      `${pack.name}  ·  ${pack.mod}`,
-      pack.desc,
-      !S.tagHidden(pack.id),
-      on => S.setTagHidden(pack.id, !on)
-    ));
+    cov.appendChild(toggleRow(`${pack.name}  ·  ${pack.mod}`, pack.desc, !S.tagHidden(pack.id),
+      on => S.setTagHidden(pack.id, !on)));
   });
   view.appendChild(cov);
 
-  /* app version */
-  view.appendChild(U.el("h2", { text: "App version" }));
-  const verNote = U.el("p", { class: "tiny muted", text:
-    "The app updates itself in the background and applies the new version next time you open it. " +
-    "Check here if you want it sooner." });
-  const verBtn = U.el("button", { class: "btn btn-sm", text: "⟳ Check for updates" });
-  verBtn.addEventListener("click", () => {
-    if (!CHEM.checkForUpdate) {
-      verNote.textContent = "Updates only apply when the app is served over the web, not opened as a local file.";
-      return;
-    }
-    verBtn.disabled = true;
-    verNote.textContent = "Checking…";
-    CHEM.checkForUpdate(true).then(res => {
-      verBtn.disabled = false;
-      verNote.textContent =
-        res === "found"   ? "A new version is downloading — you'll get a Reload prompt in a moment." :
-        res === "current" ? "You're on the latest version." :
-        res === "offline" ? "No connection, so there's nothing to check against right now." :
-                            "Updates only apply when the app is served over the web, not opened as a local file.";
-    });
-  });
-  /* The active cache name IS the build version, so it needs no maintenance and
-     can never drift from what is actually being served. */
-  const buildLine = U.el("div", { class: "tiny", style: "font-variant-numeric:tabular-nums", text: "Build: checking…" });
-  if (window.caches) {
-    caches.keys().then(keys => {
-      const mine = keys.filter(k => k.indexOf("molequest") === 0).sort();
-      buildLine.textContent = mine.length
-        ? "Build: " + mine.join(" + ")
-        : "Build: not cached (running straight from the network)";
-    }).catch(() => { buildLine.textContent = "Build: unavailable"; });
-  } else {
-    buildLine.textContent = "Build: unavailable (opened as a local file)";
-  }
-
-  /* The escape hatch. On iOS especially, removing a home-screen web app does NOT
-     clear its website data, so reinstalling reuses the same stale service worker
-     and cache — the app looks reinstalled but is byte-for-byte the old version.
-     This tears the whole thing down from inside the app instead. */
-  const nukeBtn = U.el("button", { class: "btn btn-sm btn-ghost", text: "⤓ Force refresh" });
-  nukeBtn.addEventListener("click", () => {
-    UI.confirmDialog(
-      "Force a full refresh?",
-      "Unregisters the offline worker, clears the cached copy of the app and reloads from the server. " +
-      "Your saved progress is untouched — it lives separately.",
-      () => {
-        nukeBtn.disabled = true;
-        buildLine.textContent = "Clearing…";
-        S.flush();                                     // progress is in localStorage, not the cache
-        const reload = () => {
-          // The query defeats the browser's own HTTP cache, which sits underneath the
-          // service worker and survives everything above.
-          location.replace(location.pathname + "?fresh=" + Date.now() + "#/settings");
-        };
-        const unreg = navigator.serviceWorker
-          ? navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister())))
-          : Promise.resolve();
-        const wipe = window.caches
-          ? caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))
-          : Promise.resolve();
-        Promise.all([unreg.catch(() => {}), wipe.catch(() => {})]).then(reload, reload);
-      },
-      "Refresh"
-    );
-  });
-
-  view.appendChild(U.el("div", { class: "card" }, [
-    verNote,
-    buildLine,
-    U.el("div", { class: "row", style: "margin-top:10px" }, [verBtn, U.el("div", { class: "spacer" }), nukeBtn])
-  ]));
-
-  /* data */
-  view.appendChild(U.el("h2", { text: "Save data" }));
+  view.appendChild(U.el("h2", { text: "Reset Chemistry" }));
   view.appendChild(U.el("div", { class: "card" }, [
     U.el("p", { class: "tiny muted", text:
-      "Progress is stored in this browser only. Export a backup if you switch devices or clear your browsing data." }),
-    U.el("div", { class: "row" }, [
-      U.el("button", { class: "btn btn-sm", text: "⬇ Export save", on: { click: exportSave } }),
-      U.el("button", { class: "btn btn-sm", text: "⬆ Import save", on: { click: importSave } }),
-      U.el("div", { class: "spacer" }),
-      U.el("button", {
-        class: "btn btn-sm btn-ghost", text: "Reset everything",
-        style: "color:var(--bad)",
-        on: { click: () => UI.confirmDialog(
-          "Reset all progress?",
-          "This permanently deletes your level, XP, Moles, unlocks and spaced-repetition history. It cannot be undone.",
-          () => { S.reset(); UI.applyTheme("lab"); UI.toast({ icon: "🧹", text: "Progress cleared." }); UI.go("/home"); },
-          "Delete everything"
-        ) }
-      })
-    ])
+      "Clears Chemistry's level, Moles, stats, flashcards and mistakes. Your other subjects, Stars, " +
+      "power-ups and owned themes are untouched." }),
+    U.el("button", { class: "btn btn-sm btn-danger", text: "Reset Chemistry progress",
+      on: { click: () => UI.confirmDialog("Reset Chemistry?", "This cannot be undone.",
+        () => { S.reset(); UI.toast({ icon: "🧹", text: "Chemistry progress cleared." }); UI.go("/home"); },
+        "Reset", { danger: true }) } })
   ]));
-
-  function exportSave() {
-    const blob = new Blob([JSON.stringify(S.data, null, 2)], { type: "application/json" });
-    const a = U.el("a", { href: URL.createObjectURL(blob), download: `molequest-save-${U.dayKey()}.json` });
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
-    UI.toast({ icon: "⬇", kind: "good", text: "Save exported." });
-  }
-
-  function importSave() {
-    const input = U.el("input", { type: "file", accept: "application/json", style: "display:none" });
-    input.addEventListener("change", () => {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const parsed = JSON.parse(reader.result);
-          if (!parsed || typeof parsed !== "object" || !parsed.profile) throw new Error("bad file");
-          // Must go through State: writing localStorage directly leaves the old save still
-          // live in memory, and the reload's `pagehide` flush then overwrites the import.
-          if (!S.replaceSave(parsed)) throw new Error("could not store save");
-          UI.toast({ icon: "⬆", kind: "good", text: "Save imported — reloading." });
-          setTimeout(() => location.reload(), 700);
-        } catch (e) {
-          UI.toast({ icon: "⚠️", kind: "bad", text: "That file isn't a MoleQuest save." });
-        }
-      };
-      reader.readAsText(file);
-    });
-    document.body.appendChild(input);
-    input.click();
-    setTimeout(() => input.remove(), 60000);
-  }
-
-  /* about */
-  view.appendChild(U.el("h2", { text: "About" }));
-  view.appendChild(U.el("div", { class: "card" }, [
-    U.el("p", { class: "tiny muted", html:
-      "<b>MoleQuest</b> covers the NSW HSC Chemistry syllabus (Modules 1–8, with the focus on Year 12 Modules 5–8). " +
-      "It runs entirely offline in your browser — no account, no network, no tracking." }),
-    U.el("p", { class: "tiny muted", html:
-      `Question bank: <b>${CHEM.Bank.all().length}</b> multiple-choice questions, ` +
-      `<b>${CHEM.DATA.equations.length}</b> equations, <b>${CHEM.DATA.flashcards.length}</b> flashcards, ` +
-      `<b>${CHEM.DATA.naming.length}</b> named compounds, plus procedurally generated calculations.` })
-  ]));
-};
-
-/* ── profile sheet (from the avatar button) ────────────────── */
-CHEM.Screens.profileSheet = function () {
-  const U = CHEM.U, S = CHEM.State, UI = CHEM.UI;
-  const d = S.data;
-  const need = S.xpNeeded(d.level);
-
-  const box = U.el("div", {}, [
-    U.el("div", { class: "modal-center" }, [
-      U.el("div", { style: "font-size:56px" , text: d.profile.avatar }),
-      U.el("h2", { style: "justify-content:center", text: d.profile.name }),
-      U.el("p", { text: `Level ${d.level} · ${S.levelTitle(d.level)}` }),
-      U.el("div", { class: "bar" }, [U.el("i", { style: `width:${U.pct(d.xpIntoLevel, need)}%` })]),
-      U.el("div", { class: "tiny muted", style: "margin-top:6px", text: `${d.xpIntoLevel} / ${need} XP to next level` })
-    ]),
-    U.el("div", { class: "result-grid" }, [
-      cell(d.stats.answered, "Answered"),
-      cell(S.overallAccuracy() + "%", "Accuracy"),
-      cell(d.streak.count, "Day streak")
-    ]),
-    U.el("div", { class: "row" }, [
-      U.el("button", { class: "btn btn-sm", text: "📈 Progress",
-        on: { click: () => { UI.closeModal(); UI.go("/progress"); } } }),
-      U.el("button", { class: "btn btn-sm", text: "🏆 Achievements",
-        on: { click: () => { UI.closeModal(); UI.go("/achievements"); } } }),
-      U.el("div", { class: "spacer" }),
-      U.el("button", { class: "btn btn-sm btn-ghost", text: "⚙️",
-        on: { click: () => { UI.closeModal(); UI.go("/settings"); } } })
-    ])
-  ]);
-
-  function cell(n, l) {
-    return U.el("div", { class: "result-cell" }, [
-      U.el("div", { class: "result-num", text: String(n) }),
-      U.el("div", { class: "result-lbl", text: l })
-    ]);
-  }
-
-  UI.modal(box);
 };

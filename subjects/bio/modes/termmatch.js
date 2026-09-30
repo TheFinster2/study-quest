@@ -104,7 +104,7 @@
 
     function resolve(ok, qa, card, host) {
       st.answered++;
-      var counts = (Date.now() - st.shownAt) >= S.MIN_READ_MS;
+      var counts = (Date.now() - st.shownAt) >= UI.readFloor(qa.q);
       if (counts) st.counted++;
       if (ok) {
         st.correct++; st.streak++;

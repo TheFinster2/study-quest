@@ -1,0 +1,91 @@
+/* Newton's Notebook themes, as phys-<name>. Theme blocks ONLY (loaded at boot by index.html). */
+[data-theme="phys-graphite"] {
+  --bg-0:#080b14; --bg-1:#101728; --bg-2:#161f36;
+  --glow-a:#4cc9f0; --glow-b:#8a5cff;
+  --ink:#eaf1ff; --ink-dim:#9db0d2; --ink-faint:#68799b;
+  --card:rgba(255,255,255,.045); --card-2:rgba(255,255,255,.08);
+  --line:rgba(255,255,255,.10);
+  --accent:#4cc9f0; --accent-ink:#04202b;
+  --good:#3fe08a; --bad:#ff6b81; --warn:#ffcc55; --info:#6fa8ff;
+}
+[data-theme="phys-blueprint"]{
+  --bg-0:#04101f; --bg-1:#072038; --bg-2:#0a2c4c;
+  --glow-a:#7fd4ff; --glow-b:#2f7fd0;
+  --ink:#eaf6ff; --ink-dim:#a2c4de; --ink-faint:#6b8ca8;
+  --card:rgba(190,230,255,.05); --card-2:rgba(190,230,255,.09);
+  --line:rgba(150,210,255,.16);
+  --accent:#7fd4ff; --accent-ink:#03202f;
+  --good:#5ef0a8; --bad:#ff7d90; --warn:#ffd36b; --info:#9fd8ff;
+}
+[data-theme="phys-chalkboard"]{
+  --bg-0:#0b1410; --bg-1:#12211a; --bg-2:#193025;
+  --glow-a:#8de8b0; --glow-b:#d8e86a;
+  --ink:#eefff2; --ink-dim:#a6c8b2; --ink-faint:#71917c;
+  --card:rgba(210,255,225,.05); --card-2:rgba(210,255,225,.09);
+  --line:rgba(160,240,190,.14);
+  --accent:#8de8b0; --accent-ink:#04220f;
+  --good:#7dffa6; --bad:#ff7a8a; --warn:#ffe066; --info:#8fe3ff;
+}
+[data-theme="phys-daylight"]{
+  --bg-0:#f5f8fc; --bg-1:#e9eff8; --bg-2:#dce5f2;
+  --glow-a:#2f7fd0; --glow-b:#8a5cff;
+  --ink:#101d33; --ink-dim:#465b7c; --ink-faint:#7889a6;
+  --card:rgba(10,30,60,.045); --card-2:rgba(10,30,60,.075);
+  --line:rgba(10,30,60,.14);
+  --accent:#1f66b5; --accent-ink:#ffffff;
+  --good:#0f9a5b; --bad:#cf2740; --warn:#a56f00; --info:#2464c8;
+}
+[data-theme="phys-redshift"]{
+  --bg-0:#150409; --bg-1:#280810; --bg-2:#3a0d18;
+  --glow-a:#ff5d73; --glow-b:#ffab4d;
+  --ink:#ffecef; --ink-dim:#dfa4ae; --ink-faint:#a8757f;
+  --card:rgba(255,200,210,.05); --card-2:rgba(255,200,210,.09);
+  --line:rgba(255,170,185,.15);
+  --accent:#ff7d8f; --accent-ink:#2a040a;
+  --good:#7fe09a; --bad:#ff4f6a; --warn:#ffc04d; --info:#ff9f7a;
+}
+[data-theme="phys-starfield"]{
+  --bg-0:#04050f; --bg-1:#0a0d22; --bg-2:#121737;
+  --glow-a:#c8b6ff; --glow-b:#5ce1e6;
+  --ink:#f2f0ff; --ink-dim:#b3aed6; --ink-faint:#7d7aa0;
+  --card:rgba(235,230,255,.05); --card-2:rgba(235,230,255,.09);
+  --line:rgba(200,190,255,.14);
+  --accent:#c8b6ff; --accent-ink:#150a2c;
+  --good:#6ff0b8; --bad:#ff7d9e; --warn:#ffdd7a; --info:#5ce1e6;
+}
+[data-theme="phys-magnetite"]{
+  --bg-0:#050506; --bg-1:#0e0f13; --bg-2:#171a20;
+  --glow-a:#9aa5b8; --glow-b:#4d5566;
+  --ink:#e9edf3; --ink-dim:#9aa4b4; --ink-faint:#68707f;
+  --card:rgba(255,255,255,.04); --card-2:rgba(255,255,255,.075);
+  --line:rgba(255,255,255,.11);
+  --accent:#d5dce8; --accent-ink:#0b0c0f;
+  --good:#9fd6a8; --bad:#e08a94; --warn:#ddc98a; --info:#9fb6d6;
+}
+[data-theme="phys-cherenkov"]{
+  --bg-0:#02121a; --bg-1:#04222f; --bg-2:#063347;
+  --glow-a:#2ee6ff; --glow-b:#3f7bff;
+  --ink:#e4fbff; --ink-dim:#90c6d6; --ink-faint:#5c8b9c;
+  --card:rgba(200,245,255,.05); --card-2:rgba(200,245,255,.09);
+  --line:rgba(160,230,255,.14);
+  --accent:#2ee6ff; --accent-ink:#022029;
+  --good:#4ff0b0; --bad:#ff6f8b; --warn:#ffd166; --info:#63c9ff;
+}
+[data-theme="phys-fusion"]{
+  --bg-0:#170a02; --bg-1:#2a1305; --bg-2:#3d1d08;
+  --glow-a:#ffb03a; --glow-b:#ff4d3d;
+  --ink:#fff3e6; --ink-dim:#dcb694; --ink-faint:#a68566;
+  --card:rgba(255,225,190,.05); --card-2:rgba(255,225,190,.09);
+  --line:rgba(255,200,150,.15);
+  --accent:#ffb03a; --accent-ink:#2a1400;
+  --good:#8fe07f; --bad:#ff5470; --warn:#ffd04d; --info:#ffb98b;
+}
+[data-theme="phys-quantum"]{
+  --bg-0:#0d0220; --bg-1:#170634; --bg-2:#230b4a;
+  --glow-a:#e05cff; --glow-b:#2ee6ff;
+  --ink:#fbeaff; --ink-dim:#c8a4dd; --ink-faint:#9375aa;
+  --card:rgba(250,225,255,.05); --card-2:rgba(250,225,255,.09);
+  --line:rgba(240,180,255,.15);
+  --accent:#e05cff; --accent-ink:#26002c;
+  --good:#5cf0b0; --bad:#ff5f7e; --warn:#ffd54a; --info:#2ee6ff;
+}

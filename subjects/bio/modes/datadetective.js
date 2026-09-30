@@ -75,7 +75,7 @@
 
     function resolve(ok, q, chosen, host) {
       st.answered++;
-      var counts = (Date.now() - st.shownAt) >= S.MIN_READ_MS;
+      var counts = (Date.now() - st.shownAt) >= UI.readFloor(q.q);
       if (counts) st.counted++;
       if (ok) {
         st.correct++;

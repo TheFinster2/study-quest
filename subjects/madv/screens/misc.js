@@ -1,4 +1,4 @@
-/* Achievements, Settings and the profile sheet. */
+/* Achievements and the subject Options screen (the app owns Settings and the profile). */
 window.MA = window.MA || {};
 MA.Screens = MA.Screens || {};
 
@@ -11,7 +11,7 @@ MA.Screens.achievements = function (view) {
   view.appendChild(U.el("h1", { text: "Achievements" }));
   view.appendChild(U.el("p", { html:
     `<b>${done.length}</b> of <b>${all.length}</b> unlocked. ` +
-    (MA.DATA.hasExt() ? "" : "Extension 1 achievements are hidden on an Advanced-only build.") }));
+    (MA.DATA.hasExt() ? "" : "Extension 1 achievements are hidden while Extension 1 is switched off in Options.") }));
   view.appendChild(U.el("div", { class: "bar", style: "margin-bottom:16px" },
     [U.el("i", { style: `width:${U.pct(done.length, all.length)}%` })]));
 
@@ -32,297 +32,67 @@ MA.Screens.achievements = function (view) {
   view.appendChild(grid);
 };
 
-/* Three steps, not a slider. A slider invites fiddling with a number nobody
-   can evaluate; three named sizes are a choice you make once. Applied to
-   <html> at boot in app.js so it is in place before the first paint. */
-MA.Screens.TEXT_SIZES = [
-  { id: "md", scale: 1,    name: "Normal",  desc: "The default." },
-  { id: "lg", scale: 1.12, name: "Large",   desc: "Bigger question text, formulas and tables." },
-  { id: "xl", scale: 1.26, name: "Largest", desc: "For reading on a phone at arm's length." }
-];
-MA.Screens.textSizeKey = function (scale) {
-  const s = Number(scale) || 1;
-  const found = MA.Screens.TEXT_SIZES.slice().reverse().find(t => s >= t.scale);
-  return found ? found.id : "md";
-};
-
-/* ── settings ─────────────────────────────────────────────── */
-MA.Screens.settings = function (view) {
+/* ── options: the subject-only settings ────────────────────────
+   Lives on #/s/madv/options because #/settings is the app's. The one setting
+   MathQuest had that is genuinely subject-specific — which syllabus tiers you
+   study — was a build-time constant in the stand-alone app. It is a live toggle
+   here: switching it filters questions, cards, formulas, proofs, generators,
+   reference sheets, modes, bosses and achievements immediately, and (the
+   shared coverage rule) never changes what anything pays. */
+MA.Screens.options = function (view) {
   const U = MA.U, S = MA.State, UI = MA.UI;
-  const d = S.data;
 
-  view.appendChild(U.el("h1", { text: "Settings" }));
+  view.appendChild(U.el("h1", { text: "Maths Advanced options" }));
+  view.appendChild(U.el("p", { class: "muted", html:
+    "Sound, motion, text size and your save file are in the app's " +
+    `<a href="${UI.href("/settings")}">Settings</a>. Difficulty is in the ` +
+    `<a href="${UI.href("/shop")}">Maths Advanced shop</a>.` }));
 
-  /* difficulty */
   view.appendChild(U.el("h2", {}, [
-    document.createTextNode("Difficulty"),
-    U.el("span", { class: "h2-sub", text: "scoring, not syllabus" })
+    document.createTextNode("Syllabus"),
+    U.el("span", { class: "h2-sub", text: "what you study, not how hard it scores" })
   ]));
-  const diffGrid = U.el("div", { class: "grid g3" });
-  MA.DATA.difficulties.forEach(m => {
-    const active = d.settings.difficulty === m.id;
-    diffGrid.appendChild(U.el("button", {
-      class: "game-card" + (active ? "" : ""), style: "--gc:var(--glow-b)",
-      on: { click: () => {
-        d.settings.difficulty = m.id;
-        S.emit();
-        MA.Sound.equip();
-        UI.handleRoute();
-      } }
-    }, [
-      U.el("div", { class: "game-ico", text: m.icon }),
-      U.el("div", { class: "game-name", text: m.name }),
-      U.el("div", { class: "game-desc", text: m.desc }),
-      U.el("div", { class: "game-foot" }, [
-        U.el("span", { class: "chip" + (active ? " on" : ""), text: active ? "Active" : "×" + m.xp + " XP" })
-      ])
-    ]));
+  const on = S.studiesExt();
+  const sw = U.el("button", { class: "switch" + (on ? " on" : ""), type: "button", role: "switch",
+    "aria-checked": on ? "true" : "false", "aria-label": "I study Extension 1" });
+  sw.addEventListener("click", () => {
+    const next = !S.studiesExt();
+    S.setStudiesExt(next);
+    MA.Sound.equip();
+    UI.toast({ icon: next ? "🧩" : "📘", text: next
+      ? "<b>Extension 1 on.</b> Vector Lab, the Induction Builder and The Inductor are back."
+      : "<b>Advanced only.</b> Extension 1 content is hidden — your progress in it is kept." });
+    UI.handleRoute();
   });
-  view.appendChild(diffGrid);
-  view.appendChild(U.el("p", { class: "tiny muted", style: "margin-top:8px", text:
-    "This changes how hard the SCORING is. It is separate from which syllabus tier this build ships — " +
-    "see the Build panel below." }));
-
-  /* text size */
-  view.appendChild(U.el("h2", {}, [
-    document.createTextNode("Text size"),
-    U.el("span", { class: "h2-sub", text: "questions, formulas and tables" })
-  ]));
-  const sizeRow = U.el("div", { class: "row" });
-  MA.Screens.TEXT_SIZES.forEach(t => {
-    const on = MA.Screens.textSizeKey(d.settings.textScale) === t.id;
-    const b = U.el("button", { class: "btn" + (on ? " btn-primary" : ""), text: t.name,
-      style: "flex:1; min-width:96px",
-      on: { click: () => {
-        d.settings.textScale = t.scale;
-        document.documentElement.dataset.text = t.id;
-        S.save();
-        MA.Sound.equip();
-        UI.handleRoute();
-      } } });
-    sizeRow.appendChild(b);
-  });
-  view.appendChild(U.el("div", { class: "card grid" }, [
-    sizeRow,
-    U.el("p", { class: "tiny muted", style: "margin:0", text:
-      MA.Screens.TEXT_SIZES.find(t => MA.Screens.textSizeKey(d.settings.textScale) === t.id).desc }),
-    U.el("div", { class: "qcard", style: "padding:14px" }, [
-      U.el("div", { class: "qtext math", html: U.math("Differentiate y = \\frac{sin^2 x}{e^{3x}} and hence find f'(0).") })
+  view.appendChild(U.el("div", { class: "card" }, [
+    U.el("div", { class: "srow" }, [
+      U.el("div", { class: "srow-body" }, [
+        U.el("div", { style: "font-weight:700; font-size:13.5px", text: "I study Extension 1" }),
+        U.el("div", { class: "tiny muted", text:
+          "On: Advanced + Extension 1. Off: the ME- questions, flashcards, formulas, proofs, generators and " +
+          "reference sheets drop out, along with Vector Lab, the Induction Builder, The Inductor and the " +
+          "Extension achievements. Nothing you have earned is lost, and nothing pays differently." })
+      ]),
+      sw
     ])
   ]));
 
-  /* toggles */
-  view.appendChild(U.el("h2", { text: "Preferences" }));
-  const prefs = U.el("div", { class: "card" });
-  prefs.appendChild(toggleRow("Sound effects", "Synthesised in the browser — no audio files.",
-    d.settings.sound, on => {
-      d.settings.sound = on;
-      MA.Sound.setEnabled(on);
-      if (on) MA.Sound.equip();
-      S.save();
-    }));
-  prefs.appendChild(toggleRow("Motion and particles",
-    "Turns off confetti, background drift and every decorative CSS animation.",
-    d.settings.motion, on => {
-      d.settings.motion = on;
-      MA.FX.setReduced(!on);
-      // The setting has to reach CSS too, or only the JS particles go quiet.
-      document.documentElement.dataset.motion = on ? "on" : "off";
-      S.save();
-    }));
-
-  const vol = U.el("input", { type: "range", min: "0", max: "1", step: "0.05",
-    value: String(d.settings.volume) });
-  vol.addEventListener("input", () => {
-    d.settings.volume = parseFloat(vol.value);
-    MA.Sound.setVolume(d.settings.volume);
-    S.save();
-  });
-  vol.addEventListener("change", () => MA.Sound.coin());
-  prefs.appendChild(U.el("div", { class: "srow" }, [
-    U.el("div", { class: "srow-body" }, [
-      U.el("div", { style: "font-weight:700; font-size:13.5px", text: "Volume" }),
-      U.el("div", { class: "tiny muted", text: "Applies to every cue." })
-    ]),
-    U.el("div", { style: "width:130px" }, [vol])
-  ]));
-  view.appendChild(prefs);
-
-  /* ── build panel: which tier is shipping, and which version is running ──
-     "What version am I actually on?" has to be answerable, or an update
-     problem is undiagnosable. */
-  view.appendChild(U.el("h2", { text: "Build" }));
+  view.appendChild(U.el("h2", { text: "What you are studying" }));
+  const row = (label, value) => U.el("div", { class: "srow" }, [
+    U.el("div", { class: "srow-body" }, [U.el("div", { style: "font-weight:700; font-size:13.5px", text: label })]),
+    U.el("div", { class: "tiny muted", style: "text-align:right", text: value })
+  ]);
   view.appendChild(U.el("div", { class: "card" }, [
     row("Syllabus tiers", MA.DATA.TIERS.map(t => MA.DATA.TIER_META[t].name).join(" + ")),
     row("Questions", MA.Bank.all().length.toLocaleString()),
     row("Flashcards", String(MA.Cards.all().length)),
     row("Generators", String(MA.Gen.enabled().length)),
-    row("App version", MA.VERSION || "dev"),
-    row("Service worker", navigator.serviceWorker && navigator.serviceWorker.controller
-      ? "active" : "not controlling this page")
+    row("Proof puzzles", String(MA.Proofs.all().length)),
+    row("Formulas", String(MA.Formulas.all().length)),
+    row("Reference sheets", String(MA.Reference.all().length)),
+    row("Achievements", String(MA.DATA.enabledAchievements().length))
   ]));
 
-  /* ── save data ── */
-  view.appendChild(U.el("h2", { text: "Save data" }));
-  view.appendChild(U.el("div", { class: "card grid" }, [
-    U.el("p", { style: "margin:0", text:
-      "Progress lives in this browser's local storage, so it does not follow you to another device. " +
-      "Export it before you switch phones." }),
-    U.el("button", { class: "btn btn-block", text: "⬇ Export save", on: { click: exportSave } }),
-    U.el("button", { class: "btn btn-block", text: "⬆ Import save", on: { click: importSave } })
-  ]));
-
-  /* ── recovery ────────────────────────────────────────────────
-     iOS does NOT clear website data when a home-screen PWA is deleted, so
-     "uninstall and reinstall" does not reset anything and does not fetch a
-     new version. Without an in-app escape hatch a student can be stuck on a
-     stale build with no way out. */
-  view.appendChild(U.el("h2", { text: "Troubleshooting" }));
-  view.appendChild(U.el("div", { class: "card grid" }, [
-    U.el("p", { style: "margin:0", text:
-      "If the app seems stuck on an old version — a fix you were told about has not arrived — " +
-      "this clears every cache and re-downloads the app. Your progress is not touched." }),
-    U.el("button", { class: "btn btn-block", text: "🔄 Force refresh", on: { click: forceRefresh } }),
-    U.el("button", { class: "btn btn-danger btn-block", text: "Reset all progress",
-      on: { click: () => UI.confirmDialog("Reset everything?",
-        "This deletes your level, XP, Primes, unlocks, flashcard progress and statistics. " +
-        "It cannot be undone. Export a save first if you might want it back.",
-        () => { S.reset(); MA.Sound.explode(); UI.go("/home"); }, "Delete everything") } })
-  ]));
-
-  function row(label, value) {
-    return U.el("div", { class: "srow" }, [
-      U.el("div", { class: "srow-body" }, [
-        U.el("div", { style: "font-weight:700; font-size:13.5px", text: label })
-      ]),
-      U.el("div", { class: "tiny muted", style: "text-align:right", text: value })
-    ]);
-  }
-
-  function toggleRow(title, desc, value, onChange) {
-    const sw = U.el("div", { class: "switch" + (value ? " on" : "") });
-    sw.addEventListener("click", () => {
-      const on = !sw.classList.contains("on");
-      sw.classList.toggle("on", on);
-      onChange(on);
-    });
-    return U.el("div", { class: "srow" }, [
-      U.el("div", { class: "srow-body" }, [
-        U.el("div", { style: "font-weight:700; font-size:13.5px", text: title }),
-        U.el("div", { class: "tiny muted", text: desc })
-      ]),
-      sw
-    ]);
-  }
-
-  function exportSave() {
-    const json = S.exportSave();
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = U.el("a", { href: url, download: `mathquest-save-${U.dayKey()}.json` });
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    MA.Sound.purchase();
-    UI.toast({ icon: "⬇", kind: "good", text: "Save exported." });
-  }
-
-  function importSave() {
-    const input = U.el("input", { type: "file", accept: "application/json,.json" });
-    input.addEventListener("change", () => {
-      const file = input.files && input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const r = S.importSave(String(reader.result));
-        if (!r.ok) {
-          MA.Sound.denied();
-          return UI.toast({ icon: "🚫", kind: "bad", ms: 4000, text: U.escapeHtml(r.error) });
-        }
-        /* The save is written and further writes are LATCHED OFF, so the
-           reload below cannot fire pagehide → flush → overwrite-with-old-state.
-           That bug made imports appear to do nothing at all. */
-        MA.Sound.rareDrop();
-        UI.toast({ icon: "⬆", kind: "good", text: "Save imported — reloading…" });
-        setTimeout(() => location.reload(), 700);
-      };
-      reader.readAsText(file);
-    });
-    input.click();
-  }
-
-  async function forceRefresh() {
-    MA.Sound.open();
-    UI.toast({ icon: "🔄", text: "Clearing caches…" });
-    S.flush();
-    try {
-      if ("serviceWorker" in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map(r => r.unregister()));
-      }
-      if (window.caches) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(k => caches.delete(k)));
-      }
-    } catch (e) {
-      console.warn("Force refresh partially failed", e);
-    }
-    // A cache-busting query string, so even a stubborn HTTP cache is bypassed.
-    location.replace(location.pathname + "?fresh=" + Date.now() + location.hash);
-  }
-};
-
-/* ── profile sheet ────────────────────────────────────────── */
-MA.Screens.profileSheet = function () {
-  const U = MA.U, S = MA.State, UI = MA.UI;
-  const d = S.data;
-  const need = S.xpNeeded(d.level);
-
-  const nameInput = U.el("input", { class: "numin", type: "text", value: d.profile.name,
-    maxlength: "18", style: "font-size:16px" });
-  nameInput.addEventListener("input", () => {
-    d.profile.name = nameInput.value.slice(0, 18) || "Student";
-    S.save();
-  });
-
-  const owned = MA.DATA.shop.avatars.filter(a => S.ownsAvatar(a.emoji));
-  const picker = U.el("div", { class: "emoji-pick" }, MA.DATA.shop.avatars.map(a => {
-    const have = S.ownsAvatar(a.emoji);
-    const btn = U.el("button", {
-      class: "emoji-opt" + (d.profile.avatar === a.emoji ? " on" : "") + (have ? "" : " lock"),
-      text: a.emoji, title: have ? a.name : a.name + " — locked", disabled: !have
-    });
-    if (have) btn.addEventListener("click", () => {
-      d.profile.avatar = a.emoji;
-      S.emit();
-      MA.Sound.equip();
-      UI.closeModal();
-      MA.Screens.profileSheet();
-    });
-    return btn;
-  }));
-
-  UI.modal(U.el("div", {}, [
-    U.el("h2", { text: "Your profile" }),
-    U.el("div", { class: "row", style: "margin-bottom:12px" }, [
-      U.el("div", { style: "font-size:38px", text: d.profile.avatar }),
-      U.el("div", { style: "flex:1; min-width:0" }, [
-        U.el("div", { style: "font-weight:800", text: `Level ${d.level} · ${S.levelTitle(d.level)}` }),
-        U.el("div", { class: "tiny muted", text: `${d.xpIntoLevel} / ${need} XP` +
-          (d.prestige ? ` · ascended ${d.prestige}× (+${d.prestige * 12}% XP)` : "") })
-      ])
-    ]),
-    U.el("div", { class: "bar", style: "margin-bottom:16px" },
-      [U.el("i", { style: `width:${U.clamp((d.xpIntoLevel / need) * 100, 0, 100)}%` })]),
-    U.el("h3", { text: "Name" }),
-    nameInput,
-    U.el("h3", { style: "margin-top:16px", text: `Avatar (${owned.length} of ${MA.DATA.shop.avatars.length} owned)` }),
-    picker,
-    U.el("div", { class: "row", style: "margin-top:16px" }, [
-      U.el("button", { class: "btn btn-ghost btn-sm", text: "Shop", on: { click: () => { UI.closeModal(); UI.go("/shop"); } } }),
-      U.el("div", { class: "spacer" }),
-      U.el("button", { class: "btn btn-primary", text: "Done", on: { click: UI.closeModal } })
-    ])
-  ]));
+  view.appendChild(U.el("button", { class: "btn btn-ghost btn-block", style: "margin-top:14px",
+    text: "← Progress", on: { click: () => UI.go("/progress") } }));
 };

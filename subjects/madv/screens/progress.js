@@ -6,7 +6,13 @@ MA.Screens.progress = function (view) {
   const U = MA.U, S = MA.State, UI = MA.UI;
   const d = S.data;
 
-  view.appendChild(U.el("h1", { text: "Progress" }));
+  view.appendChild(U.el("div", { class: "row wrap", style: "gap:8px" }, [
+    U.el("h1", { style: "margin:0; flex:1", text: "Progress" }),
+    U.el("button", { class: "btn btn-sm btn-ghost", text: "⚙️ Options", on: { click: () => UI.go("/options") } })
+  ]));
+  view.appendChild(U.el("p", { class: "tiny muted", text:
+    "Studying " + MA.DATA.TIERS.map(t => MA.DATA.TIER_META[t].name).join(" + ") +
+    " · " + S.difficulty().icon + " " + S.difficulty().name + " difficulty" }));
 
   view.appendChild(U.el("div", { class: "grid g4" }, [
     tile(d.lifetimeXp.toLocaleString(), "Lifetime XP"),

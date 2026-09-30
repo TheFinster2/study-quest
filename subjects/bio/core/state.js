@@ -36,7 +36,7 @@
         stats: {
           punnettSolved: 0, pedigreeSolved: 0, responsesMarked: 0, labelRounds: 0,
           sortRuns: 0, processSolved: 0, dataSolved: 0, rehabRuns: 0,
-          cleanSweeps: 0, honestRuns: 0, survivalBest: 0, rapidBest: 0
+          cleanSweeps: 0, honestRuns: 0, readCorrect: 0, cardsPaid: 0, survivalBest: 0, rapidBest: 0
         },
         seen: {}, missed: {}, shortLog: {}, genSeeds: {}, diagramSeen: {},
         bests: {}, runs: 0, timeMs: 0, bossBest: {},
@@ -55,15 +55,18 @@
     },
     dailyReward: { coins: 150, xp: 180 },
     questPool: [
-      { id: "bq-answer",   stat: "answered",       target: 150, xp: 600, coins: 260, icon: "📝", name: "Field work",        desc: "Answer 150 Biology questions" },
-      { id: "bq-correct",  stat: "correct",        target: 100, xp: 700, coins: 300, icon: "🎯", name: "Sharp eye",         desc: "Get 100 Biology answers right" },
+      /* Every quest stat moves only on work that could have paid: a correct answer
+         given after the read floor, a card that paid, a written response that paid.
+         Otherwise an instant-tapping bot would complete them and be paid in XP. */
+      { id: "bq-correct",  stat: "readCorrect",    target: 100, xp: 700, coins: 300, icon: "🎯", name: "Sharp eye",         desc: "Get 100 Biology answers right (read, not rushed)" },
+      { id: "bq-streak",   stat: "readCorrect",    target: 200, xp: 1100, coins: 420, icon: "📝", name: "Field work",       desc: "Get 200 Biology answers right this week" },
       { id: "bq-punnett",  stat: "punnettSolved",  target: 20,  xp: 650, coins: 280, icon: "🧬", name: "Cross-breeder",     desc: "Solve 20 Punnett Lab crosses" },
       { id: "bq-pedigree", stat: "pedigreeSolved", target: 10,  xp: 650, coins: 280, icon: "🌳", name: "Family historian",  desc: "Solve 10 pedigrees" },
-      { id: "bq-cards",    stat: "cardsReviewed",  target: 80,  xp: 550, coins: 240, icon: "🃏", name: "Spaced out",        desc: "Review 80 flashcards" },
+      { id: "bq-cards",    stat: "cardsPaid",      target: 80,  xp: 550, coins: 240, icon: "🃏", name: "Spaced out",        desc: "Review 80 due flashcards (each pays once a day)" },
       { id: "bq-response", stat: "responsesMarked",target: 6,   xp: 600, coins: 260, icon: "✍️", name: "In your own words", desc: "Self-mark 6 written responses" },
       { id: "bq-label",    stat: "labelRounds",    target: 12,  xp: 550, coins: 240, icon: "🔬", name: "Cartographer",      desc: "Answer 12 Label It items" },
       { id: "bq-boss",     stat: "bossWins",       target: 1,   xp: 800, coins: 350, icon: "⚔️", name: "Boss hunter",       desc: "Defeat a Biology boss" },
-      { id: "bq-fixed",    stat: "mistakesFixed",  target: 15,  xp: 600, coins: 260, icon: "🩹", name: "Rehabilitated",     desc: "Retire 15 questions from Mistake Rehab" },
+      { id: "bq-process",  stat: "processSolved",  target: 6,   xp: 550, coins: 240, icon: "🔁", name: "Step by step",      desc: "Solve 6 Process Order sequences for XP" },
       { id: "bq-data",     stat: "dataSolved",     target: 15,  xp: 550, coins: 240, icon: "📈", name: "Data literate",     desc: "Answer 15 Data Detective questions right" }
     ],
     achievements: function () { return (BIO.DATA && BIO.DATA.achievements) || []; },

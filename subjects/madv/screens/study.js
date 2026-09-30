@@ -7,6 +7,7 @@ MA.Screens.study = (function () {
 
   function screen(view, args) {
     if (args && args[0] === "deck") return review(view, args[1]);
+    if (args && args[0] === "leeches") return leechList(view);
     return picker(view);
   }
 
@@ -42,7 +43,7 @@ MA.Screens.study = (function () {
         ])
       )),
       U.el("p", { class: "tiny muted", style: "margin:10px 0 0", text:
-        "A card moves up a box when you get it, and drops straight to box 1 when you miss it." })
+        "Good moves a card up a box, Easy up two, Hard keeps it and brings it back tomorrow, and Again drops it to box 1." })
     ]));
 
     view.appendChild(U.el("h2", { text: "Decks" }));
@@ -73,7 +74,16 @@ MA.Screens.study = (function () {
     }));
     view.appendChild(U.el("button", {
       class: "btn btn-ghost btn-block", style: "margin-top:8px",
+      text: "📄 Formula Sheet — ✅ printed vs 🧠 memorise", on: { click: () => UI.go("/formulas") }
+    }));
+    view.appendChild(U.el("button", {
+      class: "btn btn-ghost btn-block", style: "margin-top:8px",
       text: "🔖 Starred questions", on: { click: () => UI.go("/game/starred") }
+    }));
+    const lc = S.leeches().length;
+    view.appendChild(U.el("button", {
+      class: "btn btn-ghost btn-block", style: "margin-top:8px",
+      text: "🩸 Leeches" + (lc ? " (" + lc + ")" : ""), on: { click: () => UI.go("/study/leeches") }
     }));
   }
 
@@ -105,7 +115,7 @@ MA.Screens.study = (function () {
     let idx = 0, got = 0, paid = 0, flipped = false, shownAt = 0, finished = false;
 
     const shell = UI.gameShell("🗂️ " + (name === "all" ? "Due cards" : name), { backTo: "/study",
-      help: "Tap the card to flip it, then say honestly whether you knew it. " +
+      help: "Tap the card to flip it, then grade yourself honestly: Again, Hard, Good or Easy (keys 1–4). " +
             "A card pays XP at most once a day, and only if it was actually due — otherwise " +
             "\"Got it\" would be an infinite XP button." });
     view.appendChild(shell.root);
@@ -122,8 +132,9 @@ MA.Screens.study = (function () {
     function onKey(e) {
       if (finished) return;
       if (e.key === " " || e.key === "Enter") { e.preventDefault(); const f = U.$(".fcard", stage); if (f) f.click(); }
-      if (flipped && (e.key === "1" || e.key === "y")) grade(true);
-      if (flipped && (e.key === "2" || e.key === "n")) grade(false);
+      /* Graded review: 1 Again · 2 Hard · 3 Good · 4 Easy (y/n still work). */
+      const G = { "1": "again", "2": "hard", "3": "good", "4": "easy", y: "good", n: "again" }[e.key];
+      if (flipped && G) grade(G);
     }
 
     function render() {
@@ -157,20 +168,31 @@ MA.Screens.study = (function () {
       const leitner = U.el("div", { class: "leitner" },
         [1, 2, 3, 4, 5].map(b => U.el("div", { class: "lbox" + (b === st.box ? " on" : ""), text: String(b) })));
 
-      const buttons = U.el("div", { class: "row", hidden: true, style: "justify-content:center; gap:10px" }, [
-        U.el("button", { class: "btn", text: "✗ Missed it", on: { click: () => grade(false) } }),
-        U.el("button", { class: "btn btn-primary", text: "✓ Got it", on: { click: () => grade(true) } })
+      /* Graded, not binary: Again resets the card and counts a lapse (four
+         lapses make it a leech); Hard keeps its box and brings it back
+         tomorrow; Good moves it up one box; Easy moves it up two. */
+      const buttons = U.el("div", { class: "grade-row", hidden: true }, [
+        U.el("button", { class: "btn", text: "✗ Again", title: "1", on: { click: () => grade("again") } }),
+        U.el("button", { class: "btn", text: "Hard", title: "2", on: { click: () => grade("hard") } }),
+        U.el("button", { class: "btn btn-primary", text: "✓ Good", title: "3", on: { click: () => grade("good") } }),
+        U.el("button", { class: "btn", text: "Easy", title: "4", on: { click: () => grade("easy") } })
       ]);
+      const leech = S.isLeech(card.id)
+        ? U.el("div", { class: "tiny", style: "text-align:center; color:var(--bad)",
+            text: "🩸 Leech — you have missed this " + S.cardState(card.id).lapses + " times. Try writing it out." })
+        : null;
 
       stage.appendChild(flipper);
       stage.appendChild(leitner);
       stage.appendChild(buttons);
+      if (leech) stage.appendChild(leech);
       stage.appendChild(U.el("div", { class: "tiny muted", style: "text-align:center",
         html: MA.Bank.topicName(card.topic) + (MA.DATA.tierOf(card.topic) === "ME" ? " · EXT" : "") }));
     }
 
-    function grade(ok) {
+    function grade(g) {
       if (finished || !flipped) return;
+      const ok = g !== "again";
       const card = cards[idx];
       const readLongEnough = performance.now() - shownAt >= UI.MIN_READ_MS;
       const eligible = S.cardXpEligible(card.id);
@@ -181,7 +203,7 @@ MA.Screens.study = (function () {
         paid++;
         paidChip.textContent = paid * 8 + " XP";
       }
-      S.reviewCard(card.id, ok);
+      S.reviewCard(card.id, g);
       MA.Sound[ok ? "correct" : "wrong"]();
 
       idx++;
@@ -209,6 +231,27 @@ MA.Screens.study = (function () {
     }
 
     render();
+  }
+
+  /* Named leeches: the cards with four or more lapses, worst first. */
+  function leechList(view) {
+    const list = S.leeches().filter(x => MA.Cards.byId(x.q.id));
+    view.appendChild(U.el("h1", { text: "Leeches" }));
+    view.appendChild(U.el("p", { text: "Cards you have missed four or more times. Re-reading them is not working — " +
+      "write each one out from memory, then check." }));
+    if (!list.length) {
+      view.appendChild(U.el("div", { class: "empty" }, [
+        U.el("div", { class: "empty-ico", text: "✅" }),
+        U.el("p", { text: "No leeches. Every card you have missed is sticking." })
+      ]));
+    }
+    list.forEach(x => view.appendChild(U.el("div", { class: "wrongq" }, [
+      U.el("div", { class: "q math", html: U.math(x.q.q) }),
+      U.el("div", { class: "a math", html: "→ " + U.math(x.q.a) }),
+      U.el("div", { class: "tiny muted", text: x.c.lapses + " lapses · " + x.q.deck })
+    ])));
+    view.appendChild(U.el("button", { class: "btn btn-ghost btn-block", style: "margin-top:12px",
+      text: "← Back to Study", on: { click: () => UI.go("/study") } }));
   }
 
   return { screen };

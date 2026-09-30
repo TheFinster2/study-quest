@@ -18,11 +18,6 @@
 window.ECON = window.ECON || {}; ECON.DATA = ECON.DATA || {};
 
 ECON.DATA.shop = {
-  tickets: [
-    { id:"tkt-5",  name:"Arcade ticket — 5 minutes",  minutes:5,  cost:315 },
-    { id:"tkt-15", name:"Arcade ticket — 15 minutes", minutes:15, cost:840 },
-    { id:"tkt-40", name:"Arcade ticket — 40 minutes", minutes:40, cost:1980 }
-  ],
   /* Consumable power-ups. `desc` is what the shop shows; the behaviour lives
      in js/modes/common.js. Prices are set so that a strong run buys roughly
      one mid-tier power-up — enough to matter, not enough to farm. */
@@ -71,11 +66,11 @@ ECON.DATA.shop = {
   ],
 
   themes: [
-    { id:"ledger",   name:"Ledger",   cost:0,    blurb:"The default. Deep green and brass." },
-    { id:"indigo",   name:"Indigo",   cost:1200, blurb:"Cool blues, easy on the eyes at night." },
-    { id:"ochre",    name:"Ochre",    cost:1800, blurb:"Warm reds and gold." },
-    { id:"slate",    name:"Slate",    cost:2400, blurb:"Cold grey and pale steel." },
-    { id:"daylight", name:"Daylight", cost:3000, blurb:"A light theme, for reading in the sun." }
+    { id:"econ-ledger",   name:"Ledger",   cost:0,    blurb:"The default. Deep green and brass." },
+    { id:"econ-indigo",   name:"Indigo",   cost:1200, level:4, blurb:"Cool blues, easy on the eyes at night." },
+    { id:"econ-ochre",    name:"Ochre",    cost:1800, level:8, blurb:"Warm reds and gold." },
+    { id:"econ-slate",    name:"Slate",    cost:2400, level:12, blurb:"Cold grey and pale steel." },
+    { id:"econ-daylight", name:"Daylight", cost:3000, level:16, blurb:"A light theme, for reading in the sun." }
   ]
 };
 
@@ -143,17 +138,8 @@ ECON.DATA.levelTitles = [
   "Equilibrium Legend"          // 60+
 ];
 
-/* Difficulty modes. `xp` MULTIPLIES what a run earns — it never adds, so a
-   run worth nothing is still worth nothing on Nightmare. `timeScale` shortens
-   every clock and `lock` names power-ups that difficulty refuses to allow. */
-ECON.DATA.difficulties = [
-  { id:"standard",  name:"Standard",  icon:"📊", xp:1.0,  timeScale:1.0,  lock:[],
-    desc:"The default balance. Full timers, every power-up available." },
-  { id:"hard",      name:"Hard",      icon:"🔥", xp:1.45, timeScale:0.75, lock:["fifty"],
-    desc:"A quarter less time on every clock and no Narrow the field — but 45% more XP." },
-  { id:"nightmare", name:"Nightmare", icon:"☠️", xp:2.0,  timeScale:0.55, lock:["fifty","skip"],
-    desc:"Barely any time, no Narrow the field and no Pass. Double XP for the reckless." }
-];
+/* Difficulty now comes from SQ.SubjectState (four tiers: Gentle, Standard,
+   Hard, Nightmare) and is chosen in the Economics shop. */
 
 /* Per-topic mastery tiers, measured against State.mastery(). */
 ECON.DATA.masteryTiers = [

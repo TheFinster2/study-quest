@@ -21,8 +21,8 @@
     var pool = BIO.Bank.active("card", r.query.mod ? function (c) { return c.mod === r.query.mod; } : null);
     if (!pool.length) { BIO.Coverage.warnIfEmpty("card"); return; }
 
-    var due = S.dueCards(pool.map(function (c) { return c.id; }));
-    var dueCards = pool.filter(function (c) { return due.indexOf(c.id) >= 0; });
+    var poolIds = {}; pool.forEach(function (c) { poolIds[c.id] = true; });
+    var dueCards = S.dueCards(function (c) { return poolIds[c.id]; });
     var deck = (dueCards.length ? U.sample(dueCards, SESSION) : U.sample(pool, SESSION));
     var onlyReview = dueCards.length === 0;
 
@@ -30,7 +30,7 @@
     var shell = UI.gameShell(view, {
       title:"Flashcards",
       sub: onlyReview ? "Nothing due — free review, pays nothing" : U.plural(dueCards.length, "card") + " due",
-      onQuit: function () { UI.go("/study"); }
+      onQuit: function () { UI.go("/study"); }, backTo: "/study"
     });
     UI._gsRefresh = paint;
 
@@ -57,7 +57,8 @@
       host.appendChild(U.el("div", { class:"qmeta" }, [
         U.el("span", { class:"badge badge-accent", text: card.mod }),
         U.el("span", { class:"badge", text: U.trunc(card.topic || "", 26) }),
-        U.el("span", { class:"badge", text:"box " + (cs.box + 1) + "/" + S.BOX_DAYS.length })
+        U.el("span", { class:"badge", text:"box " + cs.box + "/5" }),
+        S.isLeech(card.id) ? U.el("span", { class:"badge badge-bad", text:"leech" }) : null
       ]));
 
       var face = U.el("div", { class:"card", style:"min-height:180px;display:grid;place-items:center;text-align:center;padding:26px 16px" }, [
@@ -79,8 +80,8 @@
     function grades(card) {
       var row = U.el("div", { style:"display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px" });
       [["Again", 0, "var(--bad)"], ["Hard", 1, "var(--warn)"], ["Good", 2, "var(--accent)"], ["Easy", 3, "var(--good)"]]
-        .forEach(function (g) {
-          var b = U.el("button", { class:"btn btn-sm", style:"border-color:" + g[2] + ";color:" + g[2] }, g[0]);
+        .forEach(function (g, gi) {
+          var b = U.el("button", { class:"btn btn-sm", title: "Key " + (gi + 1), style:"border-color:" + g[2] + ";color:" + g[2] }, g[0]);
           b.addEventListener("click", function () { grade(card, g[1]); });
           row.appendChild(b);
         });
@@ -93,14 +94,16 @@
 
     function grade(card, g) {
       var readMs = Date.now() - st.flippedAt;
-      var wasDue = !onlyReview && !st.paidToday[card.id];
-      S.reviewCard(card.id, g);
+      var wasDue = !onlyReview && !st.paidToday[card.id] && S.cardXpEligible(card.id);
+      S.reviewCard(card.id, ["again", "hard", "good", "easy"][g]);
       st.reviewed++;
       if (wasDue && readMs >= S.MIN_READ_MS && g >= 1) {
         // "Again" pays nothing — you did not know it, and paying for a miss is
         // exactly how a self-graded mode becomes free XP.
         st.xp += XP_PER_CARD;
         st.paidToday[card.id] = true;
+        S.markCardXp(card.id);
+        S.bump("cardsPaid");
       }
       if (g === 0) st.again++;
       st.i++;
@@ -116,7 +119,7 @@
       if (BIO.Achievements) BIO.Achievements.check(rec);
 
       var boxes = [0, 0, 0, 0, 0];
-      Object.keys(S.data.cards).forEach(function (id) { boxes[S.data.cards[id].box]++; });
+      Object.keys(S.data.srs).forEach(function (id) { var b = S.data.srs[id].box; if (b >= 1 && b <= 5) boxes[b - 1]++; });
 
       UI.results(view, {
         title:"Session complete",
