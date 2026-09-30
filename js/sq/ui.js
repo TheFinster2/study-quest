@@ -583,6 +583,8 @@ SQ.UI = (function () {
       toast, modal, closeModal, confirmDialog, confirm: confirmDialog, chip, rank, onLeave, pulse,
       syncHeader, applyTheme: t => setSubjectTheme(id, t), formulaPenalty, readFloor,
       modalOpen, MIN_BONUS_ACCURACY, MIN_READ_MS,
+      /** Re-run the current route — every lineage mode's "Play again". */
+      handleRoute: () => handleRoute(), reload: () => handleRoute(),
       get current() { return current; },
       init: () => {}          // the app boots the router, not the subject
     };

@@ -109,12 +109,20 @@ SQ.Tools = (function () {
   /* ── sheets ──────────────────────────────────────────────────── */
   function registerSheet(id, sheet) {
     const s = sheet || {};
+    const all = (s.sections || []).map(sec => ({ id: sec.id, title: sec.title || "",
+      items: (sec.items || []).filter(it => it && it.id) }));
+    /* `filter(item) → bool` is evaluated on every read, so a live setting (Maths
+       Advanced's Extension 1 toggle) is respected without re-registering. */
+    const filter = typeof s.filter === "function" ? s.filter : null;
     sheets[id] = {
       title: s.title || "Reference sheet",
       render: typeof s.render === "function" ? s.render : null,
       constants: (s.constants || []).filter(c => c && c.id),
-      sections: (s.sections || []).map(sec => ({ id: sec.id, title: sec.title || "",
-        items: (sec.items || []).filter(it => it && it.id) }))
+      get sections() {
+        if (!filter) return all;
+        return all.map(sec => ({ id: sec.id, title: sec.title, items: sec.items.filter(it => { try { return filter(it) !== false; } catch (e) { return true; } }) }))
+          .filter(sec => sec.items.length);
+      }
     };
     return sheets[id];
   }

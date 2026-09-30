@@ -65,6 +65,12 @@ SQ.FX = (function () {
         ctx.moveTo(-p.size, 0);
         ctx.lineTo(p.size, 0);
         ctx.stroke();
+      } else if (p.shape === "glyph") {
+        /* A character — maths symbols, ion formulas, letters. Subjects pass their own. */
+        ctx.font = "700 " + Math.round(p.size * 2.4) + "px system-ui, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(p.glyph, 0, 0);
       } else {
         // Paper: a rectangle wider than it is tall, so it flutters rather than falls.
         ctx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.66);
@@ -105,13 +111,23 @@ SQ.FX = (function () {
         fade: 28,
         rot: Math.random() * Math.PI,
         spin: (Math.random() - 0.5) * 0.28,
-        shape: o.shape || "paper"
+        shape: o.shape || "paper",
+        glyph: o.glyphs ? o.glyphs[Math.floor(Math.random() * o.glyphs.length)] : null
       });
     }
     start();
   }
 
   return {
+    /** The general particle burst. opts: { count, speed, size, life, gravity, drag, angle,
+        spread, lift, colors, shape: "paper"|"circle"|"ring"|"line"|"glyph", glyphs: [...] } */
+    burst,
+    burstAt(x, y, opts) { burst(x, y, opts); },
+    /** A shower of subject glyphs (∫ π Σ, ions, letters) rising from a point. */
+    symbols(x, y, glyphs, n) {
+      burst(x, y, { count: n || 16, speed: 4.2, size: 6, life: 70, gravity: 0.06, lift: 2.4,
+                    shape: "glyph", glyphs: glyphs && glyphs.length ? glyphs : ["★", "✦", "✧"] });
+    },
     /* Flagged on <html> as well, so the in-app Motion toggle reaches CSS. Turning
        motion off previously silenced only the JS particles while every CSS animation
        kept running, including the full-screen background drift, which is the most

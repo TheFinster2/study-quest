@@ -115,7 +115,7 @@ function unscoped(css, id) {
   const src = stripCss(css);
   const out = [];
   let i = 0;
-  const scope = new RegExp('^(html|:root)\\[data-subject="' + id + '"\\]');
+  const scope = new RegExp('^(:where\\()?(html|:root)\\[data-subject="' + id + '"\\]');
   function block(end) {
     while (i < src.length) {
       const open = src.indexOf("{", i), close = src.indexOf("}", i);

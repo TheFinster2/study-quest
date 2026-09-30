@@ -72,6 +72,9 @@ SQ.Migrate = (function () {
       if (res.profile) {
         if (res.profile.name && d.profile.name === "Student") d.profile.name = String(res.profile.name).slice(0, 24);
         if (res.profile.avatar && d.profile.avatar === "🎓" && d.owned.avatars.includes(res.profile.avatar)) d.profile.avatar = res.profile.avatar;
+        /* Theme ids are taken as given: a subject returns app ids (Maths Advanced's
+           themes became the app's) or its own prefixed ids, never both. */
+        if (res.profile.theme && d.profile.theme === "midnight" && d.owned.themes.includes(res.profile.theme)) d.profile.theme = res.profile.theme;
       }
       if (res.streak && res.streak.longest > (d.streak.longest || 0)) d.streak.longest = res.streak.longest;
       /* Past study counts toward the overall level (and its level-up Stars) — but
