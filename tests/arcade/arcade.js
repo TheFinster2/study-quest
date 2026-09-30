@@ -142,7 +142,9 @@ const BOT = `(async (game, ms) => {
       T.ok(r.run.acts > 0, r.g + ": the bot made moves (" + r.run.acts + ")");
       T.ok(r.before === r.after, r.g + ": 10 s of play left XP, Stars, coins, overall level, achievements and power-ups unchanged");
       const burnt = r.secBefore - r.extra.sec;
-      T.ok(burnt >= 6 && burnt <= 13, r.g + ": the meter burnt about the time played (" + burnt + " s)");
+      /* A run that ended early stops the meter under its game-over modal. */
+      const low = r.run.over ? 1 : 6;
+      T.ok(burnt >= low && burnt <= 13, r.g + ": the meter burnt about the time actually played (" + burnt + " s" + (r.run.over ? ", game over" : "") + ")");
       T.ok(r.ov.px <= 0, r.g + ": no horizontal overflow at 390 during play" + (r.ov.px > 0 ? " " + JSON.stringify(r.ov) : ""));
       console.log("  · " + r.g + ": " + r.run.acts + " moves, score " + r.run.score + (r.run.over ? " (game over)" : ""));
     }

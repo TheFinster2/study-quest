@@ -94,6 +94,13 @@
     });
   };
 
+  /* The app router takes the first path segment as the route name, so a query on
+     it ("/atlas?d=cell") must become "/atlas/?d=cell" to reach Biology's table. */
+  function fixPath(p) { return String(p || "").replace(/^(#?\/?[^/?#]+)\?/, "$1/?"); }
+  UI.go = function (p) { return core.go(fixPath(p)); };
+  var coreHref = UI.href;
+  UI.href = function (p) { return coreHref(fixPath(p)); };
+
   UI.render = function () { SQ.UI.handleRoute(); };
   UI.back = function () { UI.go("/play"); };
   UI.hideTabs = function () { /* the shared navbar stays; kept so modes need no edit */ };

@@ -1,0 +1,182 @@
+/* Economics — every rule scoped to html[data-subject="econ"]. Component rules
+   are further scoped to .econ-app (the wrapper the Economics router renders
+   each screen into), so they never restyle the core shop, results or tool tray.
+   Generated from the stand-alone app's css/styles.css, minus the chrome the
+   core now owns (top bar, tab bar, modals, toasts, tool tray, calculator). */
+
+/* Economics' own token names, aliased onto the core tokens. */
+html[data-subject="econ"]{
+  --bg: var(--bg-0);
+  --card-3: color-mix(in srgb, var(--ink) 12%, transparent);
+  --line-soft: color-mix(in srgb, var(--line) 70%, transparent);
+  --ink-2: var(--ink-dim);
+  --ink-3: var(--ink-faint);
+  --accent-2: color-mix(in srgb, var(--accent) 82%, #000);
+  --warn-ink: color-mix(in srgb, var(--warn) 12%, #000);
+  --bad-ink: color-mix(in srgb, var(--bad) 12%, #000);
+  --violet: var(--glow-b);
+  --shadow: 0 6px 24px rgba(0,0,0,.35);
+  --r: 14px;
+  --maxw: 720px;
+}
+html[data-subject="econ"] .econ-app{ max-width: var(--maxw); margin: 0 auto; }
+html[data-subject="econ"] .econ-app *, html[data-subject="econ"] .econ-app *::before, html[data-subject="econ"] .econ-app *::after{ min-width: 0; box-sizing: border-box; }
+html[data-subject="econ"] .econ-app h1{ font-size: 22px; margin: 4px 0 12px; letter-spacing: -.2px; }
+html[data-subject="econ"] .econ-app h2{ font-size: 17px; margin: 20px 0 8px; }
+html[data-subject="econ"] .econ-app h3{ font-size: 15px; margin: 14px 0 6px; color: var(--ink-2); }
+html[data-subject="econ"] .econ-app p{ margin: 8px 0; }
+html[data-subject="econ"] .econ-app .btn:focus-visible{ outline: 3px solid var(--accent); outline-offset: 2px; }
+
+html[data-subject="econ"] .econ-app .muted {color: var(--ink-2); }
+html[data-subject="econ"] .econ-app .muted2 {color: var(--ink-3); font-size: 13px; }
+html[data-subject="econ"] .econ-app .small {font-size: 13px; }
+html[data-subject="econ"] .econ-app .center {text-align: center; }
+html[data-subject="econ"] .econ-app .btn {display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 10px 16px; border-radius: 12px; cursor: pointer; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); font: inherit; font-weight: 600; font-size: 15px; text-decoration: none; text-align: center; }
+html[data-subject="econ"] .econ-app .btn:disabled {opacity: .45; cursor: not-allowed; }
+html[data-subject="econ"] .econ-app .btn-primary {background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+html[data-subject="econ"] .econ-app .btn-warn {background: var(--warn); border-color: var(--warn); color: var(--warn-ink); }
+html[data-subject="econ"] .econ-app .btn-ghost {background: transparent; }
+html[data-subject="econ"] .econ-app .btn-sm {min-height: 36px; padding: 6px 12px; font-size: 13px; }
+html[data-subject="econ"] .econ-app .btn-block {display: flex; width: 100%; }
+@media (hover: hover) and (pointer: fine) {
+  html[data-subject="econ"] .econ-app .btn:hover {border-color: var(--accent); }
+  html[data-subject="econ"] .econ-app .btn-primary:hover {background: var(--accent-2); border-color: var(--accent-2); color: var(--accent-ink); }
+  html[data-subject="econ"] .econ-app .btn-warn:hover {background: var(--warn); border-color: var(--warn); color: var(--warn-ink); }
+}
+html[data-subject="econ"] .econ-app .row {display: flex; gap: 8px; flex-wrap: wrap; }
+html[data-subject="econ"] .econ-app .row-tight {display: flex; gap: 6px; flex-wrap: wrap; }
+html[data-subject="econ"] .econ-app .spread {display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+html[data-subject="econ"] .econ-app .grow {flex: 1 1 auto; }
+html[data-subject="econ"] .econ-app .card {background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--r); padding: 14px; margin: 10px 0; }
+html[data-subject="econ"] .econ-app .card-tight {padding: 10px; }
+html[data-subject="econ"] .econ-app .tile-grid {display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+@media (min-width: 560px) {
+  html[data-subject="econ"] .econ-app .tile-grid {grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+html[data-subject="econ"] .econ-app .tile {display: flex; flex-direction: column; gap: 4px; align-items: flex-start; background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--r); padding: 12px; text-decoration: none; color: var(--ink); cursor: pointer; text-align: left; font: inherit; min-height: 92px; }
+html[data-subject="econ"] .econ-app .tile:active {transform: scale(.985); }
+html[data-subject="econ"] .econ-app .tile .ico {font-size: 22px; line-height: 1; color: var(--accent); }
+html[data-subject="econ"] .econ-app .tile .t {font-weight: 700; font-size: 14px; }
+html[data-subject="econ"] .econ-app .tile .d {font-size: 11.5px; color: var(--ink-3); line-height: 1.35; }
+html[data-subject="econ"] .econ-app .tile.locked {opacity: .5; }
+html[data-subject="econ"] .econ-app .badge {display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .3px; padding: 2px 7px; border-radius: 999px; background: var(--card-3); color: var(--ink-2); border: 1px solid var(--line-soft); text-transform: uppercase; }
+html[data-subject="econ"] .econ-app .badge-accent {background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); border-color: transparent; }
+html[data-subject="econ"] .econ-app .badge-warn {background: color-mix(in srgb, var(--warn) 18%, transparent); color: var(--warn); border-color: transparent; }
+html[data-subject="econ"] .econ-app .badge-bad {background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); border-color: transparent; }
+html[data-subject="econ"] .econ-app .badge-good {background: color-mix(in srgb, var(--good) 18%, transparent); color: var(--good); border-color: transparent; }
+html[data-subject="econ"] .econ-app .gs-head {position: sticky; z-index: 20; top: calc(var(--bar-h) + env(safe-area-inset-top, 0px) + 3px); background: var(--bg); padding: 8px 0 10px; margin: -6px 0 6px; border-bottom: 1px solid var(--line-soft); }
+html[data-subject="econ"] .econ-app .gs-meters {display: flex; gap: 8px; align-items: center; font-size: 12px; font-weight: 700; flex-wrap: wrap; }
+html[data-subject="econ"] .econ-app .gs-meter {background: var(--card-2); border: 1px solid var(--line-soft); border-radius: 999px; padding: 4px 10px; }
+html[data-subject="econ"] .econ-app .gs-meter.hot {color: var(--bad); border-color: var(--bad); }
+html[data-subject="econ"] .econ-app .gs-prog {height: 5px; background: var(--line-soft); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+html[data-subject="econ"] .econ-app .gs-prog > i {display: block; height: 100%; background: var(--accent); transition: width .25s; }
+html[data-subject="econ"] .econ-app .qtext {font-size: 17px; line-height: 1.45; margin: 14px 0 12px; font-weight: 600; }
+html[data-subject="econ"] .econ-app .qmeta {display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+html[data-subject="econ"] .econ-app .opts {display: grid; gap: 8px; }
+html[data-subject="econ"] .econ-app .opt {display: flex; gap: 10px; align-items: flex-start; text-align: left; width: 100%; min-height: 48px; padding: 11px 12px; border-radius: 12px; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 15px; line-height: 1.35; }
+html[data-subject="econ"] .econ-app .opt .k {flex: 0 0 auto; width: 22px; height: 22px; border-radius: 6px; background: var(--card-3); color: var(--ink-2); font-size: 12px; font-weight: 800; display: grid; place-items: center; margin-top: 1px; }
+html[data-subject="econ"] .econ-app .opt.right {border-color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--card)); }
+html[data-subject="econ"] .econ-app .opt.right .k {background: var(--good); color: var(--accent-ink); }
+html[data-subject="econ"] .econ-app .opt.wrong {border-color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, var(--card)); }
+html[data-subject="econ"] .econ-app .opt.wrong .k {background: var(--bad); color: #fff; }
+html[data-subject="econ"] .econ-app .opt.dim {opacity: .5; }
+html[data-subject="econ"] .econ-app .opt:disabled {cursor: default; }
+html[data-subject="econ"] .econ-app .why {margin-top: 12px; padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.5; background: var(--card-2); border: 1px solid var(--line-soft); }
+html[data-subject="econ"] .econ-app .why .why-h {font-weight: 800; font-size: 12px; letter-spacing: .4px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+html[data-subject="econ"] .econ-app .why.ok {border-color: color-mix(in srgb, var(--good) 45%, var(--line-soft)); }
+html[data-subject="econ"] .econ-app .why.no {border-color: color-mix(in srgb, var(--bad) 45%, var(--line-soft)); }
+html[data-subject="econ"] .econ-app .why .misc {margin-top: 8px; color: var(--warn); font-size: 13px; }
+html[data-subject="econ"] .econ-app .why ul {margin: 6px 0 0; padding-left: 18px; }
+html[data-subject="econ"] .econ-app .why li {margin: 3px 0; font-size: 13px; color: var(--ink-2); }
+html[data-subject="econ"] .econ-app .dg-wrap {background: var(--card); border: 1px solid var(--line-soft); border-radius: var(--r); padding: 8px; }
+html[data-subject="econ"] .econ-app .dg-wrap svg {display: block; width: 100%; height: auto; }
+html[data-subject="econ"] .econ-app .dg-hit {cursor: pointer; }
+html[data-subject="econ"] .econ-app .dg-part {transition: opacity .15s; }
+html[data-subject="econ"] .econ-app .dg-lead {stroke: var(--line); stroke-width: 1.5; fill: none; }
+html[data-subject="econ"] .econ-app .dg-num {fill: var(--accent-ink); font-size: 13px; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+html[data-subject="econ"] .econ-app .dg-numbg {fill: var(--accent); stroke: var(--bg); stroke-width: 1.5; }
+html[data-subject="econ"] .econ-app .dg-numbg.placed {fill: var(--good); }
+html[data-subject="econ"] .econ-app .dg-numbg.target {fill: var(--warn); }
+html[data-subject="econ"] .econ-app .dg-numbg.right {fill: var(--good); }
+html[data-subject="econ"] .econ-app .dg-numbg.wrong {fill: var(--bad); }
+html[data-subject="econ"] .econ-app .dg-bank {display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+html[data-subject="econ"] .econ-app .dg-chip {min-height: 40px; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card-2); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+html[data-subject="econ"] .econ-app .dg-chip.sel {background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+html[data-subject="econ"] .econ-app .dg-chip.done {opacity: .35; text-decoration: line-through; cursor: default; }
+html[data-subject="econ"] .econ-app .dg-legend {margin-top: 10px; display: grid; gap: 4px; }
+html[data-subject="econ"] .econ-app .dg-legend div {font-size: 13px; color: var(--ink-2); }
+html[data-subject="econ"] .econ-app .dg-legend b {color: var(--ink); }
+html[data-subject="econ"] .econ-app .rb-answer {width: 100%; min-height: 180px; resize: vertical; border-radius: 12px; padding: 12px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: 15.5px; line-height: 1.5; }
+html[data-subject="econ"] .econ-app .crit {display: grid; gap: 8px; margin-top: 10px; }
+html[data-subject="econ"] .econ-app .crit-item {display: flex; gap: 10px; align-items: flex-start; padding: 11px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 14.5px; line-height: 1.4; }
+html[data-subject="econ"] .econ-app .crit-item input {width: 22px; height: 22px; accent-color: var(--accent); flex: 0 0 auto; margin: 0; }
+html[data-subject="econ"] .econ-app .crit-item.ticked {border-color: var(--good); background: color-mix(in srgb, var(--good) 10%, var(--card)); }
+html[data-subject="econ"] .econ-app .crit-hint {font-size: 11px; font-weight: 700; color: var(--info); letter-spacing: .2px; border: 1px dashed color-mix(in srgb, var(--info) 55%, transparent); border-radius: 999px; padding: 1px 7px; margin-left: 6px; white-space: nowrap; display: inline-block; }
+html[data-subject="econ"] .econ-app .honesty {font-size: 12.5px; color: var(--ink-2); background: var(--card-2); border: 1px dashed var(--line); border-radius: 10px; padding: 9px 11px; margin: 10px 0; }
+html[data-subject="econ"] .econ-app .sample {background: var(--card-2); border-left: 3px solid var(--accent); border-radius: 0 10px 10px 0; padding: 10px 12px; font-size: 14.5px; line-height: 1.55; }
+html[data-subject="econ"] .econ-app .list {display: grid; gap: 8px; }
+html[data-subject="econ"] .econ-app .li {display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line-soft); font-size: 14px; }
+html[data-subject="econ"] .econ-app .li .grow {min-width: 0; }
+html[data-subject="econ"] .econ-app .li b {display: block; font-size: 14.5px; }
+html[data-subject="econ"] .econ-app .li small {color: var(--ink-3); }
+html[data-subject="econ"] .econ-app .switch {display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 10px 0; }
+html[data-subject="econ"] .econ-app .switch input {width: 0; height: 0; opacity: 0; position: absolute; }
+html[data-subject="econ"] .econ-app .switch .sw {flex: 0 0 auto; width: 46px; height: 28px; border-radius: 999px; background: var(--card-3); border: 1px solid var(--line); position: relative; transition: background .15s; }
+html[data-subject="econ"] .econ-app .switch .sw::after {content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--ink-3); transition: transform .15s, background .15s; }
+html[data-subject="econ"] .econ-app .switch input:checked + .sw {background: color-mix(in srgb, var(--accent) 35%, var(--card-3)); border-color: var(--accent); }
+html[data-subject="econ"] .econ-app .switch input:checked + .sw::after {transform: translateX(18px); background: var(--accent); }
+html[data-subject="econ"] .econ-app .switch input:focus-visible + .sw {outline: 3px solid var(--accent); outline-offset: 2px; }
+html[data-subject="econ"] .econ-app .seg {display: flex; gap: 4px; background: var(--card-2); border: 1px solid var(--line-soft); border-radius: 12px; padding: 4px; overflow-x: auto; }
+html[data-subject="econ"] .econ-app .seg button {flex: 1 0 auto; min-height: 36px; padding: 6px 12px; border-radius: 9px; border: 0; background: transparent; color: var(--ink-2); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+html[data-subject="econ"] .econ-app .seg button.on {background: var(--card-3); color: var(--ink); }
+html[data-subject="econ"] .econ-app .bar {height: 8px; background: var(--line-soft); border-radius: 4px; overflow: hidden; }
+html[data-subject="econ"] .econ-app .bar > i {display: block; height: 100%; background: var(--accent); }
+html[data-subject="econ"] .econ-app table.data {width: 100%; border-collapse: collapse; font-size: 13.5px; }
+html[data-subject="econ"] .econ-app table.data th,
+html[data-subject="econ"] .econ-app table.data td {padding: 7px 8px; border-bottom: 1px solid var(--line-soft); text-align: left; }
+html[data-subject="econ"] .econ-app table.data th {color: var(--ink-3); font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px; }
+html[data-subject="econ"] .econ-app .scroll-x {overflow-x: auto; -webkit-overflow-scrolling: touch; }
+html[data-subject="econ"] .econ-app .kbd {display: inline-block; padding: 1px 6px; border-radius: 5px; background: var(--card-3); border: 1px solid var(--line); font-size: 12px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+html[data-subject="econ"] .econ-app code {font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .92em; background: var(--card-2); padding: 1px 5px; border-radius: 5px; }
+html[data-subject="econ"] .econ-app .powerbar {display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:2px 0 8px; margin:0 0 6px; scrollbar-width:none; }
+html[data-subject="econ"] .econ-app .powerbar::-webkit-scrollbar {display:none }
+html[data-subject="econ"] .econ-app .pu {flex:0 0 auto; display:flex; align-items:center; gap:6px; min-height:38px; padding:6px 10px; border-radius:999px; background:var(--card-2); color:var(--ink-2); border:1px solid var(--line-soft); font:inherit; font-size:12px; cursor:pointer; }
+html[data-subject="econ"] .econ-app .pu:disabled {opacity:.38; cursor:default }
+html[data-subject="econ"] .econ-app .pu:not(:disabled):active {transform:scale(.96) }
+html[data-subject="econ"] .econ-app .pu .pu-name {white-space:nowrap }
+html[data-subject="econ"] .econ-app .pu .pu-n {color:var(--ink-3); font-variant-numeric:tabular-nums }
+html[data-subject="econ"] .econ-app .av-grid {display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:8px; }
+html[data-subject="econ"] .econ-app .av {display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 6px; border-radius:var(--r); background:var(--card); border:1px solid var(--line-soft); font:inherit; color:var(--ink-2); cursor:pointer; text-align:center; }
+html[data-subject="econ"] .econ-app .av.on {border-color:var(--accent); background:var(--card-2) }
+html[data-subject="econ"] .econ-app .av:disabled {opacity:.45; cursor:default }
+html[data-subject="econ"] .econ-app .av .av-e {font-size:26px; line-height:1.1 }
+html[data-subject="econ"] .econ-app .av .av-n {font-size:11px; color:var(--ink-2) }
+html[data-subject="econ"] .econ-app .av .av-c {font-size:10px; color:var(--ink-3) }
+html[data-subject="econ"] .econ-app .mst {display:flex; align-items:center; gap:8px }
+html[data-subject="econ"] .econ-app .mst-bar {flex:1; height:6px; border-radius:99px; background:var(--card-3); overflow:hidden }
+html[data-subject="econ"] .econ-app .mst-bar > i {display:block; height:100%; background:var(--accent) }
+
+/* ── port additions ─────────────────────────────────────────────────── */
+html[data-subject="econ"] .econ-app .gs-head{ position: static; margin: 0 0 4px; padding: 0 0 8px; background: transparent; }
+html[data-subject="econ"] .econ-app .gs-sub{ margin-bottom: 6px; }
+html[data-subject="econ"] .econ-app .gs-meter.warn{ color: var(--warn); border-color: var(--warn); }
+html[data-subject="econ"] .econ-app .li-btn{ width: 100%; text-align: left; font: inherit; color: inherit; cursor: pointer; min-height: 44px; }
+html[data-subject="econ"] .econ-app .li.dimmed{ opacity: .55; }
+html[data-subject="econ"] .econ-app .li small{ display: block; }
+html[data-subject="econ"] .econ-app .boss-ability{ color: var(--warn); }
+html[data-subject="econ"] .econ-app .boss-face{ font-size: 40px; line-height: 1; flex: none; }
+html[data-subject="econ"] .econ-app .boss-hud{ margin: 6px 0 0; }
+html[data-subject="econ"] .econ-app .econ-ascend.ready{ border-color: var(--accent); }
+html[data-subject="econ"] .econ-app .tiny{ font-size: 12px; }
+html[data-subject="econ"] .econ-app .opt{ min-height: 48px; }
+html[data-subject="econ"] .econ-app .seg button, html[data-subject="econ"] .econ-app .dg-chip{ min-height: 44px; }
+html[data-subject="econ"] .econ-app .btn-sm{ min-height: 44px; }
+html[data-subject="econ"] .econ-modal h2{ margin-top: 0; }
+/* The core overflow check counts anything past the viewport, even inside a
+   scroller, so the power-up bar wraps instead of scrolling sideways. */
+html[data-subject="econ"] .econ-app .powerbar{ flex-wrap: wrap; overflow-x: visible; }
+html[data-subject="econ"] .econ-app .pu{ min-height: 44px; }
+html[data-subject="econ"] .econ-app .pu .pu-name{ white-space: normal; }
+html[data-subject="econ"] .econ-app .scroll-x{ max-width: 100%; }
+html[data-subject="econ"] .econ-app .seg{ flex-wrap: wrap; overflow-x: visible; }
+html[data-subject="econ"] .econ-app .seg button{ flex: 1 0 auto; }

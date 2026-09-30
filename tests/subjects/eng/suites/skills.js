@@ -70,7 +70,7 @@ module.exports = {
         const fs = {};
         const src = await Promise.all(["quiz", "boss", "technique", "bandgrid", "markingdesk",
                                        "essayarch", "deconstruct"]
-          .map(async n => [n, await (await fetch("js/games/" + n + ".js")).text()]));
+          .map(async n => [n, await (await fetch("subjects/eng/games/" + n + ".js")).text()]));
         src.forEach(([n, text]) => {
           const m = /recordAnswer\([^)]*\)/.exec(text.replace(/\/\*[\s\S]*?\*\//g, ""));
           fs[n] = m ? m[0].split(",").length >= 5 : false;
@@ -108,7 +108,7 @@ module.exports = {
       const typedWired = await page.evaluate(async () => {
         const out = {};
         for (const n of ["layerc", "paper"]) {
-          const text = await (await fetch("js/games/" + n + ".js")).text();
+          const text = await (await fetch("subjects/eng/games/" + n + ".js")).text();
           out[n] = /recordSkill\(/.test(text.replace(/\/\*[\s\S]*?\*\//g, ""));
         }
         return out;

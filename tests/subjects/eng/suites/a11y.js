@@ -37,23 +37,23 @@ module.exports = {
        pairs of cards, and it has no advance step to bind Enter to. Its cards are real
        <button>s with aria-labels, which is asserted separately below. */
     const NO_ADVANCE = ["quotematch.js"];
-    const gameFiles = fs.readdirSync(path.join(ROOT, "js/games"))
+    const gameFiles = fs.readdirSync(path.join(ROOT, "subjects/eng/games"))
       .filter(f => f.endsWith(".js") && !f.startsWith("arcade-"));
     gameFiles.forEach(f => {
-      const src = fs.readFileSync(path.join(ROOT, "js/games", f), "utf8");
+      const src = fs.readFileSync(path.join(ROOT, "subjects/eng/games", f), "utf8");
       const code = src.replace(/\/\*[\s\S]*?\*\//g, "");
       if (NO_ADVANCE.includes(f)) {
         t.ok(/type: "button"/.test(code) && /aria-label/.test(code),
-             "js/games/" + f + " builds real labelled buttons (it has no advance step)");
+             "subjects/eng/games/" + f + " builds real labelled buttons (it has no advance step)");
         return;
       }
       /* A mode either advances or submits; it must expose at least one to the keyboard. */
       const bound = /js-next|js-submit/.test(code);
-      t.ok(bound, "js/games/" + f + " exposes a keyboard-reachable advance or submit button");
+      t.ok(bound, "subjects/eng/games/" + f + " exposes a keyboard-reachable advance or submit button");
     });
 
     /* Every timer chip must be silenced for screen readers. */
-    const timerFiles = ["js/games", "js/core", "js/screens"].flatMap(dir =>
+    const timerFiles = ["subjects/eng/games", "subjects/eng/core", "subjects/eng/screens"].flatMap(dir =>
       fs.readdirSync(path.join(ROOT, dir)).filter(f => f.endsWith(".js")).map(f => dir + "/" + f));
     timerFiles.forEach(rel => {
       const src = fs.readFileSync(path.join(ROOT, rel), "utf8");

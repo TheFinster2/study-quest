@@ -133,8 +133,9 @@ module.exports = {
          Structural, not a promise: assert the absence of the call, then assert the
          behaviour. Either alone would be weaker. */
       const src = await page.evaluate(async () => {
-        const files = ["js/core/arcade.js", "js/games/arcade-lettercrush.js", "js/games/arcade-runner.js",
-                       "js/games/arcade-wordtower.js", "js/screens/draft.js"];
+        /* StudyQuest: the arcade is the app's now (its own "earns nothing" test lives
+           with it); English keeps the Draft Desk half of this check. */
+        const files = ["subjects/eng/screens/draft.js"];
         const out = {};
         for (const f of files) {
           const text = await (await fetch(f)).text();
@@ -150,21 +151,6 @@ module.exports = {
       Object.keys(src).forEach(f => {
         t.eq(src[f], false, f + " does not call UI.award()");
       });
-
-      /* Play the arcade for real and check the ledger is untouched. */
-      const arcade = await page.evaluate(() => {
-        const before = { xp: EN.State.data.xp, coins: EN.State.data.coins, level: EN.State.data.level,
-                         lifetime: EN.State.data.lifetimeXp,
-                         achievements: Object.keys(EN.State.data.achievements).length };
-        EN.Arcade.tick("lettercrush", 5);
-        EN.Arcade.score("lettercrush", 9999);
-        const after = { xp: EN.State.data.xp, coins: EN.State.data.coins, level: EN.State.data.level,
-                        lifetime: EN.State.data.lifetimeXp,
-                        achievements: Object.keys(EN.State.data.achievements).length };
-        return { before, after, high: EN.Arcade.best("lettercrush") };
-      });
-      t.eq(arcade.after, arcade.before, "a 9,999-point arcade score moves no XP, Marks, level or achievement");
-      t.eq(arcade.high, 9999, "the arcade does record a high score");
 
       /* Write a long draft and check the same. */
       const draft = await page.evaluate(() => {

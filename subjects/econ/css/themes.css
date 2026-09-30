@@ -1,0 +1,47 @@
+/* Economics (Equilibrium) themes on the core tokens. Theme blocks only —
+   index.html loads this file at boot so an owned theme can dress any subject. */
+[data-theme="econ-ledger"]{
+  --bg-0:#07100c; --bg-1:#0b1a13; --bg-2:#10251b;
+  --glow-a:#4ade80; --glow-b:#fbbf24;
+  --ink:#e6f5ec; --ink-dim:#a9c9b8; --ink-faint:#6f8f7e;
+  --card:rgba(160,255,200,.05); --card-2:rgba(160,255,200,.09);
+  --line:rgba(120,220,160,.16);
+  --accent:#4ade80; --accent-ink:#052212;
+  --good:#34d399; --bad:#f87171; --warn:#fbbf24; --info:#60a5fa;
+}
+[data-theme="econ-indigo"]{
+  --bg-0:#04101a; --bg-1:#071a29; --bg-2:#0c2438;
+  --glow-a:#38bdf8; --glow-b:#2dd4bf;
+  --ink:#e4f2ff; --ink-dim:#a6c8e2; --ink-faint:#6c8ea8;
+  --card:rgba(170,215,255,.05); --card-2:rgba(170,215,255,.09);
+  --line:rgba(120,180,240,.17);
+  --accent:#38bdf8; --accent-ink:#032033;
+  --good:#2dd4bf; --bad:#f87171; --warn:#fbbf24; --info:#93c5fd;
+}
+[data-theme="econ-ochre"]{
+  --bg-0:#150f04; --bg-1:#211807; --bg-2:#2c210c;
+  --glow-a:#fbbf24; --glow-b:#f59e0b;
+  --ink:#fdf3df; --ink-dim:#d8c39a; --ink-faint:#9c8963;
+  --card:rgba(255,225,170,.05); --card-2:rgba(255,225,170,.09);
+  --line:rgba(240,200,130,.17);
+  --accent:#fbbf24; --accent-ink:#2a1c00;
+  --good:#a3e635; --bad:#f87171; --warn:#fb923c; --info:#60a5fa;
+}
+[data-theme="econ-slate"]{
+  --bg-0:#0a0d12; --bg-1:#111721; --bg-2:#18202c;
+  --glow-a:#a5b4fc; --glow-b:#7dd3fc;
+  --ink:#eef3fa; --ink-dim:#b3c1d1; --ink-faint:#7c8b9c;
+  --card:rgba(210,225,245,.05); --card-2:rgba(210,225,245,.09);
+  --line:rgba(170,190,215,.17);
+  --accent:#a5b4fc; --accent-ink:#131634;
+  --good:#7dd3fc; --bad:#f87171; --warn:#fbbf24; --info:#93c5fd;
+}
+[data-theme="econ-daylight"]{
+  --bg-0:#f3f8f4; --bg-1:#e8f1ea; --bg-2:#dfeae2;
+  --glow-a:#15803d; --glow-b:#a16207;
+  --ink:#0e2018; --ink-dim:#3c5a4a; --ink-faint:#6d8a7a;
+  --card:rgba(15,60,35,.045); --card-2:rgba(15,60,35,.08);
+  --line:rgba(15,60,35,.15);
+  --accent:#15803d; --accent-ink:#ffffff;
+  --good:#047857; --bad:#b91c1c; --warn:#a16207; --info:#1d4ed8;
+}

@@ -1,0 +1,125 @@
+/* Maths Standard's ten themes (NumberCrunch), as mstd-<name>, defined on the
+   core tokens so an owned one can dress any subject or the hub. NumberCrunch's
+   own token names are aliased onto these in css/mstd.css; --ms-sheen/-shadow/
+   -ring are its extras and are only read inside Maths Standard. Unscoped on
+   purpose — owned themes are global. */
+[data-theme="mstd-ledger"]{
+  --bg-0:#0d1117; --bg-1:#151c26; --bg-2:#1d2634;
+  --glow-a:#4cc9f0; --glow-b:#a78bfa;
+  --ink:#e9eff7; --ink-dim:#94a3b8; --ink-faint:color-mix(in srgb, #94a3b8 70%, #0d1117);
+  --card:#151c26; --card-2:#1d2634;
+  --line:#2a3648;
+  --accent:#4cc9f0; --accent-ink:#04121a;
+  --good:#38d996; --bad:#ff6b6b; --warn:#ffc247; --info:#a78bfa;
+  --ms-sheen:radial-gradient(1200px 620px at 50% -12%, #1b2a3d 0%, transparent 70%);
+  --ms-shadow:0 8px 30px rgba(0,0,0,.45); --ms-ring:rgba(76,201,240,.35);
+  color-scheme:dark;
+}
+[data-theme="mstd-blueprint"]{
+  --bg-0:#071a2f; --bg-1:#0d2740; --bg-2:#12334f;
+  --glow-a:#59d0ff; --glow-b:#ffd166;
+  --ink:#e6f2ff; --ink-dim:#8fb4d4; --ink-faint:color-mix(in srgb, #8fb4d4 70%, #071a2f);
+  --card:#0d2740; --card-2:#12334f;
+  --line:#1d4a70;
+  --accent:#59d0ff; --accent-ink:#04121a;
+  --good:#5ee6a8; --bad:#ff7a85; --warn:#ffd166; --info:#ffd166;
+  --ms-sheen:repeating-linear-gradient(0deg, rgba(255,255,255,.028) 0 1px, transparent 1px 26px),            repeating-linear-gradient(90deg, rgba(255,255,255,.028) 0 1px, transparent 1px 26px);
+  --ms-shadow:0 8px 30px rgba(0,0,0,.5); --ms-ring:rgba(89,208,255,.4);
+  color-scheme:dark;
+}
+[data-theme="mstd-compound"]{
+  --bg-0:#0a1410; --bg-1:#12211a; --bg-2:#193024;
+  --glow-a:#4ade80; --glow-b:#fbbf24;
+  --ink:#e8f6ec; --ink-dim:#8fb69c; --ink-faint:color-mix(in srgb, #8fb69c 70%, #0a1410);
+  --card:#12211a; --card-2:#193024;
+  --line:#254734;
+  --accent:#4ade80; --accent-ink:#04121a;
+  --good:#4ade80; --bad:#f87171; --warn:#fbbf24; --info:#fbbf24;
+  --ms-sheen:radial-gradient(900px 500px at 80% -10%, #17462f 0%, transparent 68%);
+  --ms-shadow:0 8px 30px rgba(0,0,0,.45); --ms-ring:rgba(74,222,128,.32);
+  color-scheme:dark;
+}
+[data-theme="mstd-offpeak"]{
+  --bg-0:#161320; --bg-1:#1f1b2d; --bg-2:#29223b;
+  --glow-a:#c084fc; --glow-b:#38bdf8;
+  --ink:#f0ebff; --ink-dim:#a89dc4; --ink-faint:color-mix(in srgb, #a89dc4 70%, #161320);
+  --card:#1f1b2d; --card-2:#29223b;
+  --line:#3a3252;
+  --accent:#c084fc; --accent-ink:#04121a;
+  --good:#4ade80; --bad:#fb7185; --warn:#fcd34d; --info:#38bdf8;
+  --ms-sheen:radial-gradient(1000px 560px at 20% -10%, #3a2a55 0%, transparent 70%);
+  --ms-shadow:0 8px 32px rgba(0,0,0,.5); --ms-ring:rgba(192,132,252,.34);
+  color-scheme:dark;
+}
+[data-theme="mstd-critical"]{
+  --bg-0:#14100c; --bg-1:#221a12; --bg-2:#2e2418;
+  --glow-a:#fb923c; --glow-b:#facc15;
+  --ink:#fdf2e0; --ink-dim:#c0a888; --ink-faint:color-mix(in srgb, #c0a888 70%, #14100c);
+  --card:#221a12; --card-2:#2e2418;
+  --line:#463724;
+  --accent:#fb923c; --accent-ink:#04121a;
+  --good:#84cc16; --bad:#ef4444; --warn:#facc15; --info:#facc15;
+  --ms-sheen:radial-gradient(900px 520px at 60% -8%, #4a3018 0%, transparent 66%);
+  --ms-shadow:0 8px 30px rgba(0,0,0,.5); --ms-ring:rgba(251,146,60,.34);
+  color-scheme:dark;
+}
+[data-theme="mstd-graphite"]{
+  --bg-0:#101010; --bg-1:#1a1a1a; --bg-2:#242424;
+  --glow-a:#e5e5e5; --glow-b:#8ab4f8;
+  --ink:#f2f2f2; --ink-dim:#9a9a9a; --ink-faint:color-mix(in srgb, #9a9a9a 70%, #101010);
+  --card:#1a1a1a; --card-2:#242424;
+  --line:#333;
+  --accent:#e5e5e5; --accent-ink:#04121a;
+  --good:#66d19e; --bad:#ff7b72; --warn:#e3b341; --info:#8ab4f8;
+  --ms-sheen:none;
+  --ms-shadow:0 6px 24px rgba(0,0,0,.6); --ms-ring:rgba(255,255,255,.22);
+  color-scheme:dark;
+}
+[data-theme="mstd-bearing"]{
+  --bg-0:#04161a; --bg-1:#0b2429; --bg-2:#0f3138;
+  --glow-a:#22d3ee; --glow-b:#f472b6;
+  --ink:#e2f7fa; --ink-dim:#86b8c0; --ink-faint:color-mix(in srgb, #86b8c0 70%, #04161a);
+  --card:#0b2429; --card-2:#0f3138;
+  --line:#17505a;
+  --accent:#22d3ee; --accent-ink:#04121a;
+  --good:#34d399; --bad:#fb7185; --warn:#fde047; --info:#f472b6;
+  --ms-sheen:conic-gradient(from 210deg at 78% -6%, rgba(34,211,238,.14), transparent 40%);
+  --ms-shadow:0 8px 30px rgba(0,0,0,.5); --ms-ring:rgba(34,211,238,.34);
+  color-scheme:dark;
+}
+[data-theme="mstd-payslip"]{
+  --bg-0:#f5f7fa; --bg-1:#ffffff; --bg-2:#eef2f7;
+  --glow-a:#0b7fd4; --glow-b:#7c3aed;
+  --ink:#16202e; --ink-dim:#5d6b80; --ink-faint:color-mix(in srgb, #5d6b80 70%, #f5f7fa);
+  --card:#ffffff; --card-2:#eef2f7;
+  --line:#d7dee8;
+  --accent:#0b7fd4; --accent-ink:#fff;
+  --good:#118a5a; --bad:#c62828; --warn:#a06800; --info:#7c3aed;
+  --ms-sheen:radial-gradient(1100px 560px at 50% -14%, #e3ecf7 0%, transparent 72%);
+  --ms-shadow:0 6px 20px rgba(22,32,46,.1); --ms-ring:rgba(11,127,212,.28);
+  color-scheme:light;
+}
+[data-theme="mstd-normal"]{
+  --bg-0:#fbf7f0; --bg-1:#ffffff; --bg-2:#f2ebdf;
+  --glow-a:#b45309; --glow-b:#1d4ed8;
+  --ink:#2a2318; --ink-dim:#6d6151; --ink-faint:color-mix(in srgb, #6d6151 70%, #fbf7f0);
+  --card:#ffffff; --card-2:#f2ebdf;
+  --line:#ded2bf;
+  --accent:#b45309; --accent-ink:#fff;
+  --good:#166534; --bad:#b91c1c; --warn:#92610a; --info:#1d4ed8;
+  --ms-sheen:radial-gradient(1000px 520px at 30% -12%, #f0e6d3 0%, transparent 70%);
+  --ms-shadow:0 6px 20px rgba(42,35,24,.12); --ms-ring:rgba(180,83,9,.26);
+  color-scheme:light;
+}
+[data-theme="mstd-overtime"]{
+  --bg-0:#0a0a12; --bg-1:#12121f; --bg-2:#1a1a2c;
+  --glow-a:#ff2d95; --glow-b:#00e5ff;
+  --ink:#eef0ff; --ink-dim:#9698c4; --ink-faint:color-mix(in srgb, #9698c4 70%, #0a0a12);
+  --card:#12121f; --card-2:#1a1a2c;
+  --line:#2b2b47;
+  --accent:#ff2d95; --accent-ink:#04121a;
+  --good:#39ff88; --bad:#ff4d4d; --warn:#ffe066; --info:#00e5ff;
+  --ms-sheen:linear-gradient(180deg, rgba(255,45,149,.1) 0%, transparent 34%),            radial-gradient(800px 420px at 84% 4%, rgba(0,229,255,.13), transparent 66%);
+  --ms-shadow:0 8px 34px rgba(0,0,0,.65); --ms-ring:rgba(255,45,149,.38);
+  color-scheme:dark;
+}
