@@ -50,8 +50,11 @@ SQ.Subjects = (function () {
   /* Filled in by subjects/<id>/manifest.js when it loads. */
   const manifests = {};
 
+  /** Tests only: add a synthetic subject (the app itself never calls this). */
+  function register(meta) { if (!byId[meta.id]) { LIST.push(meta); byId[meta.id] = meta; } }
+
   return {
-    LIST,
+    LIST, register,
     get: id => byId[id] || null,
     ids: () => LIST.map(s => s.id),
     /** subjects/<id>/manifest.js calls this with { scripts:[], css:[] } (paths relative
