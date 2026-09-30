@@ -1,0 +1,515 @@
+/* English's view of the shared UI.
+   ============================================================================
+   The router, header, toasts, modals, gameShell and the reward pipeline are the app's
+   (SQ.UI). What stays here is what Close Reading's modes call that the app does not
+   have: the reading-time model (timeBudget / rushFloor / rushHint), the latching
+   crutches, the glossary chips, the Layer C banner, copy-to-clipboard, and English's
+   own gated results screen — which opens behind a button so the worked solutions stay
+   readable underneath.
+
+   award() is wrapped only to translate English's `crutchCost` (a fraction of the run,
+   latched) into the core call; everything else — difficulty × prestige, the accuracy
+   gate on the bonus, the ×4 ceiling, the coin rate (0.6), Stars and the overall level —
+   happens in SQ.UI.award.
+   ============================================================================ */
+window.EN = window.EN || {};
+
+(function () {
+  const U = EN.U;
+  const S = EN.State;
+  let UI = null;                        // the bound UI, assigned below
+  const modal = (c, o) => UI.modal(c, o);
+  const closeModal = a => UI.closeModal(a);
+  const toast = o => UI.toast(o);
+  const go = p => UI.go(p);
+  const MIN_BONUS_ACCURACY = 0.5;
+
+  /* ── how long reading actually takes ─────────────────────────
+     Chemistry could use a flat 1,200 ms floor because its stems were one line. English
+     cannot: a technique question with a two-line quote and a Marking Desk sample of 180
+     words are not the same read, and a single constant is wrong in both directions —
+     too low and the mode is farmable, too high and an honest fast reader is punished
+     for being quick.
+
+     ~800 ms of orientation plus 240 ms per word ≈ 250 wpm, which is brisk but real for
+     a student who already knows the text. Capped, because nobody is made to stare at a
+     paragraph for a minute before the app will believe them. Tuned against
+     tests/suites/economy.js, which asserts the floor is both real AND reachable — the
+     only way to know it has not started punishing normal play. */
+  const READ_BASE_MS = 800;
+  const READ_PER_WORD_MS = 240;
+  const READ_CAP_MS = 25000;
+
+  /** Minimum plausible reading time for a piece of text, in ms. */
+  function readTimeFor(text) {
+    const n = Array.isArray(text) ? text.reduce((a, t) => a + U.words(t || ""), 0)
+                                  : U.words(text || "");
+    return Math.min(READ_CAP_MS, READ_BASE_MS + n * READ_PER_WORD_MS);
+  }
+
+  /* ── the anti-farm floor, which is NOT the same number ────────
+     readTimeFor above was doing two jobs with opposite requirements, and that was the
+     bug behind "I get no XP for rushing even though I read the question".
+
+     Job one is sizing a CLOCK. There it should be generous: give a student long enough
+     to read a 180-word paragraph carefully, and let Nightmare cut only the slack above
+     it. Too small is the failure.
+
+     Job two is catching somebody TAPPING WITHOUT READING. There it should be tight: the
+     question is "could a human possibly have taken this in", not "did they read it at a
+     careful pace". Too large is the failure — and too large is what shipped.
+
+     Measured on the real bank: at 240 ms/word over the stem, the quote AND all four
+     options, a median Common-Module boss round needed 23.1 seconds before an answer
+     scored, against a 26-second clock. That is a 2.9-second window in which XP existed
+     at all. Answer at twenty seconds having genuinely read it: nothing. Worse on Hard
+     and Nightmare, where the clock shrinks toward the floor and the window closes to
+     about 1.6 seconds. Rapid Fire was worse still — 120 seconds for 24 questions is
+     ~5 seconds each, so essentially every answer in the mode was scoring zero.
+
+     So the floor is now its own function with its own numbers:
+
+       • 55 ms/word (~1,100 wpm) on the stem and quote — a skim, not a read. This is a
+         lower bound on the physically possible, which is what an anti-farm gate needs.
+       • 25 ms/word on the OPTIONS, because you scan them and stop at the one you want.
+         Charging full reading rate for three distractors you never finished is the
+         single biggest source of the old over-estimate.
+       • capped at 9 seconds outright, and additionally at 45% of the mode's clock where
+         there is one — so a timed mode can never be built in which XP is unreachable.
+         That cap is the structural guarantee; the rest is calibration. */
+  const RUSH_BASE_MS = 600;
+  const RUSH_READ_MS = 55;
+  const RUSH_SCAN_MS = 25;
+  const RUSH_CAP_MS = 9000;
+  const RUSH_CLOCK_SHARE = 0.45;
+
+  /**
+   * The floor below which an answer is treated as unread and pays nothing.
+   *
+   * spec = { read, scan } — `read` is prose the student must take in (stem, quote,
+   * paragraph); `scan` is the option list. A bare string is treated as all `read`.
+   * `clockSeconds` is the mode's clock for this item, if it has one.
+   */
+  function rushFloor(spec, clockSeconds) {
+    const s = typeof spec === "string" || Array.isArray(spec) ? { read: spec } : (spec || {});
+    const count = t => Array.isArray(t) ? t.reduce((a, x) => a + U.words(x || ""), 0)
+                                        : U.words(t || "");
+    let ms = RUSH_BASE_MS + count(s.read) * RUSH_READ_MS + count(s.scan) * RUSH_SCAN_MS;
+    ms = Math.min(ms, RUSH_CAP_MS);
+    if (clockSeconds > 0) ms = Math.min(ms, clockSeconds * 1000 * RUSH_CLOCK_SHARE);
+    return Math.round(ms);
+  }
+
+  /**
+   * A visible countdown of the rush floor.
+   *
+   * The floor being invisible was half the complaint. A student answers, gets told
+   * "rushed, no XP", and has no way to know what would have counted or how close they
+   * were — so the rule reads as the app being arbitrary rather than as a rule. This
+   * returns a node that shows the remaining time and then swaps itself for a confirmation
+   * that the answer will now score. Purely informational; the gate is still in the game.
+   */
+  function rushHint(minReadMs) {
+    const node = U.el("span", { class: "rush-hint" });
+    if (!(minReadMs > 250)) { node.hidden = true; return { node, stop() {} }; }
+    const started = performance.now();
+    let raf = null, seen = false;
+    function paint() {
+      /* `seen` matters: the first paint runs before the caller has appended the node, so
+         bailing on !isConnected killed the loop immediately and the hint rendered blank.
+         Only a node that WAS in the document and no longer is means the screen has gone. */
+      if (node.isConnected) seen = true;
+      else if (seen) return stop();
+      const left = minReadMs - (performance.now() - started);
+      if (left <= 0) {
+        node.classList.add("ready");
+        node.textContent = "✓ counts";
+        return stop();
+      }
+      node.textContent = "⏱ " + (left / 1000).toFixed(1) + "s";
+      raf = requestAnimationFrame(paint);
+    }
+    function stop() { if (raf) cancelAnimationFrame(raf); raf = null; }
+    paint();
+    return { node, stop };
+  }
+
+  /**
+   * A clock for a timed mode, in seconds.
+   *
+   * Difficulty shortens the *slack* over reading time, never the reading time itself.
+   * A flat −45% on a paragraph-length stem is not "hard", it is unreadable — so
+   * Nightmare takes the thinking time away and leaves the reading intact.
+   */
+  function timeBudget(baseSeconds, text) {
+    const floor = readTimeFor(text) / 1000;
+    const scale = S.difficulty().timeScale;
+    if (baseSeconds <= floor) return Math.max(1, Math.round(baseSeconds));
+    return Math.max(1, Math.round(floor + (baseSeconds - floor) * scale));
+  }
+  /**
+   * Mark a node as something a screen reader should announce when it changes.
+   *
+   * Used for the feedback panel and the verdict box: they are the answer to "was I right",
+   * and they appear silently. `polite` rather than `assertive` so it waits for the reader
+   * to finish the sentence it is on instead of interrupting.
+   */
+  function announce(node) {
+    if (!node) return node;
+    node.setAttribute("aria-live", "polite");
+    node.setAttribute("role", "status");
+    return node;
+  }
+
+  /**
+   * Put text on the clipboard and say so.
+   *
+   * execCommand is deprecated and it is still the fallback, because the Clipboard API needs
+   * a secure context and this app has to work from file:// — which the Draft Desk found out
+   * first and solved privately. One copy of it, here, so the Vault gets the same behaviour.
+   */
+  function copy(text, said) {
+    const done = () => toast({ icon: "📋", kind: "good", text: said || "Copied." });
+    const fallback = () => {
+      const ta = U.el("textarea", { style: "position:fixed;opacity:0;top:0" });
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); }
+      catch (e) { toast({ icon: "📋", kind: "bad", text: "Could not copy." }); }
+      ta.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else fallback();
+  }
+
+  /**
+   * The Layer C availability banner, and the state machine behind it.
+   *
+   * Extracted because a second mode needed it. It warms the model in the background while
+   * the student reads, reports honestly when it cannot be had, and offers the download in a
+   * MODAL rather than by navigating to Settings — going to Settings threw the run away, and
+   * a student part-way through a paper came back to a fresh one, which reads exactly like
+   * being kicked out of the app.
+   *
+   * Returns { node, state() } where state() is one of loading | ready | notDownloaded |
+   * failed | blocked. `onChange` fires whenever it moves.
+   */
+  function markerBanner(onChange) {
+    const node = U.el("div", { class: "grid" });
+    let state = EN.Mark.available() ? "loading" : "blocked";
+
+    function set(next) {
+      state = next;
+      paint();
+      if (onChange) onChange(state);
+    }
+
+    function warm() {
+      if (!EN.Mark.available()) return;
+      EN.Mark.isDownloaded().then(has => {
+        if (!has) return set("notDownloaded");
+        EN.Mark.load().then(ok => set(ok ? "ready" : "failed"));
+      });
+    }
+
+    function paint() {
+      node.innerHTML = "";
+      if (state === "ready") return;
+      if (state === "loading") {
+        node.appendChild(U.el("div", { class: "lc-verdict unavailable" }, [
+          U.el("div", { class: "tiny", text: "Warming up the sentence marker…" })
+        ]));
+        return;
+      }
+      const why = state === "blocked" ? EN.Mark.blockedReason() : state;
+      const msg = why === "file"
+        ? "Sentence marking needs the app served over http — it works on your phone install and on the published site, just not by double-clicking the file. You can still write and compare against the model answers."
+        : state === "notDownloaded"
+          ? "Sentence marking is switched off. Enable it in Settings — 23 MB, one time, then it works offline forever."
+          : "Sentence marking is unavailable on this device. You can still write and compare against the model answers.";
+      node.appendChild(U.el("div", { class: "lc-verdict unavailable" }, [
+        U.el("div", { class: "lc-word", text: "Marking unavailable" }),
+        U.el("p", { class: "tiny", text: msg }),
+        state === "notDownloaded"
+          ? U.el("button", { class: "btn btn-sm btn-primary", text: "⬇ Turn on sentence marking",
+              on: { click: () => {
+                modal(U.el("div", {}, [
+                  U.el("h2", { text: "Sentence marking" }),
+                  U.el("p", { class: "tiny muted",
+                    text: "Download it here and this run carries on — nothing you have already answered is lost." }),
+                  EN.Screens.misc.layerCPanel(),
+                  U.el("button", { class: "btn btn-ghost btn-block", style: "margin-top:12px",
+                    text: "Back to the run", on: { click: () => {
+                      closeModal();
+                      /* Re-check on the way out, so a download that finished inside the
+                         modal takes effect for the rest of THIS run. */
+                      if (!EN.Mark.available()) return;
+                      EN.Mark.isDownloaded().then(has => {
+                        if (!has) return;
+                        set("loading");
+                        EN.Mark.load().then(ok => set(ok ? "ready" : "failed"));
+                      });
+                    } } })
+                ]));
+              } } })
+          : null
+      ]));
+    }
+
+    paint();
+    warm();
+    return { node, state: () => state };
+  }
+
+  /* ── glossary in the feedback panel ───────────────────────────
+     Two in every five questions explain themselves using a technical term — "chiasmus
+     reverses the terms across the pivot", "the register drops" — and a student who does
+     not know the term learns nothing from the sentence that was supposed to teach them.
+     The glossary was a screen away, and leaving a run to reach it means losing the run.
+
+     So the term comes to them, inline, on demand. This never navigates, never awards and
+     never steals focus: a feedback panel that moves the page out from under someone
+     mid-run is the bug this is careful not to be. */
+  let NAMES = null;
+  function techniqueNames() {
+    if (NAMES) return NAMES;
+    /* Canonical names only, five characters and up. The alts include things like "so"
+       and "because", which appear in three quarters of the explanations in the bank and
+       would turn every panel into a wall of chips. */
+    NAMES = EN.Bank.techniques()
+      .map(t => ({ id: t.id, n: " " + t.name.toLowerCase() + " " }))
+      .filter(x => x.n.length >= 7)
+      .sort((a, b) => b.n.length - a.n.length);
+    return NAMES;
+  }
+
+  /** Technique ids named anywhere in `text`, longest name first. */
+  function techniquesIn(text) {
+    const hay = " " + String(text || "").toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
+    const out = [];
+    for (const t of techniqueNames()) {
+      if (hay.indexOf(t.n) >= 0 || hay.indexOf(t.n.slice(0, -1) + "s ") >= 0) out.push(t.id);
+      if (out.length >= 4) break;
+    }
+    return out;
+  }
+
+  /**
+   * A row of glossary chips for the terms used in `text`, or null if it uses none.
+   * Tapping one opens its definition below the row; tapping it again closes it.
+   */
+  function glossary(text) {
+    const ids = techniquesIn(text);
+    if (!ids.length) return null;
+
+    const body = U.el("div", { class: "gloss-body", hidden: true });
+    const row = U.el("div", { class: "gloss-row" },
+      [U.el("span", { class: "tiny muted", text: "Glossary" })]);
+    let open = null;
+
+    ids.forEach(id => {
+      const g = EN.Bank.technique(id);
+      if (!g) return;
+      const chip = U.el("button", { class: "chip chip-btn", type: "button", text: g.name });
+      chip.addEventListener("click", () => {
+        EN.Sound.tap();
+        if (open === id) {
+          open = null;
+          body.hidden = true;
+          chip.classList.remove("on");
+          return;
+        }
+        open = id;
+        row.querySelectorAll(".chip-btn").forEach(c => c.classList.remove("on"));
+        chip.classList.add("on");
+        body.innerHTML = "";
+        body.hidden = false;
+        body.appendChild(U.el("div", { class: "tech-def", text: g.def }));
+        body.appendChild(U.el("div", { class: "tech-effect", text: g.effect }));
+        if ((g.examples || []).length) {
+          body.appendChild(U.el("div", { class: "tech-ex", text: g.examples.join("  ·  ") }));
+        }
+      });
+      row.appendChild(chip);
+    });
+
+    return U.el("div", { class: "gloss" }, [row, body]);
+  }
+
+  /* ── latching crutches ──────────────────────────────────────
+     An optional helper — a definition peek, a revealed letter, the detailed thesis
+     checker — costs a share of the run. The cost is set the moment the helper is FIRST
+     used and is never cleared, because setting it on the current state instead meant
+     you could switch the helper off before submitting and get the cost refunded. A
+     one-way door, and named on the results screen so the charge is visible.
+
+     Returns { use(), used(), cost(), label } — pass `cost()` to award as crutchCost. */
+  function crutch(label, costFraction) {
+    let on = false;
+    return {
+      label,
+      use() { on = true; return true; },
+      used() { return on; },
+      cost() { return on ? costFraction : 0; }
+    };
+  }
+
+  /** Sum a set of crutches into one fraction for `award`. */
+  function crutchCost(list) {
+    return U.clamp((list || []).reduce((n, c) => n + (c && c.cost ? c.cost() : 0), 0), 0, 0.8);
+  }
+
+      body
+    ]);
+    return { root, body, meta };
+  }
+
+  /** Grade a run. → { rank, cls, blurb }. */
+  function rank(accuracy, bonus) {
+    const score = accuracy + (bonus || 0);
+    if (score >= 97) return { rank: "S", cls: "rank-s", blurb: "Nothing to add. That's the standard." };
+    if (score >= 88) return { rank: "A", cls: "rank-a", blurb: "Sharp. You're reading, not guessing." };
+    if (score >= 75) return { rank: "B", cls: "rank-b", blurb: "Solid — the shaky ones are worth a second look." };
+    if (score >= 60) return { rank: "C", cls: "rank-c", blurb: "Getting there. Go back over what you missed." };
+    return { rank: "D", cls: "rank-d", blurb: "Rough one. Try the Quote Vault for this text first." };
+  }
+
+  /**
+   * End-of-run summary.
+   *
+   * By default this is GATED behind a button rather than opening over the page, because
+   * the explanations and model answers are still on screen underneath and they are the
+   * part actually worth reading. Opening a modal over the worked solution the moment
+   * the last answer lands means the only way back to it is quitting the run. Pass
+   * `gate:false` for modes with nothing to read behind them, like a grid or a match.
+   *
+   * opts: { title, correct, total, xp, coins, extraStats, newBest, onAgain,
+   *         gate, review, note }
+   */
+  function results(opts) {
+    const o = opts;
+    const acc = U.pct(o.correct, o.total);
+    const r = o.rank || rank(acc, o.bonus);
+    const perfect = o.total > 0 && o.correct === o.total;
+    let celebrated = false;
+    /* The overall run counters (perfect runs, runs per subject) are the app's. */
+    if (SQ.Overall && SQ.Overall.noteRun) SQ.Overall.noteRun({ perfect, subject: "eng" });
+    /* Floating buttons belong to the screen being left (the stand-alone router swept
+       them; the app's router runs this instead). */
+    UI.onLeave(() => U.$$(".results-reopen").forEach(n => n.remove()));
+    const stars = o.stars !== undefined ? o.stars : Math.round((o.xp || 0) * SQ.Economy.STAR_RATE);
+
+    const cells = [
+      [o.scoreLabel || "Correct", o.scoreText || `${o.correct}/${o.total}`],
+      ["Accuracy", acc + "%"],
+      ["XP", "+" + o.xp]
+    ].concat(o.extraStats || []);
+
+    const box = U.el("div", { class: "modal-center results-modal" }, [
+      U.el("div", { class: "modal-big " + r.cls, text: r.rank }),
+      U.el("h2", { text: o.title || "Run complete", style: "justify-content:center" }),
+      U.el("p", { text: r.blurb }),
+      o.newBest ? U.el("div", { class: "chip on", text: "🏅 New personal best" }) : null,
+      U.el("div", { class: "result-grid" }, cells.map(([lbl, val]) =>
+        U.el("div", { class: "result-cell" }, [
+          U.el("div", { class: "result-num", text: String(val) }),
+          U.el("div", { class: "result-lbl", text: lbl })
+        ])
+      )),
+      (o.coins || stars) ? U.el("p", { class: "muted", html: "Earned " +
+        [o.coins ? `<b>${o.coins}</b> ✒️ Marks` : "", stars ? `<b>${stars}</b> ⭐ Stars` : ""]
+          .filter(Boolean).join(" &middot; ") }) : null,
+      o.note ? U.el("p", { class: "tiny muted", html: o.note }) : null,
+      o.review === false ? null : U.el("button", {
+        class: "btn btn-ghost btn-sm btn-block", style: "margin-top:8px",
+        text: o.reviewLabel || "👁 Review the working",
+        on: { click: () => { closeModal(); showReopen(); } }
+      }),
+      U.el("div", { class: "row", style: "margin-top:8px" }, [
+        U.el("button", { class: "btn btn-ghost btn-sm", text: "Back to games",
+                         on: { click: () => { closeModal(); go(o.backTo || "/play"); } } }),
+        U.el("div", { class: "spacer" }),
+        o.onAgain ? U.el("button", { class: "btn btn-primary", text: "Play again",
+                         on: { click: () => { closeModal(); o.onAgain(); } } }) : null
+      ])
+    ]);
+
+    /* While reviewing, one floating button is the whole way back. The run is already
+       scored, so there is nothing to recompute; handleRoute clears strays. */
+    function showReopen() {
+      U.$$(".results-reopen").forEach(n => n.remove());
+      const btn = U.el("button", {
+        class: "results-reopen btn btn-primary", text: "Show results ↑",
+        on: { click: () => { btn.remove(); open(); } }
+      });
+      document.body.appendChild(btn);
+    }
+
+    function open() {
+      if (!celebrated) {
+        celebrated = true;
+        if (perfect) { EN.Sound.perfect(); EN.FX.confetti(140); }
+        else if (acc >= 60) { EN.Sound.win(); EN.FX.confetti(70); }
+        else EN.Sound.lose();
+      }
+      modal(box, { sticky: true });
+    }
+
+    if (o.gate === false) { open(); return; }
+
+    /* Gated: a floating prompt the student taps when they've finished reading. */
+    U.$$(".results-reopen").forEach(n => n.remove());
+    const gateBtn = U.el("button", {
+      class: "results-reopen btn btn-primary",
+      text: o.gateLabel || "See your results ↑",
+      on: { click: () => { gateBtn.remove(); open(); } }
+    });
+    document.body.appendChild(gateBtn);
+    EN.Sound.rankUp();
+  }
+
+  /* ── the reward pipeline: English → core ─────────────────── */
+  function award(opts) {
+    const o = Object.assign({}, opts || {});
+    /* Optional crutches cost a share of the run, latched at first use (see crutch()).
+       Applied to xp, bonus AND coins, exactly as the stand-alone app did, so it cannot
+       be dodged by leaning on a helper for the hard questions only. */
+    const cost = U.clamp(o.crutchCost || 0, 0, 0.8);
+    delete o.crutchCost;
+    if (cost) {
+      const k = 1 - cost;
+      o.xp = (o.xp || 0) * k;
+      o.bonus = (o.bonus || 0) * k;
+      o.coins = (o.coins || 0) * k;
+    }
+    const res = SQ.UI.award("eng", o);
+    res.crutchCost = cost;
+    return res;
+  }
+
+  UI = SQ.UI.bind("eng", {
+    nav: [
+      { key: "home",     icon: "🏠", label: "Home" },
+      { key: "play",     icon: "🎮", label: "Play" },
+      { key: "vault",    icon: "🗝️", label: "Vault" },
+      { key: "progress", icon: "📈", label: "Progress" },
+      { key: "shop",     icon: "🛒", label: "Shop" }
+    ],
+    navMap: { game: "play", boss: "play", reference: "vault", draft: "vault", texts: "vault",
+              study: "vault", options: "progress", achievements: "progress", dev: "progress" },
+    coinRate: 0.6,
+    /* No calculator in English. The sheet is the technique glossary and rubric verbs —
+       free, because the stand-alone app's Reference screen was always free. */
+    tools: { calc: false, sheet: true, pad: true },
+    extend: {
+      award,
+      handleRoute: () => SQ.UI.handleRoute(),
+      readTimeFor, rushFloor, rushHint, timeBudget, announce, copy, markerBanner,
+      glossary, techniquesIn, crutch, crutchCost, rank, results,
+      MIN_BONUS_ACCURACY, READ_BASE_MS, READ_PER_WORD_MS, READ_CAP_MS
+    }
+  });
+  EN.UI = UI;
+})();
