@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight" data-subject="hub">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="StudyQuest — one offline study game for NSW HSC Chemistry, Physics, Biology, Economics, English Advanced, Maths Standard and Maths Advanced / Extension 1.">
+<meta name="color-scheme" content="dark light">
+<title>StudyQuest — HSC</title>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0f1c">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="StudyQuest">
+
+<link rel="stylesheet" href="css/core.css">
+<link rel="stylesheet" href="css/themes.css">
+<!-- Subject themes load up front (they are only theme blocks): a subject theme
+     worn app-wide must render in the hub before that subject is ever opened. -->
+<link rel="stylesheet" href="subjects/chem/css/themes.css">
+<link rel="stylesheet" href="subjects/phys/css/themes.css">
+<link rel="stylesheet" href="subjects/bio/css/themes.css">
+<link rel="stylesheet" href="subjects/econ/css/themes.css">
+<link rel="stylesheet" href="subjects/eng/css/themes.css">
+<link rel="stylesheet" href="subjects/mstd/css/themes.css">
+<link rel="stylesheet" href="subjects/madv/css/themes.css">
+<link rel="stylesheet" href="css/hub.css">
+<link rel="stylesheet" href="css/tools.css">
+<link rel="stylesheet" href="css/arcade.css">
+</head>
+<body>
+
+<canvas id="fx-canvas" aria-hidden="true"></canvas>
+
+<div id="boot" class="boot">
+  <div class="boot-glyph">★</div>
+  <div class="boot-title">StudyQuest</div>
+  <div class="boot-sub">Sharpening pencils…</div>
+</div>
+
+<header id="topbar" class="topbar" hidden>
+  <button class="avatar-btn" id="avatar-btn" title="Your profile" aria-label="Your profile">
+    <span class="avatar-ring"><span id="avatar-emoji">🎓</span></span>
+  </button>
+
+  <button class="ctx-btn" id="ctx-btn" title="Switch subject" aria-label="Switch subject">
+    <span id="ctx-icon">★</span>
+  </button>
+
+  <div class="topbar-mid">
+    <div class="lvl-line">
+      <span class="lvl-badge" id="lvl-badge">Lv 1</span>
+      <span class="lvl-title" id="lvl-title">Newcomer I</span>
+      <span class="lvl-xp" id="lvl-xp">0 / 70 XP</span>
+      <span class="overall-mini" id="overall-mini" hidden title="Overall level">★1</span>
+    </div>
+    <div class="xpbar"><div class="xpbar-fill" id="xpbar-fill"></div></div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="pill pill-streak" id="streak-pill" title="Daily streak — any subject counts">
+      <span class="pill-icon">🔥</span><span id="streak-count">0</span>
+    </div>
+    <button class="pill pill-coin" id="coin-pill" hidden>
+      <span class="pill-icon" id="coin-icon">🪙</span><span id="coin-count">0</span>
+    </button>
+    <button class="pill pill-star" id="star-pill" title="Stars — spend them in the general Shop and the Arcade">
+      <span class="pill-icon">⭐</span><span id="star-count">0</span>
+    </button>
+    <button class="icon-btn" id="settings-btn" title="Settings" aria-label="Settings">⚙️</button>
+  </div>
+</header>
+
+<main id="view" class="view" tabindex="-1"></main>
+
+<nav id="navbar" class="navbar" hidden></nav>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+<div id="modal-root" class="modal-root" hidden></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     Classic script tags in dependency order — the order IS the dependency
+     graph. Not ES modules: those are CORS-blocked on file://, and
+     double-clicking index.html has to keep working.
+
+     Only the shell loads here. Each subject's scripts load the first time it
+     is opened (js/sq/loader.js reads subjects/<id>/manifest.js).
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ── the shell ──────────────────────────────────────────────── -->
+<script src="js/sq/util.js"></script>
+<script src="js/sq/audio.js"></script>
+<script src="js/sq/fx.js"></script>
+<script src="js/sq/economy.js"></script>
+<script src="js/sq/subjects.js"></script>
+<script src="js/sq/store.js"></script>
+<script src="js/sq/overall.js"></script>
+<script src="js/sq/subject-state.js"></script>
+<script src="js/sq/ui.js"></script>
+<script src="js/sq/loader.js"></script>
+<script src="js/sq/expr.js"></script>
+<script src="js/sq/tools.js"></script>
+<script src="js/sq/migrate.js"></script>
+
+<!-- ── app-wide content ───────────────────────────────────────── -->
+<script src="js/hub/data-achievements.js"></script>
+<script src="js/hub/data-wardrobe.js"></script>
+
+<!-- ── the shared arcade ──────────────────────────────────────── -->
+<script src="js/arcade/arcade.js"></script>
+<script src="js/arcade/skins.js"></script>
+<script src="js/arcade/game-crush.js"></script>
+<script src="js/arcade/game-runner.js"></script>
+<script src="js/arcade/game-merge.js"></script>
+<script src="js/arcade/game-pairs.js"></script>
+<script src="js/arcade/game-phagocyte.js"></script>
+<script src="js/arcade/game-catch.js"></script>
+
+<!-- ── hub screens ────────────────────────────────────────────── -->
+<script src="js/hub/home.js"></script>
+<script src="js/hub/subjects.js"></script>
+<script src="js/hub/progress.js"></script>
+<script src="js/hub/shop.js"></script>
+<script src="js/hub/settings.js"></script>
+<script src="js/hub/profile.js"></script>
+<script src="js/hub/dev.js"></script>
+
+<script src="js/app.js"></script>
+</body>
+</html>
