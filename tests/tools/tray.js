@@ -297,9 +297,9 @@ const resultText = page => page.evaluate(() => document.querySelector(".sqt-calc
       const c = document.querySelector(".sqt-canvas"), x = c.getContext("2d");
       const d = x.getImageData(0, 0, c.width, c.height).data;
       let ink = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) ink++;
-      return { ink, pens: document.querySelectorAll(".sqt-pen").length, widths: document.querySelectorAll(".sqt-width").length };
+      return { ink, st: SQ.Tools.state.strokes, pens: document.querySelectorAll(".sqt-pen").length, widths: document.querySelectorAll(".sqt-width").length };
     });
-    T.ok(drawn.ink > 50, "drawing on the pad leaves ink (" + drawn.ink + " px)");
+    T.ok(drawn.ink > 50, "drawing on the pad leaves ink (" + drawn.ink + " px, strokes " + JSON.stringify(drawn.st) + ")");
     T.ok(drawn.pens === 4 && drawn.widths === 3, "4 colours and 3 widths");
     await page.click(".sqt-undo");
     await page.click(".sqt-undo");

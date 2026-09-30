@@ -168,6 +168,12 @@ async function playWell(page, mode) {
      gate does not punish someone who actually reads the question. */
   const played = await page.evaluate(async m => {
     const READ_WAIT = PHYS.UI.MIN_READ_MS + 250;
+    /* StudyQuest's read floor scales with the stem (1.2 s + 12 ms a word, ≤ 4 s), so
+       an honest reader waits past THAT for the question on screen. */
+    const readWait = () => {
+      const q = document.querySelector("#view .qtext");
+      return Math.max(READ_WAIT, SQ.UI.readFloor(q ? q.textContent : "") + 250);
+    };
     const sleep = ms => new Promise(r => setTimeout(r, ms));
     const U = PHYS.U;
 
@@ -242,7 +248,7 @@ async function playWell(page, mode) {
 
       const choices = [...document.querySelectorAll(".choice:not(:disabled)")];
       if (choices.length) {
-        await sleep(READ_WAIT);
+        await sleep(readWait());
         const idx = correctChoiceIndex();
         /* Survival is ENDLESS and has one life, so a bot that never gets anything
            wrong never reaches a results screen and is never paid — it reported 0 XP
@@ -258,7 +264,7 @@ async function playWell(page, mode) {
 
       const input = document.querySelector(".numin:not([disabled])");
       if (input) {
-        await sleep(READ_WAIT);
+        await sleep(readWait());
         /* The unit selector defaults to the units the answer is stored in, so the
            raw value is the right thing to type. Circuit Bench answers 1 and is
            graded by the patched comparison — see the note where it is installed. */
