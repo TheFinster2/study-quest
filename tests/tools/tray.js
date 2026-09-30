@@ -287,6 +287,7 @@ const resultText = page => page.evaluate(() => document.querySelector(".sqt-calc
     /* ── the working pad ── */
     await page.keyboard.press("Alt+w");
     await until(page, () => !!document.querySelector(".sqt-canvas"), { message: "the pad did not open" });
+    await page.waitForTimeout(350);          // let the sheet settle before measuring the canvas
     const box = await page.evaluate(() => { const r = document.querySelector(".sqt-canvas").getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; });
     await page.mouse.move(box.x + 20, box.y + 20);
     await page.mouse.down();

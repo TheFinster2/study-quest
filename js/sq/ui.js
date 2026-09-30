@@ -502,6 +502,10 @@ SQ.UI = (function () {
       .concat(o.extraStats || []);
     const looks = SQ.Tools && SQ.Tools.lookups ? SQ.Tools.lookups() : [];
     if (looks && looks.length) cells.push(["Off-sheet lookups", looks.length + " · ×" + formulaPenalty().toFixed(2)]);
+    /* Named, not just counted: a charge the student can't attribute to anything
+       reads as a bug, and naming it is what teaches which formulas to memorise. */
+    const lookNote = looks && looks.length
+      ? U.el("p", { class: "tiny muted", text: "Paid for: " + looks.map(l => l.name || l.id).join(", ") }) : null;
 
     const earned = [];
     if (o.coins) earned.push(`<b>${o.coins}</b> ${meta.currency.icon} ${U.escapeHtml(meta.currency.name)}`);
@@ -520,6 +524,7 @@ SQ.UI = (function () {
           U.el("div", { class: "result-lbl", text: lbl })
         ]))),
       earned.length ? U.el("p", { class: "muted", html: "Earned " + earned.join(" &middot; ") }) : null,
+      lookNote,
       U.el("div", { class: "row wrap", style: "margin-top:8px; gap:8px" }, [
         U.el("button", { class: "btn btn-ghost btn-sm", text: "Back",
           on: { click: () => { closeModal(); S.go(o.backTo || "/play"); } } }),
