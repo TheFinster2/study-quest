@@ -59,7 +59,7 @@ CHEM.Games.boss = (function () {
     let asked = 0, correct = 0, streak = 0, timerId = null;
     let questions = CHEM.Bank.draw(40, { mods: boss.mods, adaptive: false });
     let qIndex = 0, timeLeft = boss.seconds, finished = false, tookDamage = false;
-    let shownAt = 0, readRight = 0;
+    let shownAt = 0, readRight = 0, tooFast = 0;
 
     const shell = UI.gameShell("Boss: " + boss.name, { tools: { calc: true, pad: true, sheet: true }, confirmExit: true });
     root.appendChild(shell.root);
@@ -148,16 +148,20 @@ CHEM.Games.boss = (function () {
       clearInterval(timerId);
       const fb = card.reveal(chosen);
       S.recordAnswer(q.mod, ok, q.id);
+      const read = performance.now() - shownAt >= UI.readFloor(q.q);
+      if (!read && !timedOut) tooFast++;
 
       if (ok) {
         correct++; streak++;
         /* Only answers slower than the read floor count towards a loss's
            consolation XP; a win has to be earned by emptying the HP bar. */
-        if (performance.now() - shownAt >= UI.readFloor(q.q)) readRight++;
+        if (read) readRight++;
         S.noteStreak(streak);
-        // Faster answers hit harder.
+        /* Faster answers hit harder — but an answer faster than the question can be
+           read hits for nothing. Without this a random-fast bot occasionally guessed
+           its way through Le Chatelier and collected the whole win purse. */
         const speed = U.clamp(timeLeft / questionTime(), 0, 1);
-        const dmg = Math.round((9 + (q.diff || 1) * 5) * (1 + speed * 0.6) * (1 + Math.min(streak, 6) * 0.06));
+        const dmg = read ? Math.round((9 + (q.diff || 1) * 5) * (1 + speed * 0.6) * (1 + Math.min(streak, 6) * 0.06)) : 0;
         const isCrit = speed > 0.75 && streak >= 3;
         bossHp -= dmg;
         if (isCrit) CHEM.Sound.crit(); else CHEM.Sound.hit();
@@ -165,7 +169,7 @@ CHEM.Games.boss = (function () {
         CHEM.FX.sparks(r.left + r.width / 2, r.top + r.height / 2, Math.PI * 1.5);
         CHEM.FX.floatText(r.right + 6, r.top, "−" + dmg, "var(--bad)");
         fb.appendChild(U.el("div", { class: "tiny", style: "margin-top:8px; color:var(--good)",
-          text: `You deal ${dmg} damage.` }));
+          text: dmg ? `You deal ${dmg} damage.` : "Too fast to have read it — no damage." }));
       } else {
         streak = 0;
         let dmg = Math.round((10 + (q.diff || 1) * 4) * diffMode.damage);
@@ -229,7 +233,8 @@ CHEM.Games.boss = (function () {
       const coins = won ? Math.round(120 + boss.hp * 0.5 + (flawless ? 100 : 0)) : Math.round(readRight * 3);
       const newBest = S.recordScore("boss_" + boss.id, won ? Math.round(playerHp) : 0);
 
-      const got = UI.award({ xp, coins, accuracy: asked ? correct / asked : 0, answered: asked });
+      const got = UI.award({ xp, coins, accuracy: asked ? correct / asked : 0, answered: asked,
+                             pace: { items: asked, tooFast } });
       UI.results({
         title: won ? `${boss.name} defeated!` : "Defeated…",
         correct, total: asked, xp: got.xp, coins: got.coins, newBest,
