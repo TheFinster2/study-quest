@@ -53,21 +53,9 @@ PHYS.UI = (function () {
    * Applies the pace gate, then hands everything to the shared pipeline.
    */
   function award(opts) {
-    const o = Object.assign({}, opts || {});
-    let xp = Math.max(0, o.xp || 0), bonus = Math.max(0, o.bonus || 0);
-    let coins = Math.max(0, o.coins || 0);
-    const pace = o.pace;
-    delete o.pace;
-    /* If EVERY interaction in the run happened faster than a person can read, the
-       run pays nothing at all — the completion bonus and the coins included. */
-    if (pace && pace.items > 0 && pace.tooFast >= pace.items) { xp = 0; bonus = 0; coins = 0; }
-    /* Coins follow the XP: a run that pays no XP pays no Joules either. */
-    const bonusPays = bonus > 0 && !(o.accuracy !== undefined && o.accuracy < SQ.UI.MIN_BONUS_ACCURACY);
-    if (pace && xp <= 0 && !bonusPays) coins = 0;
-    /* The off-sheet lookup charge applied to Joules as well as XP, as it did. */
-    if (!o.raw) coins = Math.round(coins * SQ.UI.formulaPenalty());
-    o.xp = xp; o.bonus = bonus; o.coins = coins;
-    return SQ.UI.award("phys", o);
+    /* The pace gate and the off-sheet charge on Joules both live in SQ.UI.award now
+       (it honours `pace: { items, tooFast }`), so this is a straight pass-through. */
+    return SQ.UI.award("phys", Object.assign({}, opts || {}));
   }
 
   /**

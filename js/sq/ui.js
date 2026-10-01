@@ -338,7 +338,7 @@ SQ.UI = (function () {
   /* ── the reward pipeline ─────────────────────────────────────
    * award(subjectId, opts)  — subjects call their bound UI.award(opts).
    *
-   * opts: { xp, bonus, accuracy, answered, coins, at, silent, raw, boost, label }
+   * opts: { xp, bonus, accuracy, answered, coins, pace, at, silent, raw, boost, label }
    *   xp        per-answer XP the mode already netted (wrong answers subtracted,
    *             rushed answers unpaid — those gates live in the modes, at the answer)
    *   bonus     completion bonus: withheld ENTIRELY below 50% accuracy or when fewer
@@ -353,6 +353,11 @@ SQ.UI = (function () {
     const cfg = subjectCfg[subjectId] || {};
 
     let bonus = Math.max(0, o.bonus || 0);
+    let rawXp = Math.max(0, o.xp || 0);
+    let rawCoins = Math.max(0, o.coins || 0);
+    /* The all-too-fast gate (Physics): a run where EVERY response came faster than the
+       read floor pays nothing at all — XP, bonus and coins. pace: { items, tooFast }. */
+    if (o.pace && o.pace.items > 0 && o.pace.tooFast >= o.pace.items) { rawXp = 0; bonus = 0; rawCoins = 0; }
     if (o.accuracy !== undefined) {
       const acc = U.clamp(o.accuracy, 0, 1);
       bonus = acc < MIN_BONUS_ACCURACY ? 0 : Math.round(bonus * acc);
@@ -361,9 +366,11 @@ SQ.UI = (function () {
 
     const mult = o.raw ? 1 : Math.min(E.MAX_MULTIPLIER, S.xpMultiplier() * (o.boost || 1));
     const crutch = o.raw ? 1 : formulaPenalty();
-    const xp = Math.max(0, Math.round((Math.max(0, o.xp || 0) + bonus) * mult * crutch));
+    const xp = Math.max(0, Math.round((rawXp + bonus) * mult * crutch));
     const coinRate = o.raw ? 1 : (cfg.coinRate === undefined ? 0.6 : cfg.coinRate);
-    const coins = Math.max(0, Math.round((o.coins || 0) * coinRate));
+    /* Coins follow the XP: a run that paid nothing pays no coins, and the tool tray's
+       off-sheet charge applies to coins as well (as it did in Physics). */
+    const coins = xp <= 0 && o.pace ? 0 : Math.max(0, Math.round(rawCoins * coinRate * crutch));
     const stars = o.raw && !o.starsFromRaw ? 0 : Math.round(xp * E.STAR_RATE);
 
     if (coins) S.addCoins(coins, true);

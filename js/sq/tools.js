@@ -117,7 +117,11 @@ SQ.Tools = (function () {
     sheets[id] = {
       title: s.title || "Reference sheet",
       render: typeof s.render === "function" ? s.render : null,
-      constants: (s.constants || []).filter(c => c && c.id),
+      /* Sheet-level `aliases: { alias: constantId }` fold into each constant's own list. */
+      constants: (s.constants || []).filter(c => c && c.id).map(c => {
+        const extra = Object.keys(s.aliases || {}).filter(a => s.aliases[a] === c.id);
+        return extra.length ? Object.assign({}, c, { aliases: (c.aliases || []).concat(extra) }) : c;
+      }),
       get sections() {
         if (!filter) return all;
         return all.map(sec => ({ id: sec.id, title: sec.title, items: sec.items.filter(it => { try { return filter(it) !== false; } catch (e) { return true; } }) }))

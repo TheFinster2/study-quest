@@ -55,6 +55,31 @@ const ROUTES = [
     t.ok(sheet && sheet.free === 21, `${width}px sheet: 21 free constants (got ${sheet && sheet.free})`);
     t.ok(sheet && sheet.f === 64 && sheet.ff === 54, `${width}px sheet: 64 formulas, 54 free (got ${sheet && sheet.f}/${sheet && sheet.ff})`);
     t.ok(sheet && ["g", "c", "h", "me", "kCoulomb", "GME"].every(id => sheet.ids.includes(id)), `${width}px sheet: calculator ids present`);
+    /* Upgrades: coverage, graded cards + leeches, legacy import. */
+    const up = await page.evaluate(() => {
+      const S = PHYS.State, B = PHYS.Bank;
+      S.setTagHidden("y11", true);
+      const draw = B.draw(30).every(q => !["M1", "M2", "M3", "M4"].includes(q.mod));
+      const gen = PHYS.Gen.draw(12, {}).every(q => !["M1", "M2", "M3", "M4"].includes(q.mod));
+      const due = S.dueCards().every(c => !["M1", "M2", "M3", "M4"].includes(c.mod));
+      S.setTagHidden("y11", false);
+      const id = B.cards()[5].id;
+      ["again", "again", "again", "again"].forEach(g => S.reviewCard(id, g));
+      const leech = S.isLeech(id);
+      S.reviewCard(id, "easy");
+      const box = S.cardState(id).box;
+      const m = SQ.Subjects.getManifest("phys");
+      const imp = m.importLegacy({ level: 12, xp: 900, xpIntoLevel: 40, coins: 777, stats: { answered: 50 },
+        srs: { x: { box: 3 } }, owned: { themes: ["graphite", "fusion"], avatars: ["🧲"] },
+        inventory: { fifty: 2, adrenaline: 1 }, profile: { name: "A", avatar: "🧲", theme: "fusion" },
+        settings: { difficulty: "hard", sigfig: true } });
+      return { draw, gen, due, leech, box,
+        imp: imp.slot.coins === 777 && imp.slot.level === 12 && imp.themes.includes("phys-fusion") &&
+             imp.inventory.revive === 1 && imp.slot.settings.theme === "phys-fusion" && imp.slot.settings.sigfig === true };
+    });
+    t.ok(up.draw && up.gen && up.due, `${width}px coverage: hiding Year 11 filters draws, generators and due cards`);
+    t.ok(up.leech && up.box === 3, `${width}px graded cards: 4 × again makes a leech, easy jumps two boxes`);
+    t.ok(up.imp, `${width}px importLegacy maps the stand-alone save`);
     const errs = page.errors.filter(e => !/ERR_FILE_NOT_FOUND/.test(e));
     t.ok(physMissing.length === 0, `${width}px: every Physics file loads ${physMissing.join(" ")}`);
     t.ok(errs.length === 0, `${width}px: no console errors\n    ` + errs.slice(0, 6).join("\n    "));

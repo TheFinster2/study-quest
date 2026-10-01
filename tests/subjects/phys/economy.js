@@ -67,13 +67,13 @@ const NOMINAL_RUN_XP = 1000;
       xpPerCorrect: { formula: "10 × difficulty × streak multiplier",
                       diff1: 10, diff3: 30, maxMultiplier: 3 },
       levelCurve,
-      tickets: PHYS.DATA.arcadeTickets.map(t => ({
-        label: t.label, price: t.price, minutes: t.minutes || null
-      })),
+      /* StudyQuest: arcade time and power-ups are the app's, priced in Stars. */
+      stars: res.stars, starRate: SQ.Economy.STAR_RATE, exchange: SQ.Economy.EXCHANGE_RATE,
+      tickets: SQ.Economy.TICKETS.map(t => ({ label: t.name, price: t.price, minutes: t.mins || null })),
       shop: {
         cheapestTheme: Math.min.apply(null, PHYS.DATA.themes.filter(t => t.price > 0).map(t => t.price)),
         dearestTheme: Math.max.apply(null, PHYS.DATA.themes.map(t => t.price)),
-        powerups: PHYS.DATA.powerups.map(p => ({ name: p.name, price: p.price })),
+        powerups: SQ.Economy.POWERUPS.map(p => ({ name: p.name, price: p.price })),
         crates: PHYS.DATA.crates.map(c => ({ name: c.name, price: c.price, rolls: c.rolls }))
       },
       gates: { minBonusAccuracy: UI.MIN_BONUS_ACCURACY, minReadMs: UI.MIN_READ_MS }
@@ -105,20 +105,23 @@ const NOMINAL_RUN_XP = 1000;
                 `${l.cumulative.toLocaleString().padStart(13)}`);
   }
 
-  console.log("\n  Arcade tickets:");
-  console.log("    ticket              price      effort   Joules/min");
+  /* Arcade time is bought with STARS now (15% of XP), so its effort is in nominal
+     runs' worth of Stars. Informational: the app-level economy suite owns it. */
+  const starEffort = stars => stars / m.stars;
+  console.log(`\n  The same run pays ${m.stars} Stars (rate ${m.starRate}); the Exchange is ${m.exchange} Joules per Star.`);
+  console.log("\n  Arcade tickets (Stars, general shop — informational):");
+  console.log("    ticket              price      effort   Stars/min");
   for (const t of m.tickets) {
-    const perMin = t.minutes ? (t.price / t.minutes).toFixed(0) : "—";
+    const perMin = t.minutes ? (t.price / t.minutes).toFixed(1) : "—";
     console.log(`    ${t.label.padEnd(18)} ${String(t.price).padStart(6)} ` +
-                `${effort(t.price).toFixed(3).padStart(11)} ${String(perMin).padStart(12)}`);
+                `${starEffort(t.price).toFixed(3).padStart(11)} ${String(perMin).padStart(12)}`);
   }
-
   console.log("\n  Shop:");
   console.log(`    themes            ${m.shop.cheapestTheme} – ${m.shop.dearestTheme} Joules ` +
               `(${effort(m.shop.cheapestTheme).toFixed(2)} – ${effort(m.shop.dearestTheme).toFixed(2)} runs)`);
   for (const p of m.shop.powerups) {
-    console.log(`    ${p.name.padEnd(17)} ${String(p.price).padStart(4)} Joules  ` +
-                `${effort(p.price).toFixed(3)} runs`);
+    console.log(`    ${p.name.padEnd(17)} ${String(p.price).padStart(4)} Stars   ` +
+                `${starEffort(p.price).toFixed(3)} runs (general shop)`);
   }
   for (const c of m.shop.crates) {
     console.log(`    ${c.name.padEnd(17)} ${String(c.price).padStart(4)} Joules  ` +
@@ -130,20 +133,11 @@ const NOMINAL_RUN_XP = 1000;
   console.log(`    answers faster than ${m.gates.minReadMs} ms pay nothing, and a run in which`);
   console.log(`    EVERY answer was that fast pays nothing at all — bonus included`);
 
-  /* The brief's tuned targets. These are assertions, not decoration: if someone
-     changes one of the three coupled numbers without the others, this fails. */
-  const cheapest = m.tickets[0];
-  const cheapestEffort = effort(cheapest.price);
-  console.log(`\n  cheapest ticket costs ${cheapestEffort.toFixed(3)} of a nominal run ` +
-              `(brief §8/addendum §I target ≈ 0.42)`);
-
+  /* The tuned targets this subject still owns: the Joules payout rate and the
+     level curve. (The stand-alone ticket assertion — 315 Joules ≈ 0.42 of a run —
+     moved with the arcade to the app, priced in Stars.) */
   if (Math.abs(m.payoutRate - 0.75) > 0.001)
     fails.push(`payout rate is ${m.payoutRate.toFixed(3)}, the tuned value is 0.75`);
-  if (cheapest.price !== 315)
-    fails.push(`cheapest arcade ticket is ${cheapest.price}, the tuned value is 315`);
-  if (Math.abs(cheapestEffort - 0.42) > 0.03)
-    fails.push(`effort per cheapest ticket is ${cheapestEffort.toFixed(3)}, expected ≈0.42 — ` +
-               `the payout rate and the ticket price have drifted apart`);
   const lv20 = m.levelCurve.find(l => l.level === 20).cumulative;
   const lv60 = m.levelCurve.find(l => l.level === 60).cumulative;
   console.log(`  level 20 at ${lv20.toLocaleString()} XP, level 60 at ${lv60.toLocaleString()} XP ` +
