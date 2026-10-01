@@ -36,6 +36,7 @@ SQ.UI = (function () {
   let cleanups = [];
   let current = null;               // the subject id on screen, or null for the hub
   let routeToken = 0;
+  let lastQuery = "";
 
   /* ── routing ─────────────────────────────────────────────── */
   function route(name, fn) { routes[name.replace(/^\//, "")] = fn; }
@@ -48,11 +49,18 @@ SQ.UI = (function () {
 
   function parseHash() {
     const raw = (location.hash || "#/home").replace(/^#/, "");
+    /* A query (#/s/bio/atlas?d=heart) must not change which ROUTE runs, so it is cut
+       off the route name. The args are left exactly as they were — a subject that
+       reads its own query from them (Biology) keeps working — and the query is also
+       on SQ.UI.query for screens that want it parsed. */
+    const q = raw.indexOf("?");
+    lastQuery = q >= 0 ? raw.slice(q + 1) : "";
     const parts = raw.split("/").filter(Boolean).map(decodeURIComponent);
+    const bare = n => (n || "").split("?")[0];
     if (parts[0] === "s" && parts[1]) {
-      return { subject: parts[1], name: parts[2] || "home", args: parts.slice(3) };
+      return { subject: bare(parts[1]), name: bare(parts[2]) || "home", args: parts.slice(3) };
     }
-    return { subject: null, name: parts[0] || "home", args: parts.slice(1) };
+    return { subject: null, name: bare(parts[0]) || "home", args: parts.slice(1) };
   }
 
   function runCleanups() {
@@ -95,6 +103,9 @@ SQ.UI = (function () {
         return;
       }
       setContext(r.subject);
+      /* The loading screen built the nav before the subject's bind() had told us its
+         items; rebuild once it is loaded so its own nav shows on the first visit. */
+      if (navFor !== r.subject + ":" + !!subjectCfg[r.subject]) buildNav();
       const table = subjectRoutes[r.subject] || {};
       const fn = table[r.name] || table.home;
       if (!fn) { go("/home"); return; }
@@ -207,9 +218,11 @@ SQ.UI = (function () {
     { key: "shop",     icon: "🛒", label: "Shop" }
   ];
 
+  let navFor = null;
   function buildNav() {
     const nav = U.$("#navbar");
     if (!nav) return;
+    navFor = current + ":" + !!(current && subjectCfg[current]);
     nav.innerHTML = "";
     if (!current) {
       HUB_NAV.forEach(it => nav.appendChild(navItem(it.key, it.icon, it.label, "#" + it.path)));
@@ -624,6 +637,7 @@ SQ.UI = (function () {
     route, go, init, handleRoute, onLeave, context, syncHeader, applyTheme, themeFor, buildNav,
     toast, modal, closeModal, modalOpen, confirmDialog, award, payExtra, gameShell, results,
     rank, chip, pulse, formulaPenalty, readFloor, bind, bound, setSubjectTheme,
-    MIN_BONUS_ACCURACY, MIN_READ_MS, parseHash
+    MIN_BONUS_ACCURACY, MIN_READ_MS, parseHash,
+    get query() { return new URLSearchParams(lastQuery); }
   };
 })();

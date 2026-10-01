@@ -61,7 +61,7 @@ SQ.Migrate = (function () {
       if (hadProgress && !o.replace) {
         return { skipped: true, why: "already has progress in StudyQuest" };
       }
-      d.subjects[meta.id] = res.slot;
+      SQ.Store.setSlot(meta.id, res.slot);
       /* Power-ups add; cosmetics union; the profile only fills defaults. */
       Object.keys(res.inventory || {}).forEach(k => {
         const n = Math.max(0, Math.floor(res.inventory[k] || 0));

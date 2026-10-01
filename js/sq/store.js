@@ -169,9 +169,18 @@ SQ.Store = (function () {
       have not been opened (and so whose defaults are not loaded) this session. */
   const rawSlot = id => data.subjects[id] || null;
 
+  /** Replace a subject's slot wholesale (legacy import). A subject whose State is
+      already loaded re-reads it, so it never keeps writing a stale copy. */
+  function setSlot(id, obj) {
+    data.subjects[id] = obj;
+    delete slotCache[id];
+    const ns = SQ.Subjects && SQ.Subjects.ns(id);
+    if (ns && ns.State && ns.State.load) ns.State.load();
+  }
+
   return {
     KEY, DEFAULT, load, save, flush, emit, onChange, replaceSave, reset, resetSubject,
-    storageFailing, saveSize, exportJSON, slot, rawSlot,
+    storageFailing, saveSize, exportJSON, slot, rawSlot, setSlot,
     get data() { return data; },
     get frozen() { return frozen; }
   };
