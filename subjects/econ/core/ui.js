@@ -60,7 +60,11 @@
 
   function dispatch(name) {
     return function (view, args) {
-      var r = parse(name, args);
+      /* Read the hash itself: a query on the first segment ("atlas?d=x") makes
+         the core see an unknown route name and fall back to "home". */
+      var m = /^#\/s\/econ\/?(.*)$/.exec(root.location.hash || "");
+      var segs = m ? m[1].split("/").filter(Boolean).map(decodeURIComponent) : [name].concat(args || []);
+      var r = parse(segs[0] || "home", segs.slice(1));
       var fn = table[r.path] || table["/" + (r.parts[0] || "home")] || table["/home"];
       var host = U.el("div", { class: "econ-app" });
       view.appendChild(host);

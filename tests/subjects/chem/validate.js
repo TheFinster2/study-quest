@@ -163,6 +163,21 @@ ok(D.shop.themes.length === 10 && D.shop.avatars.length === 22, "10 themes, 22 a
 const themesCss = fs.readFileSync(path.join(ROOT, "subjects/chem/css/themes.css"), "utf8");
 D.shop.themes.forEach(t => ok(themesCss.includes(`[data-theme="chem-${t.id}"]`), `theme chem-${t.id} defined`));
 
+/* ── legacy import ─────────────────────────────────────────── */
+const mctx = load(["subjects/chem/manifest.js"], { SQ: { Subjects: { manifest(id, m) { this.m = m; } } } });
+const M = mctx.SQ.Subjects.m;
+ok(M && typeof M.boot === "function" && typeof M.importLegacy === "function", "manifest registers boot + importLegacy");
+const imp = M.importLegacy({ xp: 5000, level: 7, xpIntoLevel: 40, coins: 900, prestige: 0,
+  profile: { name: "Ada", avatar: "🧪", theme: "noble" }, stats: { answered: 50, equationsBalanced: 4 },
+  srs: { "f5-01": { box: 3, due: "2026-01-01", reps: 2, lapses: 0 } }, mistakes: [{ id: "m5-01", mod: "M5", misses: 1 }],
+  inventory: { fifty: 2, catalyst: 1, adrenaline: 1, double: 1 }, owned: { themes: ["lab", "noble"], avatars: ["🧪"] },
+  settings: { difficulty: "hard", hidden: { buffers: true } } });
+ok(imp.slot.level === 7 && imp.slot.coins === 900 && imp.slot.stats.equationsBalanced === 4, "legacy: level, coins, stats kept");
+ok(imp.slot.srs["f5-01"].box === 3 && imp.slot.mistakes.length === 1, "legacy: srs and mistakes kept");
+ok(imp.slot.settings.difficulty === "hard" && imp.slot.settings.hidden.buffers && imp.slot.settings.theme === "chem-noble", "legacy: settings mapped");
+ok(imp.inventory.double === 2 && imp.inventory.revive === 1 && !("catalyst" in imp.inventory), "legacy: power-ups renamed to the shared set");
+ok(imp.themes.join() === "chem-lab,chem-noble", "legacy: theme ids prefixed");
+
 console.log(`  length bias: overall ${(overall * 100).toFixed(1)}%, ` + Object.entries(perMod).map(([k, v]) => k + " " + v).join(", "));
 console.log(`chem validate: ${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

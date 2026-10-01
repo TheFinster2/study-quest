@@ -123,7 +123,11 @@
     var out = [];
     var total = scored.reduce(function (a, b) { return a + b.w; }, 0);
     var guard = 0;
-    while (out.length < Math.min(n, scored.length) && guard++ < n * 60) {
+    /* The target is fixed BEFORE the loop: scored shrinks as items are picked,
+       and the stand-alone app compared against its live length, so a 15-question
+       draw from 18 stopped at 9. */
+    var target = Math.min(n, scored.length);
+    while (out.length < target && guard++ < n * 60) {
       var r = Math.random() * total, acc = 0, chosen = -1;
       for (var i = 0; i < scored.length; i++) {
         acc += scored[i].w;

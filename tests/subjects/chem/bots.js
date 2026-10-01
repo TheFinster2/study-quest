@@ -31,19 +31,23 @@ const clickNext = page => page.evaluate(() => {
 });
 
 /* ── MCQ modes: rapid, drill, mistakes, naming, survival, boss ── */
-async function mcq(page, route, honest, budget) {
+async function mcq(page, route, honest, budget, missAt) {
   await go(page, route);
+  let answered = 0;
   for (let i = 0; i < (budget || 60); i++) {
     if (await resultsOpen(page)) break;
     const has = await page.evaluate(() => !!document.querySelector("#view .choice:not([disabled])"));
     if (has) {
       await waitFloor(page, honest);
-      await page.evaluate(h => {
+      answered++;
+      const miss = missAt && answered >= missAt;
+      await page.evaluate(([h, miss]) => {
         const bs = [...document.querySelectorAll("#view .choice")];
         const c = CHEM.__current || {};
-        const k = h ? c.answer : Math.floor(Math.random() * bs.length);
+        let k = h ? c.answer : Math.floor(Math.random() * bs.length);
+        if (miss) k = (c.answer + 1) % bs.length;
         if (bs[k] && !bs[k].disabled) bs[k].click();
-      }, honest);
+      }, [honest, miss]);
     } else if (!(await clickNext(page))) {
       await page.waitForTimeout(honest ? 300 : 120);
       continue;
@@ -140,12 +144,16 @@ async function titration(page, honest) {
 
 async function pathway(page, honest) {
   await go(page, "game/pathway");
-  for (let i = 0; i < 160; i++) {
+  for (let i = 0; i < (honest ? 160 : 3000); i++) {
     if (await resultsOpen(page)) break;
     if (await clickNext(page)) { await page.waitForTimeout(80); continue; }
     if (honest) await page.waitForTimeout(700);
     await page.evaluate(h => {
       const bs = [...document.querySelectorAll("#view .reagent:not([disabled])")];
+      /* the random bot also hits "Restart this route" now and then, or one dead end
+         (a polymer, an ester) strands it for good */
+      const reset = [...document.querySelectorAll("#view .btn-ghost")].find(x => /Restart/.test(x.textContent));
+      if (!h && reset && Math.random() < 0.12) { reset.click(); return; }
       const want = h ? (CHEM.__current || {}).next : null;
       const b = want ? bs.find(x => x.dataset.id === want) : bs[Math.floor(Math.random() * bs.length)];
       if (b) b.click();
@@ -189,11 +197,13 @@ async function flashcards(page, honest) {
 }
 
 const MODES = {
-  "Rapid Fire":          (p, h) => mcq(p, "game/rapid", h, 400),
+  "Rapid Fire":          (p, h) => mcq(p, "game/rapid", h, 4000),
   "Module Drill":        (p, h) => mcq(p, "game/drill/M5", h),
-  "Mistake Rehab":       (p, h) => mcq(p, "game/mistakes", h),
+  /* seeded right before, since the modes before it may have fixed every mistake */
+  "Mistake Rehab":       async (p, h) => { await seedMistakes(p); return mcq(p, "game/mistakes", h); },
   "Name That Compound":  (p, h) => mcq(p, "game/naming", h),
-  "Survival":            (p, h) => mcq(p, "game/survival", h, h ? 50 : 60),
+  /* Survival only ends on a miss, so the honest bot misses on purpose at Q14 */
+  "Survival":            (p, h) => mcq(p, "game/survival", h, 60, h ? 14 : 0),
   "Boss (Le Chatelier)": (p, h) => mcq(p, "game/boss/b5", h, 80),
   "Balance Blitz":       balance,
   "Ion Memory":          ionmatch,

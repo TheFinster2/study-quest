@@ -76,7 +76,7 @@ module.exports = {
       t.eq(repeat, 0, "the warning is not repeated on every subsequent failed write");
 
       /* ── Settings says so, loudly ── */
-      await h.goto(page, "/settings", 600);
+      await h.goto(page, "/options", 600);
       const shown = await page.evaluate(() => {
         const bad = document.querySelector("#view .notice-bad");
         return bad ? bad.textContent.replace(/\s+/g, " ") : null;
@@ -90,15 +90,15 @@ module.exports = {
           .forEach(k => localStorage.removeItem(k));
         EN.State.deleteDraft("__big");
         EN.State.flush();
-        const raw = localStorage.getItem("closereading.save.v1");
+        const raw = localStorage.getItem("studyquest.save.v1");
         return { failing: EN.State.storageFailing(),
-                 xp: raw ? JSON.parse(raw).xp : null };
+                 xp: raw ? JSON.parse(raw).subjects.eng.xp : null };
       });
       t.eq(recovered.failing, null, "the flag clears once a write succeeds again");
       t.atLeast(recovered.xp || 0, 100, "the progress earned during the outage is written once there is room");
 
       /* And Settings goes back to reporting a size rather than a warning. */
-      await h.goto(page, "/settings", 600);
+      await h.goto(page, "/options", 600);
       const calm = await page.evaluate(() => ({
         bad: !!document.querySelector("#view .notice-bad"),
         size: Array.from(document.querySelectorAll("#view .kv"))
@@ -125,7 +125,7 @@ module.exports = {
       const calmDesk = await chipOf();
       t.eq(calmDesk.text, "saved", "with room to spare the desk reports a saved draft");
       t.eq(await page.evaluate(() =>
-        (JSON.parse(localStorage.getItem("closereading.save.v1")).drafts || []).length), 1,
+        (JSON.parse(localStorage.getItem("studyquest.save.v1")).subjects.eng.drafts || []).length), 1,
         "and the draft really is on disk");
 
       await page.evaluate(() => {
@@ -157,7 +157,7 @@ module.exports = {
       await page.waitForTimeout(1400);
       t.eq((await chipOf()).text, "saved", "and goes back to saving once there is room");
       t.eq(await page.evaluate(() =>
-        JSON.parse(localStorage.getItem("closereading.save.v1")).drafts[0].body), "Short again.",
+        JSON.parse(localStorage.getItem("studyquest.save.v1")).subjects.eng.drafts[0].body), "Short again.",
         "with the text the student actually has on screen");
 
       t.eq(page.errors.slice(0, 3), [], "console and page errors");

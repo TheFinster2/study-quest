@@ -86,6 +86,9 @@ SQ.Subjects.manifest("bio", {
 
   boot: function () {
     BIO.UI.mountRoutes();
+    // The shell built the navbar for #/s/bio before this subject was bound
+    // (the loading screen), so rebuild it with Biology's items (CORE-REQUESTS #1).
+    SQ.UI.buildNav();
     BIO.Tools.register();
   },
 

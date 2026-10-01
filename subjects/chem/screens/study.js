@@ -139,7 +139,7 @@ CHEM.Screens.study = (function () {
     S.touchStreak();
 
     let i = 0, got = 0, missed = 0, xp = 0, paid = 0;
-    let keyHandler = null;
+    let keyHandler = null, sessionDone = false;
     const onKey = e => { if (keyHandler && !SQ.UI.modalOpen()) keyHandler(e); };
     document.addEventListener("keydown", onKey);
     UI.onLeave(() => document.removeEventListener("keydown", onKey));
@@ -204,7 +204,12 @@ CHEM.Screens.study = (function () {
         if (revealed && n >= 0) grade(G[n][0]);
       };
 
+      let graded = false;
       function grade(g) {
+        /* One grade per card, and nothing after the session has finished — a
+           double-tap on the last card used to run finish() (and pay) twice. */
+        if (graded || sessionDone) return;
+        graded = true;
         /* Only pay for a card that was genuinely due, hasn't already paid today,
            and was on screen long enough to read front AND back. Self-grading can't
            be verified, so these limits are what stop "Easy" spam. */
@@ -229,6 +234,9 @@ CHEM.Screens.study = (function () {
     }
 
     function finish() {
+      if (sessionDone) return;
+      sessionDone = true;
+      keyHandler = null;
       const earned = UI.award({
         xp, coins: paid * 2, bonus: S.streakBonus(),
         // Self-reported "Got it" is always 100%, so gate the bonus on cards that

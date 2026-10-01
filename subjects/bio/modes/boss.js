@@ -258,7 +258,9 @@
         S.data.bossBest = S.data.bossBest || {};
         S.data.bossBest[boss.id] = Math.max(S.data.bossBest[boss.id] || 0, Math.round(st.hp));
       }
-      var winBonus = won ? Math.round(200 + boss.hp * 1.2 + (flawless ? 150 : 0)) : 0;
+      /* A first clear pays the full bonus; a re-clear 40% of it, so a beaten
+         boss is not the obvious grind (tests/subjects/bio/honest.js). */
+      var winBonus = won ? Math.round((200 + boss.hp * 1.2 + (flawless ? 150 : 0)) * (first ? 1 : 0.4)) : 0;
       var rec = UI.award({ xp: Math.round(st.xp), bonus: winBonus, accuracy: st.asked ? st.correct / st.asked : 0,
         readRatio: st.asked ? st.counted / st.asked : 0, answered: st.asked, mode: "boss", score: won ? st.correct : 0 });
       rec.questions = st.asked;
@@ -272,7 +274,7 @@
           ["Result", won ? (first ? "WIN — first clear" : "WIN") : "LOSS"],
           ["Your HP", String(Math.max(0, Math.round(st.hp)))],
           ["Boss HP", String(Math.max(0, Math.round(st.bossHp)))],
-          ["Win bonus", won ? (rec.bonus ? "+" + U.fmtInt(rec.bonus) : "0  (answered too fast to have read)") : "—"],
+          ["Win bonus" + (won && !first ? " (re-clear, 40%)" : ""), won ? (rec.bonus ? "+" + U.fmtInt(rec.bonus) : "0  (answered too fast to have read)") : "—"],
           ["Total earned", U.fmtInt(rec.xp) + " XP  ·  " + U.fmtInt(rec.coins) + " ◉"]
         ],
         review: st.review.slice(0, 10),

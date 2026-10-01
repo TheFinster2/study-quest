@@ -217,8 +217,11 @@ CHEM.Games.pathway = (function () {
              all five rounds — and it scored full accuracy, because it did finish
              them. Detours and dead ends now subtract all the way to nothing. */
           const gain = Math.round(60 * p.diff * efficiency) - wasted * 8;
-          xpEarned += Math.max(0, gain);
-          coins += Math.max(0, Math.round(18 * efficiency) - wasted * 2);
+          /* Netted over the whole run, not floored per round: a lucky first pick on
+             a one-step puzzle used to bank its full pay however much the other
+             rounds wasted (a random bot made ~30 XP a run that way). */
+          xpEarned += gain;
+          coins += Math.round(18 * efficiency) - wasted * 2;
 
           CHEM.Sound.win();
           CHEM.FX.confetti(60);
@@ -261,7 +264,7 @@ CHEM.Games.pathway = (function () {
       const newBest = S.recordScore("pathway", solved);
       if (solved === puzzles.length && totalWasted === 0) S.bump("perfectRuns");
       const quality = totalTaken ? totalOptimal / totalTaken : 0;
-      const got = UI.award({ xp: xpEarned, coins, bonus: S.streakBonus(),
+      const got = UI.award({ xp: Math.max(0, xpEarned), coins: Math.max(0, coins), bonus: S.streakBonus(),
                              accuracy: (solved / puzzles.length) * quality, answered: totalTaken });
       UI.results({
         title: "Synthesis complete",

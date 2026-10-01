@@ -167,7 +167,7 @@ html[data-subject="bio"] .mst-bar > i{ display:block; height:100%; background:va
 /* ── StudyQuest additions ───────────────────────────────────────────── */
 html[data-subject="bio"] .bio-shell{ gap: 8px; }
 html[data-subject="bio"] .bio-shell .ghead{ flex-wrap: nowrap; }
-html[data-subject="bio"] .gs-head{ display: grid; gap: 6px; }
+html[data-subject="bio"] .gs-head{ display: grid; gap: 6px; position: static; background: none; border: 0; padding: 0; margin: 0; }
 html[data-subject="bio"] .gs-sub{ margin-top: -2px; }
 html[data-subject="bio"] .gs-meter.warn{ color: var(--warn); border-color: var(--warn); }
 html[data-subject="bio"] .gs-prog{ margin-top: 0; }
@@ -185,3 +185,4 @@ html[data-subject="bio"] .bio-results{ margin-top: 0; }
 html[data-subject="bio"] .bio-modal .row .btn{ min-width: 0; }
 html[data-subject="bio"] .opt{ min-height: 48px; }
 html[data-subject="bio"] .qtext{ white-space: pre-line; }
+html[data-subject="bio"] .pn{ max-width: 380px; }

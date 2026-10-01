@@ -269,7 +269,10 @@ CHEM.Games.titration = (function () {
       if (usedMeter) xp = Math.round(xp * 0.7);
 
       const coins = (perfect ? 90 : good ? 60 : ok ? 35 : 0) + (calcOk && vb >= 1 ? (ok ? 30 : 10) : 0);
-      const accuracy = ((ok ? 1 : 0) + (calcOk ? 1 : 0)) / 2;
+      /* A "correct" calculation on an empty titre (0 mL → 0 mol L⁻¹) is not evidence
+         of anything, so it doesn't count towards the accuracy that gates the bonus. */
+      const calcCounts = calcOk && vb >= 1;
+      const accuracy = ((ok ? 1 : 0) + (calcCounts ? 1 : 0)) / 2;
 
       if (ok) S.bump("titrations");
       if (perfect) S.bump("perfectTitrations");
@@ -286,7 +289,7 @@ CHEM.Games.titration = (function () {
              : ok && calcOk ? "Titration complete"
              : ok ? "Good titre, wrong calculation"
              : "Overshot",
-        correct: (ok ? 1 : 0) + (calcOk ? 1 : 0), total: 2, xp: got.xp, coins: got.coins, newBest,
+        correct: (ok ? 1 : 0) + (calcCounts ? 1 : 0), total: 2, xp: got.xp, coins: got.coins, newBest,
         extraStats: [
           ["Titre", vb.toFixed(2) + " mL"],
           ["Error", error.toFixed(2) + " mL"],

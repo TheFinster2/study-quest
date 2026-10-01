@@ -18,7 +18,7 @@ CHEM.Games.precipitate = (function () {
        can produce a sub-grid that is almost entirely one state — and on an all-precipitate
        board, marking every cell PPT is a genuinely perfect score, indistinguishable from
        knowing the solubility rules. (Measured: one such draw paid 363 XP for sixteen
-       identical taps.) Re-draw until neither state holds more than 65% of the cells, so a
+       identical taps.) Re-draw until neither state holds more than 60% of the cells, so a
        single-answer strategy can never do better than mediocre. */
     let cations, anions;
     for (let attempt = 0; ; attempt++) {
@@ -27,9 +27,9 @@ CHEM.Games.precipitate = (function () {
       let soluble = 0;
       cations.forEach(ct => anions.forEach(an => { if (SOL.grid[ct.sym][an.sym]) soluble++; }));
       const frac = soluble / (c.rows * c.cols);
-      if (frac >= 0.35 && frac <= 0.65) break;
+      if (frac >= 0.4 && frac <= 0.6) break;
       // The full table is near-balanced, so a valid draw is common; this is just a guard.
-      if (attempt >= 60) break;
+      if (attempt >= 400) break;
     }
 
     // marks[cation.sym][anion.sym] = null | "ppt" | "sol"
@@ -174,12 +174,13 @@ CHEM.Games.precipitate = (function () {
          marking every cell PPT still nets positive — worth ~49 XP for knowing nothing.
          So pay only for the accuracy earned ABOVE the 50% chance baseline: `edge` is
          0 below the baseline and 1 at perfect, which zeroes any single-answer strategy
-         however the sub-grid happens to fall. The baseline sits slightly above 50% because
-         the board is only *near* balanced, so pure chance can drift a little past half. */
+         however the sub-grid happens to fall. The baseline is 60% — the most any
+         one-answer strategy can score on a board drawn 40–60% soluble. (It was 55%
+         over a 35–65% draw, which let "PPT everywhere" net ~50 XP on Nightmare.) */
       const wrong = total - right;
       const accuracy = total ? right / total : 0;
       const net = Math.max(0, right - wrong);
-      const edge = Math.max(0, (accuracy - 0.55) / 0.45);
+      const edge = Math.max(0, (accuracy - 0.6) / 0.4);
       const timeBonus = accuracy >= 0.75 ? Math.max(0, timeLeft) * 1.2 * accuracy : 0;
       const xp = Math.round(net * 22 * edge + timeBonus + (perfect ? 80 : 0));
       const coins = Math.round(net * 4 * edge) + (perfect ? 70 : 0);

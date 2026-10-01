@@ -35,7 +35,7 @@ module.exports = {
     try {
       for (const mode of MODES) {
         const page = await h.open("/home");
-        const root = "#/game/" + mode.split("/")[0];
+        const root = "#/s/eng/game/" + mode.split("/")[0];
         /* Mistake Rehab draws from questions the student has got wrong, so on a fresh save
            it correctly shows an empty state whose button leads back to /play. Seed one. */
         if (mode === "rehab") {
@@ -170,7 +170,7 @@ module.exports = {
             };
           });
           if (state.modal) break;
-          if (!state.hash.startsWith("#/boss")) { ejected = state.hash; break; }
+          if (!state.hash.startsWith("#/s/eng/boss")) { ejected = state.hash; break; }
           if (!state.live) {
             const next = await page.$(".js-next:not([disabled])");
             if (!next) break;
