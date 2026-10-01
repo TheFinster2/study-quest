@@ -36,6 +36,14 @@ HSC Physics, Joules ⚡, coin rate 0.75, level curve `round(115·n^1.5)`.
   due cards and "Worth a look" — never payouts; an explicitly chosen module still works.
 - **Options route**: the significant-figure check (informational, ±1 s.f.; the 2 %
   value marking is unchanged) and coverage. Linked from Home and Progress.
+- **Power-ups** (shared inventory, `core/powerups.js`) in the quiz engine and bosses:
+  fifty, skip (quiz), freeze (+15 s), shield (next wrong keeps the streak / blocks a
+  boss hit), double (arm before the first answer → `award({ boost: 2 })`, core-capped
+  ×4), insight (topic, a named trap, the topic's formulas), revive (automatic, once, in
+  Survival and bosses). `S.powerupBanned` respected (Nightmare bans fifty/skip).
+- Fixed a source bug: Survival's per-question clock and the boss clock kept running
+  after an answer, so reading the feedback past the deadline logged a second,
+  timed-out wrong answer (Survival runs died on correct answers).
 - Keyboard play in MCQ modes and bosses (1–4 / A–D, Enter). Answer inputs are `js-answer`.
 - Removed (app-owned now): router, header, toasts/modals, save, settings, service
   worker, profile sheet, arcade (see `arcade-skins.md`), power-up sales (general shop).
@@ -44,7 +52,7 @@ HSC Physics, Joules ⚡, coin rate 0.75, level curve `round(115·n^1.5)`.
 - Dev presets (`PHYS.devActions`): +5000 Joules, unlock bosses, seed mistakes/leech, level 60.
 
 ## Tests (`tests/subjects/phys/`)
-`validate.js` (20,200 generated questions, dimensions, routes, distractors, bias,
+`powerups.js` (each power-up offered, consumed, effective; Nightmare bans), `validate.js` (20,200 generated questions, dimensions, routes, distractors, bias,
 near-duplicates, manifest vs disk; `BREAK=…`), `notation.js` (+`notation.png`),
 `smoke.js`, `helpers.js`, `exploit.js [--minutes n]`, `honest.js`, `economy.js`
 (ticket/power-up effort now informational, in Stars).
@@ -52,6 +60,6 @@ Not ported (app-level suites own them): offline, update, import, perf, and the
 calculator/calcpanel/sheet UI tests (the shared tool tray's author owns those).
 
 ## Known gaps
-- Double XP, Freeze and Shield were never implemented in the source modes and still
-  are not (see CORE-REQUESTS.md). Authored bank still short of target (159 MCQs, 20
+- Power-ups are wired into the MCQ modes and bosses only, not the puzzle modes
+  (Calculation Crunch, Free-Body, Formula Match, …). Authored bank still short of target (159 MCQs, 20
   worked examples); the NESA sheet values/flags need a diff against the real PDF.

@@ -10,7 +10,7 @@
    own cache ("closereading-model-v1"), which the sweep below must never delete. */
 
 const VERSION = "1.0.0";
-const FINGERPRINT = "f6074b8768";
+const FINGERPRINT = "2da4af2f2e";
 const CACHE = "studyquest-" + VERSION + "-" + FINGERPRINT;
 const KEEP = ["closereading-model-v1", "transformers-cache"];
 

@@ -22,6 +22,7 @@
    (`mSun`, `AU`, `ly`…) as `free:false` constants — the stand-alone calculator
    accepted all of these by name. Please honour `aliases` and supplied ids in SQ.Expr.
 
-5. **Double XP / Freeze / Shield** power-ups were sold but never implemented in the
-   stand-alone Physics modes. Not added here; a shared `SQ.UI.powerups(row, {...})`
-   helper (the Chemistry-lineage row) would let every subject wire them identically.
+5. **Results modal outlives navigation.** `SQ.UI.results` opens on a 350 ms
+   `setTimeout` that is not cancelled by the router, so leaving a run in that window
+   opens the old run's results over the next screen. Wanted: register the timer with
+   `onLeave` (or check a route token before `show()`).

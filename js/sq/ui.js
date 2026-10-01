@@ -564,7 +564,9 @@ SQ.UI = (function () {
     ]), { sticky: true });
     /* Opened on a short delay so the last answer's feedback is seen first, and so a
        double-tap on the final choice cannot land on "Play again". */
-    setTimeout(show, o.delay === undefined ? 350 : o.delay);
+    const timer = setTimeout(show, o.delay === undefined ? 350 : o.delay);
+    /* Leaving the run inside that window must not land its results on the next screen. */
+    onLeave(() => clearTimeout(timer));
   }
   function reopenChip(show) {
     const b = U.el("button", { class: "btn btn-primary reopen-results", text: "Show results",
