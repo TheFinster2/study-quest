@@ -43,8 +43,37 @@ Screen*. The service worker precaches everything, so it then works with no signa
 (English's optional semantic-marking model is a separate 34 MB download you opt into
 inside English.)
 
+## What's in each subject
+
+| Subject | Content | Notable |
+|---|---|---|
+| ⚗️ Chemistry | 1,091 MCQs, 263 cards, 44 pathway puzzles | 11 modes, 5 Exam Bosses, titration lab, coverage switches |
+| 🔭 Physics | 159 MCQs + 101 seeded generators, 257 cards | Unit-aware marking, free-body builder, circuit bench, 5 bosses |
+| 🧬 Biology | 522 MCQs, 112 short answers, 461 cards, 35 diagrams | Genetics engine, Atlas, **new** HP-duel bosses (8 + Final Paper) |
+| 📊 Economics | 182 MCQs, 113 cards, 14 calc templates | Shift It, diagrams, **new** HP-duel bosses (5 + Final Paper) |
+| 🖋️ English Advanced | 403 MCQs, 324 quotes, 62 free-text prompts | Marking Desk, Quote Vault, optional offline AI marking |
+| 📐 Maths Standard | 534 MCQs, 105 cards, 75 generators | **New:** calculator, reference sheet, working pad |
+| ∫ Maths Advanced + Ext 1 | 629 MCQs, 137 cards, 75 generators, 20 proofs | Extension 1 is now an on/off setting |
+
+Every subject has: four difficulties (Gentle → Nightmare), Ascension at level 60, a
+daily challenge and weekly quests, graded flashcards (again/hard/good/easy) with
+named leeches, Mistake Rehab, coverage toggles, keyboard play, and the shared tool tray.
+
+## Known gaps
+
+- Biology and Economics have less content than their own original targets
+  (Biology 522/1000 MCQ, Economics 182/1000 MCQ and 6 short answers). The 50 new
+  Economics MCQs are the newest content and worth a read-through.
+- Physics' puzzle modes (Free-Body Builder, Circuit Bench, …) take no power-ups; its
+  quiz modes and bosses take all of them.
+- Biology's boss re-clears are its best-paying activity (within the anti-farm limits).
+
 ## For developers
 
 - `docs/ARCHITECTURE.md` — the shape of the app and the contract every subject follows.
-- `node tests/run.js` runs every suite (`node tests/run.js chem` for one subject).
+- `node tests/run.js` runs every suite (`node tests/run.js chem` for one subject) —
+  57 suites: the shell (hub, migration, offline, validation), the tool tray, the
+  arcade, and each subject's content validation, browser smoke test at 390/360 px,
+  and anti-farm bots (a random-fast bot must earn ~0 XP; an honest one must be paid).
+- Each subject's `subjects/<id>/README.md` says what changed from its stand-alone app.
 - After changing any shipped file: `node tools/precache.js` (the tests fail otherwise).
