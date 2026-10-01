@@ -118,7 +118,7 @@ PHYS.Games.quiz = (function () {
     const livesChip = UI.chip("❤️ 1", "warnchip");
     if (cfg.lives) shell.meta.appendChild(livesChip);
     const doubleChip = UI.chip("✖️ ×2 XP", "on");
-    doubleChip.hidden = true;
+    doubleChip.style.display = "none";
     shell.meta.appendChild(doubleChip);
 
     const card = U.el("div", { class: "qcard" });
@@ -196,7 +196,7 @@ PHYS.Games.quiz = (function () {
       }, "Show the topic and a common trap"));
       powerRow.appendChild(P.button("double", state.doubled || state.answered > 0, () => {
         state.doubled = true; state.puUsed.double = 1;
-        doubleChip.hidden = false;
+        doubleChip.style.display = "";
         UI.toast({ icon: "✖️", kind: "xp", text: "<b>Double XP</b> — this run pays ×2." });
         refreshPowerups();
       }, state.answered > 0 ? "Arm it before your first answer" : "×2 XP for this run"));

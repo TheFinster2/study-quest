@@ -16,7 +16,7 @@ function installSpy() {
     const stem = document.querySelector("#view .qtext");
     if (!stem) return -1;
     const opts = [...document.querySelectorAll("#view .choice .choice-txt")].map(n => n.innerHTML);
-    const q = PHYS.Bank.all().concat(__seen).find(x => PHYS.U.math(x.q) === stem.innerHTML);
+    const q = PHYS.Bank.all().concat(__seen).find(x => x.choices && PHYS.U.math(x.q) === stem.innerHTML);
     if (!q) return -1;
     const key = PHYS.U.math(q.choices[q.a]);
     return opts.indexOf(key);
@@ -107,6 +107,7 @@ function installSpy() {
   await until(page, () => window.__awards.length > 0, { timeout: 5000 }).catch(() => {});
   const aw = await page.evaluate(() => __awards[0]);
   t.ok(aw && aw.boost === 2 && aw.mult >= 2 && aw.mult <= 4, "double: the run's award carries boost 2 (multiplier " + (aw && aw.mult) + ", capped ×4)");
+  await page.waitForTimeout(600);           // the results modal opens on a short delay
   await page.evaluate(() => SQ.UI.closeModal(true));
 
   /* ── Survival: revive saves the one life ── */
@@ -116,6 +117,7 @@ function installSpy() {
   await page.evaluate(() => { const i = __correct(); const ch = [...document.querySelectorAll("#view .choice")]; ch[(i + 1) % ch.length].click(); });
   await page.waitForTimeout(1200);
   after = await inv();
+  if (process.env.DEBUG) console.log(before, after, await page.evaluate(() => [document.querySelector("#view .gmeta").textContent, __correct(), [...document.querySelectorAll("#view .btn-primary")].map(b => b.textContent).join("/"), !!document.querySelector("#modal-root:not([hidden]) .result-grid")]));
   const alive = await page.evaluate(() => !document.querySelector("#modal-root:not([hidden]) .result-grid") &&
     [...document.querySelectorAll("#view .btn-primary")].some(b => /Next/.test(b.textContent)));
   t.ok(after.revive === before.revive - 1 && alive, "revive consumed automatically and Survival continues after a knockout");
@@ -137,12 +139,12 @@ function installSpy() {
   for (let k = 0; k < 14 && !revivedHp; k++) {
     await page.evaluate(() => { const b = [...document.querySelectorAll("#view .btn-primary")].pop(); if (b && /Strike/.test(b.textContent)) b.click(); });
     await page.waitForTimeout(40);
-    revivedHp = await page.evaluate(() => {
+    revivedHp = await page.evaluate(start => {
       const ch = [...document.querySelectorAll("#view .choice")];
       if (!ch.length || ch[0].disabled) return null;
       const i = __correct(); ch[(i + 1) % ch.length].click();
-      return SQ.Store.data.inventory.revive < 3 ? document.querySelector("#my-hp-text").textContent : null;
-    });
+      return SQ.Store.data.inventory.revive < start ? document.querySelector("#my-hp-text").textContent : null;
+    }, before.revive);
   }
   after = await inv();
   t.ok(after.revive === before.revive - 1 && revivedHp && /^50 /.test(revivedHp), "boss revive fires on a knockout, back to 50 HP (" + revivedHp + ")");

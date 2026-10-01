@@ -53,6 +53,7 @@ const E = require("./_browser.js");
       const s = await E.step(page, "right");
       if (s === "results") break;
       if (s === "stuck") await page.waitForTimeout(400);
+      else if (s === "answered" || s === "grade" || s === "record") await page.waitForTimeout(1200); // reads the explanation
       else await page.waitForTimeout(60);
     }
     await page.waitForTimeout(600);

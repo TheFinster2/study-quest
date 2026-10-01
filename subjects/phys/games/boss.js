@@ -103,7 +103,7 @@ PHYS.Games.boss = (function () {
     const powerRow = U.el("div", { class: "powerups" });
     shell.body.appendChild(powerRow);
     const doubleChip = UI.chip("✖️ ×2 XP", "on");
-    doubleChip.hidden = true;
+    doubleChip.style.display = "none";
     shell.meta.appendChild(doubleChip);
 
     /* Power-ups (core/powerups.js): freeze +15 s, shield blocks the next hit,
@@ -131,7 +131,7 @@ PHYS.Games.boss = (function () {
         refreshPowerups();
       }, "Show the topic and a common trap"));
       powerRow.appendChild(P.button("double", run.doubled || run.answered > 0, () => {
-        run.doubled = true; run.puUsed.double = 1; doubleChip.hidden = false;
+        run.doubled = true; run.puUsed.double = 1; doubleChip.style.display = "";
         UI.toast({ icon: "✖️", kind: "xp", text: "<b>Double XP</b> — this fight pays ×2." });
         refreshPowerups();
       }, run.answered > 0 ? "Arm it before your first answer" : "×2 XP for this fight"));
