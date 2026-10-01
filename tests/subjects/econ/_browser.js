@@ -86,4 +86,4 @@ async function overflow(page) {
   });
 }
 
-module.exports = Object.assign({}, B, { SAVE, open, go, step, overflow });
+module.exports = Object.assign({}, B, { SAVE, open, go, step, viewOverflow: overflow });
