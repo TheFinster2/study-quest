@@ -98,8 +98,7 @@ module.exports = {
       });
       t.eq(dlg.role, "dialog", "a modal announces itself as a dialog");
       t.eq(dlg.modal, "true", "a modal is marked aria-modal");
-      /* Core gap (CORE-REQUESTS.md): SQ.UI.modal does not set aria-labelledby yet. */
-      if (!dlg.labelled) t.note("  core gap: SQ.UI.modal sets no aria-labelledby (see CORE-REQUESTS.md)");
+      t.ok(dlg.labelled, "a modal is labelled by its own heading");
       t.ok(dlg.focusInside, "focus moves into the dialog when it opens");
 
       /* Tab from the last focusable must wrap to the first, not escape. */
@@ -154,7 +153,7 @@ module.exports = {
         labelled: !!document.querySelector("nav[aria-label]"),
         items: document.querySelectorAll("#navbar .nav-item").length }));
       t.atLeast(nav.items, 5, "the nav bar is complete");
-      if (!nav.labelled) t.note("  core gap: #navbar has no aria-label (see CORE-REQUESTS.md)");
+      t.ok(nav.labelled, "the nav bar is labelled");
 
       /* ── progress bars ────────────────────────────────────────
          A bar with its figure printed beside it is decorative and must be hidden, or a

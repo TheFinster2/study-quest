@@ -230,7 +230,7 @@ window.MS.Games = window.MS.Games || {};
       var res = UI.award({
         xp: pool.xp,
         bonus: opts.bonus == null ? 60 : opts.bonus,
-        answered: pool.answered(),
+        answered: pool.answered(), pace: { items: pool.answered(), tooFast: pool.fast },
         coins: opts.coins == null ? Math.round(pool.correct * 6) : opts.coins,
         accuracy: acc,
         mode: opts.mode,

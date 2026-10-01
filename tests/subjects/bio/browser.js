@@ -92,7 +92,7 @@ async function squeezed(page) {
       (e.id ? "#" + e.id : "") +
       (typeof e.className === "string" && e.className ? "." + e.className.trim().split(/\s+/)[0] : "");
 
-    document.querySelectorAll("#view *, #topbar *, #navbar *").forEach((e) => {
+    document.querySelectorAll("#view *").forEach((e) => {
       const cs = getComputedStyle(e);
       if (cs.display === "none" || cs.visibility === "hidden") return;
       if (cs.overflowX !== "hidden" && cs.overflowX !== "clip") return;

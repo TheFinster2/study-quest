@@ -257,7 +257,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       if (pool.wrong === 0 && solved === ROUNDS) State.bump('perfect');
       var res = UI.award({ xp: pool.xp, bonus: 100, coins: solved * 9, accuracy: acc,
-        answered: pool.answered(), mode: 'chain', node: scoreChip });
+        answered: pool.answered(), pace: { items: pool.answered(), tooFast: pool.fast }, mode: 'chain', node: scoreChip });
       State.recordScore('chain', solved);
       State.progressDaily('chain', solved);
       UI.results({

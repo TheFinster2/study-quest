@@ -11,7 +11,7 @@ window.SQ = window.SQ || {};
   const DATA = ["constants", "equations", "questions-y11a", "questions-y11b", "questions-y12a",
                 "questions-y12b", "questions-skills", "flashcards-y11", "flashcards-y12",
                 "flashcards-skills", "worked-examples", "achievements", "shop"].map(f => B + "data/" + f + ".js");
-  const CORE = ["util", "units", "expr", "audio", "fx", "draw", "gen", "state", "bank", "ui"]
+  const CORE = ["util", "units", "expr", "audio", "fx", "draw", "gen", "state", "bank", "ui", "powerups"]
     .map(f => B + "core/" + f + ".js");
   const GENS = [1, 2, 3, 4, 5, 6, 7, 8].map(n => B + "data/generators/gen-m" + n + ".js");
   const GAMES = ["quiz", "calc", "fbd", "formula", "graph", "unitgrid", "bench", "chain", "boss"]

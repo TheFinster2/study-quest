@@ -73,8 +73,9 @@ game/crunch/:topic game/boss/:id game/bookmarks`.
   removed from the modes (legacy stock imports as Double XP).
 - Daily reward is fixed at 575 XP / 85 Credits (was 400–750 / 60–110 by date).
 - Crates use the shared loot table (see CORE-REQUESTS.md #4).
-- The sheet's F key and "sheet used" report wait on `SQ.Tools.open/used`
-  (CORE-REQUESTS.md #1); the tray placeholder has no UI yet.
+- **F** opens the tray's sheet (`SQ.Tools.open`); the "sheet used — no XP cost"
+  results row waits on `SQ.Tools.used` (CORE-REQUESTS.md #1).
+- Runs pass `pace:{items,tooFast}` so an all-rushed run pays no coins either.
 - `bossWins` now counts every victory (NumberCrunch counted first kills only).
 
 ## Tests (`tests/subjects/mstd/`)

@@ -18,7 +18,7 @@ ECON.DATA.mcq_x_prelim = [
 
 { id:"p1-x02", mod:"P1", topic:"Factors of production", diff:1,
   q:"The reward earned by the factor of production 'capital' is",
-  options:["wages","rent","interest","profit"], answer:2,
+  options:["wages and salaries","rent","interest","profit"], answer:2,
   why:"Each factor has its own reward: labour earns wages, land earns rent, capital earns interest and enterprise (entrepreneurship) earns profit.",
   distractors:{0:"Wages are the return to labour.",1:"Rent is the return to land and natural resources.",3:"Profit is the return to enterprise, the factor that organises the others and bears the risk."} },
 
@@ -30,13 +30,13 @@ ECON.DATA.mcq_x_prelim = [
 
 { id:"p1-x04", mod:"P1", topic:"Economic systems", diff:2,
   q:"In a market economy, the question of 'for whom to produce' is answered mainly by",
-  options:["central planners allocating output to households","the incomes households earn from selling their factors","a vote on how output should be distributed","tradition and the customs of each community"], answer:1,
+  options:["central planners allocating output to households","the incomes households earn from selling their factors","a democratic vote on how all output should be distributed","tradition and the customs of each community"], answer:1,
   why:"In a market economy output goes to those willing and able to pay, so the distribution of goods follows the distribution of income earned from supplying labour, land, capital and enterprise.",
   distractors:{0:"Allocation by planners is the defining feature of a command economy.",2:"Market economies do not distribute output by vote; governments may redistribute some income, but the market allocates by price.",3:"Tradition answers the basic questions in a traditional economy, not a market one."} },
 
 { id:"p1-x05", mod:"P1", topic:"Standard of living", diff:2,
   q:"Real GDP per capita is an incomplete measure of living standards mainly because it",
-  options:["ignores the effects of inflation on output","counts only goods produced by the government","excludes non-market work and the distribution of income","double counts intermediate goods in the total"], answer:2,
+  options:["ignores the effects of inflation on output","counts only goods produced by the government","excludes non-market work and the distribution of income","double counts intermediate goods in the final total of output"], answer:2,
   why:"GDP per capita measures average market output. It leaves out unpaid work such as caring and volunteering, says nothing about how income is shared, and ignores leisure and environmental quality.",
   distractors:{0:"'Real' GDP is already adjusted for inflation.",1:"GDP counts private and public sector output alike.",3:"GDP counts only final goods and services precisely to avoid double counting."} },
 
@@ -49,7 +49,7 @@ ECON.DATA.mcq_x_prelim = [
 
 { id:"p2-x02", mod:"P2", topic:"Business costs", diff:2,
   q:"A cafe's rent is $4000 a month regardless of how many coffees it sells. Its rent is a",
-  options:["variable cost, because it is paid each month","marginal cost of producing the next coffee","fixed cost, because it does not change with output","sunk benefit that lowers average revenue"], answer:2,
+  options:["variable cost, because it is paid again each month","marginal cost of producing the next coffee","fixed cost, because it does not change with output","sunk benefit that lowers average revenue"], answer:2,
   why:"Fixed costs do not vary with the level of output in the short run. Rent is paid whether the cafe sells ten coffees or ten thousand.",
   distractors:{0:"Being paid regularly does not make a cost variable; variable costs change with output, like milk and beans.",1:"Marginal cost is the extra cost of one more unit, and one more coffee adds nothing to the rent.",3:"There is no such concept; costs do not change revenue."} },
 
@@ -67,7 +67,7 @@ ECON.DATA.mcq_x_prelim = [
 
 { id:"p2-x05", mod:"P2", topic:"Economies of scale", diff:2,
   q:"A supermarket chain negotiates lower prices from suppliers because it buys in enormous quantities. This is an example of",
-  options:["a diseconomy of scale","a purchasing (bulk-buying) economy of scale","an external economy of scale","the law of diminishing returns"], answer:1,
+  options:["a diseconomy of scale","a purchasing (bulk-buying) economy of scale","an external economy of scale for the whole industry","the law of diminishing returns"], answer:1,
   why:"Purchasing economies are internal economies of scale: a large firm's buying power lets it obtain inputs more cheaply per unit, lowering its average cost.",
   distractors:{0:"Diseconomies raise average cost as a firm grows; this lowers it.",2:"External economies come from the growth of the whole industry or region, not one firm's own size.",3:"Diminishing returns describe adding a variable input to a fixed one in the short run."} },
 
@@ -108,25 +108,25 @@ ECON.DATA.mcq_x_prelim2 = [
 // ── P4 Labour Markets ───────────────────────────────────────────────────
 { id:"p4-x01", mod:"P4", topic:"Demand for labour", diff:2,
   q:"The demand for labour is described as a derived demand because",
-  options:["it depends on the demand for the goods labour produces","workers derive satisfaction from the work they do","it is set by awards derived from Fair Work decisions","employers derive profit from paying low wages"], answer:0,
+  options:["it depends on the demand for the goods labour produces","workers derive satisfaction from the work they do","it is set by awards derived from Fair Work Commission decisions","employers derive profit from paying low wages"], answer:0,
   why:"Firms do not want labour for its own sake; they hire workers to produce goods and services. So labour demand rises and falls with demand for what that labour makes.",
   distractors:{1:"Job satisfaction affects labour supply decisions, not why demand for labour is derived.",2:"Awards set minimum conditions; they are not what 'derived' refers to.",3:"This is not an economic definition, and firms' demand for labour exists whatever the wage."} },
 
 { id:"p4-x02", mod:"P4", topic:"Labour force", diff:2,
   q:"A person who wants a job but has stopped looking because they believe none is available is counted by the ABS as",
-  options:["unemployed","employed part-time","not in the labour force","underemployed"], answer:2,
+  options:["unemployed, as a discouraged job seeker","employed part-time","not in the labour force","underemployed"], answer:2,
   why:"To be unemployed a person must be actively looking and available for work. Discouraged job seekers are not looking, so they are classed as not in the labour force — part of hidden unemployment.",
   distractors:{0:"The unemployed must have actively sought work; discouraged workers have stopped.",1:"They have no job, so they cannot be employed part-time.",3:"Underemployed people have a job but want more hours."} },
 
 { id:"p4-x03", mod:"P4", topic:"Labour market outcomes", diff:2,
   q:"Which is the most likely reason a surgeon earns far more than a retail assistant?",
-  options:["Surgeons work for the government, which pays higher wages","The supply of people able to perform surgery is small relative to demand","Retail work is protected by awards but surgery is not","Surgeons belong to stronger unions than retail workers"], answer:1,
+  options:["Surgeons work for the government, which always pays higher wages than private firms","The supply of people able to perform surgery is small relative to demand","Retail work is protected by awards but surgery is not","Surgeons belong to stronger unions than retail workers"], answer:1,
   why:"Wage differences largely reflect demand and supply for each skill. Years of training and high skill requirements restrict the supply of surgeons while the value of their work keeps demand strong.",
   distractors:{0:"Many surgeons work privately, and public-sector employment does not by itself mean higher pay.",2:"Awards set minimums, and they do not explain why one occupation's market wage is far higher.",3:"Union strength is not the main driver of the gap; retail is covered by a large union."} },
 
 { id:"p4-x04", mod:"P4", topic:"Wage determination", diff:2,
   q:"Under Australia's industrial relations system, an enterprise agreement is",
-  options:["a minimum wage set annually for all workers","a set of pay and conditions negotiated at a single workplace","an individual contract signed by one worker","a decision of the Reserve Bank on wage growth"], answer:1,
+  options:["a minimum wage set annually for all workers","a set of pay and conditions negotiated at a single workplace","an individual contract signed by a single worker and their employer","a decision of the Reserve Bank on wage growth"], answer:1,
   why:"Enterprise agreements are collectively bargained between an employer and its employees (often through a union) and approved by the Fair Work Commission. They must leave workers better off overall than the relevant award.",
   distractors:{0:"The national minimum wage is set by the Fair Work Commission's annual wage review.",2:"An individual arrangement is a common-law contract, not an enterprise agreement.",3:"The RBA sets the cash rate; it does not set or approve wages."} },
 
@@ -297,31 +297,31 @@ ECON.DATA.mcq_x_hsc = [
 // ── H4 Economic Policies and Management ─────────────────────────────────
 { id:"h4-x01", mod:"H4", topic:"Monetary policy", diff:2,
   q:"The Reserve Bank's inflation target is to keep annual consumer price inflation",
-  options:["below 1% at all times","between 2 and 3%, aiming for the midpoint","at exactly 4% each year","equal to the rate of wage growth"], answer:1,
+  options:["below 1% at all times to protect savers","between 2 and 3%, aiming for the midpoint","at exactly 4% in every single year","equal to the rate of wage growth"], answer:1,
   why:"The RBA's inflation target is to keep annual CPI inflation between 2 and 3%, aiming for the midpoint of that range, over time.",
   distractors:{0:"Inflation that low risks deflation; the target is 2–3%.",2:"No such target exists; 4% is above the band.",3:"Wage growth matters to the outlook, but it is not the target."} },
 
 { id:"h4-x02", mod:"H4", topic:"Fiscal policy", diff:2,
   q:"The government cuts spending and raises taxes to reduce inflationary pressure. Its fiscal stance is",
-  options:["expansionary","contractionary","neutral","structural"], answer:1,
+  options:["expansionary","contractionary","neutral","cyclically adjusted"], answer:1,
   why:"Reducing government spending and raising taxes lowers aggregate demand, which is a contractionary stance used to ease inflation.",
-  distractors:{0:"Expansionary policy raises spending or cuts taxes to boost demand.",2:"A neutral stance would leave demand pressure unchanged.",3:"'Structural' describes part of the budget balance, not the direction of policy."} },
+  distractors:{0:"Expansionary policy raises spending or cuts taxes to boost demand.",2:"A neutral stance would leave demand pressure unchanged.",3:"'Cyclically adjusted' describes a way of measuring the budget balance, not the direction of policy."} },
 
 { id:"h4-x03", mod:"H4", topic:"Microeconomic policy", diff:2,
   q:"Microeconomic reform mainly aims to",
-  options:["fine-tune aggregate demand over the business cycle","raise efficiency and productivity to lift aggregate supply","set the cash rate to hit the inflation target","balance the budget in each financial year"], answer:1,
+  options:["fine-tune aggregate demand over each stage of the business cycle","raise efficiency and productivity to lift aggregate supply","set the cash rate to hit the inflation target","balance the budget in each financial year"], answer:1,
   why:"Microeconomic (supply-side) policies such as competition reform, tax reform and deregulation aim to make markets more efficient, lifting productivity and the economy's productive capacity.",
   distractors:{0:"Managing demand over the cycle is the job of macroeconomic policy.",2:"That is monetary policy.",3:"That is a fiscal objective, and not the aim of microeconomic reform."} },
 
 { id:"h4-x04", mod:"H4", topic:"Policy mix", diff:3,
   q:"Monetary policy is often preferred over fiscal policy for managing demand in the short term because it",
-  options:["has no time lags at all","can be adjusted quickly and independently of the budget process","directly targets particular industries","always reduces unemployment and inflation together"], answer:1,
-  why:"The Reserve Bank Board can change the cash rate at any of its meetings, independently of government, whereas fiscal changes usually wait for the budget and parliament. Monetary policy still has long lags in its effects.",
+  options:["has no time lags at all","can be adjusted quickly and independently of the budget process","directly targets particular industries","always reduces unemployment and inflation together in the short run"], answer:1,
+  why:"The Reserve Bank's Monetary Policy Board can change the cash rate at any of its scheduled meetings, independently of government, whereas fiscal changes usually wait for the budget and parliament. Monetary policy still has long lags in its effects.",
   distractors:{0:"Monetary policy has significant lags in its effects on the economy, often a year or more.",2:"Interest rates affect the whole economy; they cannot be aimed at one industry.",3:"There is often a short-run trade-off between the two, not a guarantee to reduce both."} },
 
 { id:"h4-x05", mod:"H4", topic:"Environmental policy", diff:2,
   q:"An emissions trading scheme reduces pollution mainly by",
-  options:["banning the most polluting firms outright","capping total emissions and letting firms trade permits","subsidising consumers to buy imported goods","fixing the price of electricity by law"], answer:1,
+  options:["banning the most polluting firms from operating outright","capping total emissions and letting firms trade permits","subsidising consumers to buy imported goods","fixing the price of electricity by law"], answer:1,
   why:"A cap-and-trade scheme limits total emissions and issues tradable permits. Firms that can cut emissions cheaply sell permits to those that cannot, so the cap is met at least cost.",
   distractors:{0:"An outright ban is direct regulation, not a trading scheme.",2:"Import subsidies have nothing to do with emissions trading.",3:"Price controls are a different policy; an ETS sets a quantity and lets the permit price emerge."} }
 ];

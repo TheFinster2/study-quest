@@ -90,7 +90,7 @@
   };
   /** Register a core route that renders OUTSIDE the .econ-app wrapper (the shop). */
   UI.coreRoute = coreRoute;
-  UI.render = function () { SQ.UI.handleRoute(); };
+  UI.render = function () { if (B.reload) B.reload(); else SQ.UI.handleRoute(); };
   UI.hideTabs = function () {};
   UI.syncChrome = function () { B.syncHeader(); };
 
@@ -156,7 +156,10 @@
     var boost = o.boost || 1;
     var mult = Math.min(SQ.Economy.MAX_MULTIPLIER, S.xpMultiplier() * boost);
     var crutch = B.formulaPenalty();
-    var predicted = Math.max(0, Math.round((base + bonusShown) * mult * crutch));
+    /* coins at face value = what the run pays before the tray charge; the core
+       applies the coin rate AND the off-sheet charge to coins itself */
+    var predicted = Math.max(0, Math.round((base + bonusShown) * mult));
+    var pace = (answered && readRatio !== null) ? { items: answered, tooFast: Math.round(answered * (1 - readRatio)) } : undefined;
 
     /* bookkeeping first, so the achievement check inside award() sees it */
     if (o.mode) {
@@ -173,7 +176,7 @@
 
     var got = SQ.UI.award("econ", {
       xp: base, bonus: bonus, accuracy: acc === null ? undefined : acc, answered: answered,
-      boost: boost, coins: predicted, silent: o.silent, at: o.at
+      boost: boost, coins: predicted, pace: pace, silent: o.silent, at: o.at
     });
     if (got.xp > (S.data.stats.bestRunXp || 0)) { S.data.stats.bestRunXp = got.xp; S.save(); }
 

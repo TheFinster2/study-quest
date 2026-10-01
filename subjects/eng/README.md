@@ -36,7 +36,7 @@ achievements dev`.
   Boss player HP scales with `difficulty().boss`. Nightmare bans 50/50 + Skip.
 - **Graded review** (Again/Hard/Good/Easy) in Vault browse (still pays nothing).
 - Adrenaline is the shared `double`, applied as `award({boost:2})` under the ×4 ceiling.
-- Shop → `SQ.Shop.subject` (themes `eng-<name>`, avatars, three crates). Power-ups are in
+- Shop → `SQ.Shop.subject` (themes `eng-<name>`, avatars, three crates with their original weight tables). Power-ups are in
   the general shop. Settings → `options` (texts, Layer C, reset English); sound/motion/
   export/import/Force refresh are the app's.
 - Tool tray: `calc:false, sheet:true, pad:true`; the sheet (techniques by category +
@@ -59,7 +59,5 @@ paper, leech, cite, play, smoke, dev. Not ported (the app owns them now): offlin
 runner, arcade, motion.
 
 ## Known gaps
-- Crate weight tables approximated by the shared common/better rolls (CORE-REQUESTS 4).
-- Modal `aria-labelledby` and nav `aria-label` are core gaps (CORE-REQUESTS 2–3).
-- The service worker must exclude the model files/cache (CORE-REQUESTS 1).
+- CORE-REQUESTS 1–4 are implemented in the core; 5–6 stay subject-side.
 - `EN.DATA.difficulties` / `EN.DATA.shop.tickets` / `EN.DATA.arcade` remain as data only.

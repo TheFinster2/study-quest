@@ -142,7 +142,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       if (pool.wrong === 0 && pool.correct >= LIMIT) State.bump('perfect');
       var res = UI.award({
-        xp: pool.xp, bonus: 110, coins: Math.round(pool.correct * 7), answered: pool.answered(),
+        xp: pool.xp, bonus: 110, coins: Math.round(pool.correct * 7), answered: pool.answered(), pace: { items: pool.answered(), tooFast: pool.fast },
         accuracy: acc, mode: 'crunch', node: scoreChip
       });
       var best = State.recordScore('crunch', pool.correct);

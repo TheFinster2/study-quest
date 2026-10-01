@@ -34,3 +34,9 @@
 6. The shell's `assets/icon*.png|svg` are referenced by index.html but not in
    the repo yet; each page load logs one `Failed to load resource`. Biology's
    browser tests filter that one message (as Biosphere's did for favicons).
+
+7. **Navbar labels are ellipsized at phone widths.** With a subject's five items
+   plus "All", "Progress" renders as 24 px of 57 px at 390 px. Biology's
+   squeezed-text check now only measures `#view` (the navbar is the shell's).
+   *Want:* icon-only items (label as `aria-label`) below ~420 px, or allow four
+   subject items.

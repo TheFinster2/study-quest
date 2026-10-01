@@ -172,10 +172,16 @@
     var boost = opts.boost && opts.boost > 1 ? opts.boost : 1;
     var mult = Math.min(S.MAX_MULTIPLIER, S.xpMultiplier() * boost);
     var crutch = UI.formulaPenalty();
-    var expected = Math.max(0, Math.round(gross * mult * crutch));
-    var coins = typeof opts.coins === "number" ? Math.max(0, Math.round(opts.coins)) : expected;
+    /* Biosphere paid biocredits = final XP × 0.75. The shared award applies the
+       coin rate AND the off-sheet charge to coins, so hand it the multiplied,
+       pre-charge figure. */
+    var coins = typeof opts.coins === "number" ? Math.max(0, Math.round(opts.coins)) : Math.max(0, Math.round(gross * mult));
+    var pace = null;
+    if (typeof opts.answered === "number" && opts.answered > 0 && readRatio !== null) {
+      pace = { items: opts.answered, tooFast: Math.round(opts.answered * (1 - U.clamp(readRatio, 0, 1))) };
+    }
 
-    var got = core.award({ xp: gross, boost: boost, coins: coins, silent: opts.silent, at: opts.at });
+    var got = core.award({ xp: gross, boost: boost, coins: coins, pace: pace, silent: opts.silent, at: opts.at });
 
     if (opts.mode) {
       S.data.runs = (S.data.runs || 0) + 1;

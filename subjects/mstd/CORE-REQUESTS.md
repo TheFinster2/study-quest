@@ -2,13 +2,12 @@
 
 Worked around inside the subject for now; these would let the workarounds go.
 
-1. **`SQ.Tools.used(kind)` → boolean** (and ideally `SQ.Tools.open(kind)`).
-   NumberCrunch's results screen reported "Formula sheet: used — no XP cost" and
-   kept a `sheetRuns` count, and its **F** key opened the sheet mid-run. The tray
-   only exposes `penalty()` and `lookups()` (off-sheet reveals). Wanted:
-   `SQ.Tools.used('sheet')` — true if the sheet panel was opened this run (free
-   items included), reset by `mount()`; `SQ.Tools.open('sheet'|'calc'|'pad')`.
-   `core/ui.js` already calls both if they exist.
+1. **`SQ.Tools.used(kind)` → boolean.** NumberCrunch's results screen reported
+   "Formula sheet: used — no XP cost" and kept a `sheetRuns` count. The tray
+   exposes `penalty()`/`lookups()` (off-sheet reveals) and `open()` (the **F** key
+   now uses it), but nothing says the free sheet was opened. Wanted:
+   `SQ.Tools.used('sheet')` — true if that tab was opened this run, reset by
+   `mount()`. `core/ui.js` already calls it if it exists.
 
 2. **`SQ.UI.bind` should keep the core `route` reachable after `extend`.**
    `extend` overwrites bound methods of the same name; a subject that keeps its

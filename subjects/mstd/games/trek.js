@@ -246,7 +246,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       if (pool.wrong === 0) State.bump('perfect');
       var res = UI.award({ xp: pool.xp, bonus: 120, coins: (found + used) * 7, accuracy: acc,
-        answered: pool.answered(), mode: 'trek', node: scoreChip });
+        answered: pool.answered(), pace: { items: pool.answered(), tooFast: pool.fast }, mode: 'trek', node: scoreChip });
       State.recordScore('trek', used);
       State.progressDaily('trek', found + used);
       UI.results({

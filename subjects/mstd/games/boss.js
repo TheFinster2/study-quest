@@ -273,7 +273,7 @@ window.MS.Games = window.MS.Games || {};
         bonus: win ? 200 : 40,
         coins: win ? boss.reward.coins : Math.round(pool.correct * 4),
         accuracy: acc,
-        answered: pool.answered(),
+        answered: pool.answered(), pace: { items: pool.answered(), tooFast: pool.fast },
         mode: 'boss-' + boss.id,
         node: face
       });

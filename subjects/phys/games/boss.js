@@ -66,7 +66,9 @@ PHYS.Games.boss = (function () {
     const run = {
       i: 0, correct: 0, answered: 0, over: false, xp: 0,
       bossHp: boss.hp, myHp: 100, streak: 0, flawless: true,
-      left: Math.round(22 * diff.timer), deadline: 0, pace: UI.pacer()
+      left: Math.round(22 * diff.timer), deadline: 0, pace: UI.pacer(),
+      answeredThis: false, shieldArmed: false, doubled: false, revived: false,
+      usedFreeze: false, usedInsight: false, puUsed: {}
     };
 
     const timerChip = U.el("span", { class: "timer-ring", text: U.fmtTime(run.left) });
@@ -98,6 +100,42 @@ PHYS.Games.boss = (function () {
 
     const card = U.el("div", { class: "qcard" });
     shell.body.appendChild(card);
+    const powerRow = U.el("div", { class: "powerups" });
+    shell.body.appendChild(powerRow);
+    const doubleChip = UI.chip("✖️ ×2 XP", "on");
+    doubleChip.hidden = true;
+    shell.meta.appendChild(doubleChip);
+
+    /* Power-ups (core/powerups.js): freeze +15 s, shield blocks the next hit,
+       insight names the topic and a trap, double arms ×2 XP before the first
+       answer; revive fires by itself on a knockout. Fifty/skip are quiz-only. */
+    function refreshPowerups() {
+      powerRow.innerHTML = "";
+      const q = pool[run.i], P = PHYS.Powerups;
+      const live = !!q && !run.answeredThis && !run.over;
+      powerRow.appendChild(P.button("freeze", run.usedFreeze || !live, () => {
+        run.usedFreeze = true; run.puUsed.freeze = 1;
+        run.deadline += 15000;
+        UI.toast({ icon: "🧊", text: "<b>Freeze</b> — +15 s on the clock." });
+        refreshPowerups();
+      }, "+15 s on the clock"));
+      powerRow.appendChild(P.button("shield", run.shieldArmed, () => {
+        run.shieldArmed = true; run.puUsed.shield = 1;
+        UI.toast({ icon: "🛡️", text: "<b>Shield up</b> — it blocks the boss's next hit." });
+        refreshPowerups();
+      }, "Blocks the boss's next hit"));
+      powerRow.appendChild(P.button("insight", run.usedInsight || !live, () => {
+        run.usedInsight = true; run.puUsed.insight = 1;
+        const ch = card.querySelector(".choices");
+        card.insertBefore(P.insight(q), ch);
+        refreshPowerups();
+      }, "Show the topic and a common trap"));
+      powerRow.appendChild(P.button("double", run.doubled || run.answered > 0, () => {
+        run.doubled = true; run.puUsed.double = 1; doubleChip.hidden = false;
+        UI.toast({ icon: "✖️", kind: "xp", text: "<b>Double XP</b> — this fight pays ×2." });
+        refreshPowerups();
+      }, run.answered > 0 ? "Arm it before your first answer" : "×2 XP for this fight"));
+    }
     UI.mcqKeys(card);
 
     function syncBars() {
@@ -130,10 +168,15 @@ PHYS.Games.boss = (function () {
       card.appendChild(choices);
       run.pace.show(q.q);
       run.deadline = Date.now() + Math.round(22 * diff.timer) * 1000;
+      run.answeredThis = false; run.usedFreeze = false; run.usedInsight = false;
+      refreshPowerups();
     }
 
     function answer(idx, timedOut) {
-      if (run.over) return;
+      if (run.over || run.answeredThis) return;
+      /* One answer per question: the clock used to keep running while the
+         feedback was read, landing a second "too slow" hit on the same question. */
+      run.answeredThis = true;
       const q = pool[run.i];
       const isCorrect = idx === q.a;
       const tooFast = run.pace.mark();
@@ -156,8 +199,13 @@ PHYS.Games.boss = (function () {
       } else {
         run.streak = 0;
         run.flawless = false;
-        /* Difficulty scales how hard the boss hits back (shared `.boss`). */
-        run.myHp -= Math.round((timedOut ? 18 : 14) * (diff.boss || 1));
+        if (run.shieldArmed) {
+          run.shieldArmed = false;
+          UI.toast({ icon: "🛡️", kind: "good", text: "<b>Shield</b> — the hit was blocked." });
+        } else {
+          /* Difficulty scales how hard the boss hits back (shared `.boss`). */
+          run.myHp -= Math.round((timedOut ? 18 : 14) * (diff.boss || 1));
+        }
         run.xp = Math.max(0, run.xp - 5);
         PHYS.Sound.wrong();
         PHYS.FX.shake(card);
@@ -176,6 +224,10 @@ PHYS.Games.boss = (function () {
       }
       card.appendChild(fb);
 
+      if (run.myHp <= 0 && run.bossHp > 0 && !run.revived && PHYS.Powerups.tryRevive()) {
+        run.revived = true; run.puUsed.revive = 1; run.myHp = 50; syncBars();
+      }
+      refreshPowerups();
       if (run.bossHp <= 0) return setTimeout(() => finish(true), 700);
       if (run.myHp <= 0) return setTimeout(() => finish(false), 700);
       card.appendChild(U.el("button", {
@@ -204,7 +256,8 @@ PHYS.Games.boss = (function () {
       const bonus = won ? Math.round(160 * accuracy) : 0;
       const res = UI.award({
         xp: run.xp, bonus, accuracy, pace: run.pace,
-        coins: won ? Math.round(140 * accuracy) : Math.round(run.xp * 0.2)
+        coins: won ? Math.round(140 * accuracy) : Math.round(run.xp * 0.2),
+        boost: run.doubled ? 2 : undefined
       });
       S.markMode("boss");
       if (won) {
@@ -222,7 +275,7 @@ PHYS.Games.boss = (function () {
           ["Boss HP left", Math.max(0, Math.round(run.bossHp))],
           ["Your HP left", Math.max(0, Math.round(run.myHp))],
           ["Flawless", run.flawless && won ? "yes" : "no"]
-        ],
+        ].concat(run.revived ? [["Revived", "yes"]] : []),
         onAgain: () => UI.go("/game/boss/" + boss.id)
       });
     }

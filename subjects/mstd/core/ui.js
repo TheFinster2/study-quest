@@ -154,7 +154,7 @@ window.MS = window.MS || {};
 
     var res = SQ.UI.award(ID, {
       xp: base + streakBonus, bonus: bonus, accuracy: acc, answered: answered,
-      coins: coins, at: o.node || null, silent: !!o.quiet, boost: o.boost
+      coins: coins, at: o.node || null, silent: !!o.quiet, boost: o.boost, pace: o.pace
     });
     if (res.coins) S.bump('coinsEarned', res.coins);
     S.bump('xpEarned', res.xp);
@@ -292,7 +292,7 @@ window.MS = window.MS || {};
     spec.rows = (spec.rows || []).slice();
     /* §C3 — report the free sheet, never charge for it; the tray charges only
        for what the exam does NOT print. */
-    var usedSheet = SQ.Tools && SQ.Tools.used ? SQ.Tools.used('sheet') : false;
+    var usedSheet = SQ.Tools && SQ.Tools.used ? SQ.Tools.used('sheet') : false;   // see CORE-REQUESTS #1
     if (usedSheet) { spec.rows.push(['Formula sheet', 'used — no XP cost']); State().bump('sheetRuns'); }
     var looks = SQ.Tools && SQ.Tools.lookups ? SQ.Tools.lookups() : [];
     if (looks && looks.length) spec.rows.push(['Off-sheet lookups', looks.length + ' · ×' + SQ.UI.formulaPenalty().toFixed(2)]);

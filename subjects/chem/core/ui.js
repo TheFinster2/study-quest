@@ -1,10 +1,10 @@
 /* Chemistry's view of the shared UI. The router, header, toasts, modals, the reward
-   pipeline, gameShell and results are the app's (js/sq/ui.js); this binds them to
-   "chem" and adds the two helpers MoleQuest's modes call that the core lacks:
+   pipeline, gameShell, results and handleRoute are the app's (js/sq/ui.js); this
+   binds them to "chem" and adds the one helper MoleQuest's modes call that the core
+   lacks:
 
      answerPad(input)  the ×10ⁿ and − keys a phone's decimal keypad doesn't have, and
-                       the "reading this as 1.5 × 10⁻⁴" echo
-     handleRoute()     re-run the current route ("Play again")                       */
+                       the "reading this as 1.5 × 10⁻⁴" echo                          */
 window.CHEM = window.CHEM || {};
 
 CHEM.UI = (function () {
@@ -60,9 +60,6 @@ CHEM.UI = (function () {
     /* Calculator and working pad are free (you sit the HSC with both). The sheet is
        registered in manifest.js; only its off-sheet items cost. */
     tools: { calc: true, sheet: true, pad: true },
-    extend: {
-      answerPad,
-      handleRoute: () => SQ.UI.handleRoute()
-    }
+    extend: { answerPad }
   });
 })();

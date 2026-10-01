@@ -101,7 +101,8 @@ PHYS.Games.quiz = (function () {
       i: 0, correct: 0, answered: 0, streak: 0, bestStreak: 0,
       xp: 0, lives: cfg.lives || Infinity, over: false,
       timeLeft: cfg.timed || 0, perQuestion: cfg.perQuestion || 0,
-      questionDeadline: 0, usedFifty: false, usedSkip: false,
+      questionDeadline: 0, usedFifty: false, usedSkip: false, usedFreeze: false, usedInsight: false,
+      answeredThis: false, shieldArmed: false, doubled: false, revived: false, puUsed: {},
       pace: UI.pacer()
     };
 
@@ -114,7 +115,11 @@ PHYS.Games.quiz = (function () {
     shell.meta.appendChild(streakChip);
     if (cfg.timed || cfg.perQuestion) shell.meta.appendChild(timerChip);
     if (cfg.count) shell.meta.appendChild(progChip);
-    if (cfg.lives) shell.meta.appendChild(UI.chip("❤️ 1", "warnchip"));
+    const livesChip = UI.chip("❤️ 1", "warnchip");
+    if (cfg.lives) shell.meta.appendChild(livesChip);
+    const doubleChip = UI.chip("✖️ ×2 XP", "on");
+    doubleChip.hidden = true;
+    shell.meta.appendChild(doubleChip);
 
     const card = U.el("div", { class: "qcard" });
     shell.body.appendChild(card);
@@ -150,31 +155,51 @@ PHYS.Games.quiz = (function () {
       UI.onLeave(() => clearInterval(tick));
     }
 
+    /* Power-ups (see core/powerups.js). Fifty, skip, freeze and insight are
+       per question; shield and double are armed for the run; revive fires on its
+       own when Survival's one life runs out. */
     function refreshPowerups() {
       powerRow.innerHTML = "";
-      const inv = S.data.inventory;
-      const mk = (id, icon, label, disabled, fn) => {
-        const b = U.el("button", { class: "pu", disabled: disabled || undefined,
-          on: { click: fn } }, [
-          U.el("span", { text: icon }),
-          U.el("span", { text: label }),
-          U.el("span", { class: "pu-n", text: "×" + (inv[id] || 0) })
-        ]);
-        powerRow.appendChild(b);
-      };
       const q = pool[state.i];
-      mk("fifty", "✂️", "50:50", state.usedFifty || (inv.fifty || 0) <= 0 || !q, () => {
-        if (!S.usePowerup("fifty")) return;
-        state.usedFifty = true;
-        const wrongs = U.$$(".choice", card).filter((el, i) => i !== q.a);
+      const P = PHYS.Powerups;
+      const live = !!q && !state.answeredThis;
+      powerRow.appendChild(P.button("fifty", state.usedFifty || !live, () => {
+        state.usedFifty = true; state.puUsed.fifty = (state.puUsed.fifty || 0) + 1;
+        const wrongs = U.$$(".choice", card).filter((el, i) => i !== q.a && !el.disabled);
         U.sample(wrongs, 2).forEach(el => { el.classList.add("dimmed"); el.disabled = true; });
         refreshPowerups();
-      });
-      mk("skip", "⏭️", "Skip", state.usedSkip || (inv.skip || 0) <= 0, () => {
-        if (!S.usePowerup("skip")) return;
-        state.usedSkip = true;
+      }));
+      powerRow.appendChild(P.button("skip", state.usedSkip || !live, () => {
+        state.usedSkip = true; state.puUsed.skip = (state.puUsed.skip || 0) + 1;
         next();
-      });
+      }));
+      if (cfg.timed || cfg.perQuestion) {
+        powerRow.appendChild(P.button("freeze", state.usedFreeze || !live, () => {
+          state.usedFreeze = true; state.puUsed.freeze = (state.puUsed.freeze || 0) + 1;
+          if (cfg.timed) { state.timeLeft += 15; timerChip.textContent = U.fmtTime(state.timeLeft); }
+          if (state.perQuestion && state.questionDeadline) state.questionDeadline += 15000;
+          UI.toast({ icon: "🧊", text: "<b>Freeze</b> — +15 s on the clock." });
+          refreshPowerups();
+        }, "+15 s on the clock"));
+      }
+      powerRow.appendChild(P.button("shield", state.shieldArmed, () => {
+        state.shieldArmed = true; state.puUsed.shield = (state.puUsed.shield || 0) + 1;
+        UI.toast({ icon: "🛡️", text: "<b>Shield up</b> — your next wrong answer keeps your streak." });
+        refreshPowerups();
+      }, "Your next wrong answer keeps your streak"));
+      powerRow.appendChild(P.button("insight", state.usedInsight || !live, () => {
+        state.usedInsight = true; state.puUsed.insight = (state.puUsed.insight || 0) + 1;
+        const box = P.insight(q);
+        const ch = card.querySelector(".choices");
+        if (ch) card.insertBefore(box, ch); else card.appendChild(box);
+        refreshPowerups();
+      }, "Show the topic and a common trap"));
+      powerRow.appendChild(P.button("double", state.doubled || state.answered > 0, () => {
+        state.doubled = true; state.puUsed.double = 1;
+        doubleChip.hidden = false;
+        UI.toast({ icon: "✖️", kind: "xp", text: "<b>Double XP</b> — this run pays ×2." });
+        refreshPowerups();
+      }, state.answered > 0 ? "Arm it before your first answer" : "×2 XP for this run"));
     }
 
     /* ── rendering ── */
@@ -190,6 +215,9 @@ PHYS.Games.quiz = (function () {
       const q = pool[state.i];
       state.usedFifty = false;
       state.usedSkip = false;
+      state.usedFreeze = false;
+      state.usedInsight = false;
+      state.answeredThis = false;
       card.innerHTML = "";
 
       const tags = U.el("div", { class: "qtag" }, [
@@ -227,8 +255,14 @@ PHYS.Games.quiz = (function () {
     /* ── answering ── */
     function answer(idx, timedOut) {
       if (state.over) return;
+      /* One answer per question. Survival's per-question clock kept running after an
+         answer in the stand-alone app, so reading the feedback past the deadline
+         recorded a second, timed-out wrong answer for the same question. */
+      if (state.answeredThis) return;
       const q = pool[state.i];
       const isCorrect = idx === q.a;
+      state.answeredThis = true;
+      state.questionDeadline = 0;
 
       U.$$(".choice", card).forEach((el, i) => {
         el.disabled = true;
@@ -273,7 +307,11 @@ PHYS.Games.quiz = (function () {
         }
         S.bump("calcsCorrect", q.generated ? 1 : 0);
       } else {
-        state.streak = 0;
+        /* Shield: the streak survives one wrong answer. The XP cost still applies. */
+        if (state.shieldArmed) {
+          state.shieldArmed = false;
+          UI.toast({ icon: "🛡️", kind: "good", text: "<b>Shield held</b> — streak kept at " + state.streak + "." });
+        } else state.streak = 0;
         // A wrong answer costs, so guessing has a negative expectation.
         state.xp = Math.max(0, state.xp - 4);
         PHYS.Sound.wrong();
@@ -294,6 +332,11 @@ PHYS.Games.quiz = (function () {
       UI.pulse(streakChip);
 
       card.appendChild(feedback(q, idx, isCorrect, tooFast, timedOut));
+      if (state.lives <= 0 && !state.revived && PHYS.Powerups.tryRevive()) {
+        state.revived = true; state.puUsed.revive = 1; state.lives = 1;
+      }
+      livesChip.textContent = "❤️ " + Math.max(0, state.lives);
+      refreshPowerups();
       if (state.lives <= 0) { setTimeout(finish, 900); return; }
       card.appendChild(U.el("button", {
         class: "btn btn-primary btn-block", style: "margin-top:12px",
@@ -358,7 +401,8 @@ PHYS.Games.quiz = (function () {
 
       const res = UI.award({
         xp: state.xp, bonus: bonus + streakBonus, accuracy, pace: state.pace,
-        coins: Math.round(state.xp * 0.4 + state.correct * 2)
+        coins: Math.round(state.xp * 0.4 + state.correct * 2),
+        boost: state.doubled ? 2 : undefined
       });
 
       S.markMode(mode);
@@ -383,7 +427,8 @@ PHYS.Games.quiz = (function () {
           ["Best streak", state.bestStreak],
           ["Multiplier", "×" + multiplierFor(state.bestStreak)],
           ["Bonus", streakBonus ? "+" + streakBonus + " streak" : (accuracy < 0.5 ? "withheld" : "+" + bonus)]
-        ],
+        ].concat(Object.keys(state.puUsed).length
+          ? [["Power-ups", Object.keys(state.puUsed).map(k => PHYS.Powerups.META[k] ? PHYS.Powerups.META[k].icon : "💖").join(" ")]] : []),
         onAgain: () => UI.go("/game/" + mode + (args && args.mod ? "/" + args.mod : ""))
       });
     }

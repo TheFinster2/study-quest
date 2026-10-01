@@ -1,5 +1,7 @@
 # English — core requests
 
+Status: 1–4 done in the core (sw.js, forceRefresh, modal aria-labelledby, nav aria-label, crate `table`); 5–6 handled subject-side.
+
 1. **Service worker: never touch the Layer C model caches.** (sw.js does not exist yet.)
    - The activate-time sweep must never delete `closereading-model-v1` (written by
      `subjects/eng/core/mark.js`, 23 MB the student chose to download) nor

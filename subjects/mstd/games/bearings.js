@@ -282,7 +282,7 @@ window.MS.Games = window.MS.Games || {};
       State.bump('playSecs', Math.round((Date.now() - startedAt) / 1000));
       if (pool.wrong === 0 && passed === ROUNDS) State.bump('perfect');
       var res = UI.award({ xp: pool.xp, bonus: 150, coins: passed * 22, accuracy: acc,
-        answered: pool.answered(), mode: 'bearings', node: scoreChip });
+        answered: pool.answered(), pace: { items: pool.answered(), tooFast: pool.fast }, mode: 'bearings', node: scoreChip });
       State.recordScore('bearings', passed);
       State.progressDaily('bearings', passed);
       UI.results({

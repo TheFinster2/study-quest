@@ -6,11 +6,10 @@ window.EN = window.EN || {};
 EN.Screens = EN.Screens || {};
 
 EN.Screens.shop = function (view) {
-  /* The stand-alone crate tables are approximated by the shared roller: the Pencil Case
-     is the common table, the Folio Box and the Archive roll the better one. */
+  /* Each crate keeps its stand-alone weight table (SQ.Shop honours `table`). */
   const crates = EN.DATA.shop.crates.map(c => ({
     id: "eng-" + c.id, icon: c.icon, name: c.name, price: c.price, level: c.level,
-    rolls: c.rolls, desc: c.desc, better: c.id !== "satchel"
+    rolls: c.rolls, desc: c.desc, table: c.table.map(([id, w]) => [id, w])
   }));
   SQ.Shop.subject(view, "eng", {
     themes: EN.DATA.themes.map(t => ({
