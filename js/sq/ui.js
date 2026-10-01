@@ -264,6 +264,7 @@ SQ.UI = (function () {
      results screen); closeModal() then pops back to it. Real dialogs: focus moves
      in, Tab is trapped, Esc closes (unless sticky), focus returns on close. */
   const stack = [];
+  let dialogSeq = 0;
 
   function modal(content, opts) {
     const o = opts || {};
@@ -276,6 +277,12 @@ SQ.UI = (function () {
     });
     if (typeof content === "string") box.innerHTML = content;
     else box.appendChild(content);
+    /* Name the dialog after its heading, so a screen reader announces what opened. */
+    const heading = box.querySelector("h1, h2, h3");
+    if (heading) {
+      if (!heading.id) heading.id = "dlg-h-" + (++dialogSeq);
+      box.setAttribute("aria-labelledby", heading.id);
+    } else if (o.label) box.setAttribute("aria-label", o.label);
     stack.forEach(m => (m.box.hidden = true));
     root.appendChild(box);
     const entry = { box, opts: o, returnTo: document.activeElement };

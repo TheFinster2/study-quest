@@ -12,7 +12,7 @@
 const VERSION = "1.0.0";
 const FINGERPRINT = "__FINGERPRINT__";
 const CACHE = "studyquest-" + VERSION + "-" + FINGERPRINT;
-const KEEP = ["closereading-model-v1"];
+const KEEP = ["closereading-model-v1", "transformers-cache"];
 
 const PRECACHE = [/*__PRECACHE__*/];
 
@@ -44,8 +44,13 @@ self.addEventListener("fetch", event => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  /* The model files are English's business: straight to its own cache / network. */
-  if (/\/subjects\/eng\/(models|vendor)\//.test(url.pathname)) return;
+  /* The model files are English's business: served from its own cache when the student
+     has downloaded them, otherwise the network — never copied into the app cache (that
+     would store 33 MB twice). */
+  if (/\/subjects\/eng\/(models|vendor)\//.test(url.pathname)) {
+    event.respondWith(caches.match(req, { cacheName: "closereading-model-v1" }).then(hit => hit || fetch(req)));
+    return;
+  }
 
   /* Navigations get the app shell, so a deep link like #/s/chem/play works offline. */
   if (req.mode === "navigate") {

@@ -127,12 +127,14 @@ SQ.VERSION = "1.0.0";
     U.$("#toasts").appendChild(bar);
   }
 
-  /** Settings → Force refresh: drop every worker and cache, keep the save. */
+  /** Settings → Force refresh: drop every worker and the app cache; keep the save and English's model. */
   SQ.forceRefresh = function () {
     Store.flush();
     const jobs = [];
     if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))));
-    if (window.caches) jobs.push(caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k)))));
+    /* English's downloaded marking model (23 MB the student chose to fetch) survives. */
+    if (window.caches) jobs.push(caches.keys().then(ks => Promise.all(ks
+      .filter(k => !/^closereading-model|^transformers-cache/.test(k)).map(k => caches.delete(k)))));
     Promise.all(jobs).catch(() => {}).then(() => location.reload());
   };
 

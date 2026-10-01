@@ -76,8 +76,10 @@ SQ.Shop = (function () {
   /* ── crates ───────────────────────────────────────────────── */
   const WEIGHTS = { fifty: 22, skip: 22, freeze: 16, shield: 12, hint: 8, reread: 8, insight: 7, double: 4, revive: 1 };
   const BETTER  = { fifty: 12, skip: 12, freeze: 14, shield: 14, hint: 9, reread: 9, insight: 12, double: 10, revive: 4 };
-  function roll(better) {
-    const w = better ? BETTER : WEIGHTS;
+  /** One power-up from a weight table. A crate may bring its own `table`
+      ([[powerupId, weight], …], as English's crates did); otherwise common or better. */
+  function roll(better, table) {
+    const w = table ? Object.fromEntries(table) : better ? BETTER : WEIGHTS;
     const total = Object.values(w).reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
     for (const k of Object.keys(w)) { r -= w[k]; if (r <= 0) return k; }
@@ -85,7 +87,7 @@ SQ.Shop = (function () {
   }
   function openCrate(crate) {
     const got = {};
-    for (let i = 0; i < (crate.rolls || 3); i++) { const k = roll(crate.better); got[k] = (got[k] || 0) + 1; }
+    for (let i = 0; i < (crate.rolls || 3); i++) { const k = roll(crate.better, Array.isArray(crate.table) && crate.table.length ? crate.table : null); got[k] = (got[k] || 0) + 1; }
     Object.keys(got).forEach(k => (D().inventory[k] = (D().inventory[k] || 0) + got[k]));
     let rare = null;
     if (crate.cosmetic && Math.random() < 0.18) {
