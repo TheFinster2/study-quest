@@ -15,27 +15,27 @@
 
   var ALL = U.MODULES.map(function (m) { return m.id; });
   var BOSSES = [
-    { id:"hand", icon:"🫳", name:"The Invisible Hand", mods:["P1", "P2"], hp:110, time:26, ability:"obscure",
+    { id:"hand", icon:"🫳", name:"The Invisible Hand", mods:["P1", "P2"], hp:180, time:26, ability:"obscure",
       group:"Year 11 — Introduction · Consumers and Business",
       taunt:"You will never see me move the market.",
       abilityText:"Hides the topic label on every question — work out which part of the course you are in." },
-    { id:"shock", icon:"⚡", name:"Market Shock", mods:["P3", "P4"], hp:120, time:26, ability:"rotate",
+    { id:"shock", icon:"⚡", name:"Market Shock", mods:["P3", "P4"], hp:200, time:26, ability:"rotate",
       group:"Year 11 — Markets · Labour Markets",
       taunt:"Prices were stable. Were.",
       abilityText:"The answer options rotate position every 3 seconds. Read the answer, not the letter." },
-    { id:"deficit", icon:"🧾", name:"Budget Deficit", mods:["P5", "P6"], hp:125, time:25, ability:"heal",
+    { id:"deficit", icon:"🧾", name:"Budget Deficit", mods:["P5", "P6"], hp:210, time:25, ability:"heal",
       group:"Year 11 — Financial Markets · Government",
       taunt:"I can always borrow a little more.",
       abilityText:"Every third question it borrows against the future and heals 12 HP." },
-    { id:"current", icon:"🚢", name:"The Current Account", mods:["H1", "H2"], hp:140, time:24, ability:"double",
+    { id:"current", icon:"🚢", name:"The Current Account", mods:["H1", "H2"], hp:230, time:24, ability:"double",
       group:"Year 12 — The Global Economy · Australia's Place",
       taunt:"Net primary income flows one way. Out.",
       abilityText:"Deficits compound: wrong answers hit you for double damage." },
-    { id:"rba", icon:"🏦", name:"The Reserve Bank", mods:["H3", "H4"], hp:155, time:23, ability:"hike",
+    { id:"rba", icon:"🏦", name:"The Reserve Bank", mods:["H3", "H4"], hp:250, time:23, ability:"hike",
       group:"Year 12 — Economic Issues · Policies and Management",
       taunt:"The Board has decided to lift the cash rate.",
       abilityText:"Lifts the cash rate every 3 questions: each hike adds 25% to the damage you take." },
-    { id:"final", icon:"📜", name:"The Final Paper", mods: ALL, hp:240, time:20, ability:"all",
+    { id:"final", icon:"📜", name:"The Final Paper", mods: ALL, hp:360, time:20, ability:"all",
       group:"The whole course",
       taunt:"Three hours. Reading time is over.",
       abilityText:"Every gimmick at once. Defeat the five topic bosses first." }
@@ -263,13 +263,19 @@
       stopTimers();
       var clutch = won && playerHp <= PLAYER * 0.1;
       var flawless = won && !tookDamage;
+      var firstWin = won && !S.data.bossesBeaten[boss.id];
       if (won) {
         S.markBoss(boss.id, { flawless: flawless });
         if (diff.id === "hard") S.bump("hardWins");
         if (diff.id === "nightmare") S.bump("nightmareWins");
         if (clutch) S.bump("clutchWins");
       }
-      var xp = won ? Math.round(220 + boss.hp * 1.2 + (flawless ? 200 : 0) + counted * 8) : Math.round(counted * 10);
+      /* A boss pays a lump sum on a win, but only the FIRST defeat pays the full
+         trophy; a re-match pays its answers plus a smaller purse, so replaying the
+         easiest boss is not the best XP in the subject. */
+      var purse = Math.round(150 + boss.hp * 0.8 + (flawless ? 150 : 0));
+      if (won && !firstWin) purse = Math.round(purse * 0.35);
+      var xp = won ? purse + counted * 8 : Math.round(counted * 10);
       var newBest = S.recordScore("boss_" + boss.id, won ? Math.round(playerHp) : 0);
       var rec = UI.award({ xp: xp, questions: asked, accuracy: asked ? correct / asked : 0, mode: "boss", score: correct });
       UI.report(view, {
