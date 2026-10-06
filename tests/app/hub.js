@@ -18,9 +18,11 @@ const B = require("../lib/browser");
       picks.find(p => /Chemistry/.test(p.textContent)).click();
       [...document.querySelectorAll(".pick")].find(p => /Maths Standard/.test(p.textContent)).click();
       [...document.querySelectorAll(".pick")].find(p => /Maths Advanced/.test(p.textContent)).click();
+      /* Extension 1 brings Advanced with it (it is already chosen here; still chosen after). */
+      [...document.querySelectorAll(".pick")].find(p => /Maths Extension 1/.test(p.textContent)).click();
     });
     const enrolled = await page.evaluate(() => { document.querySelector("#modal-root .btn-primary.btn-block").click(); return SQ.Store.data.enrolled; });
-    t.ok(JSON.stringify(enrolled) === JSON.stringify(["chem", "madv"]), "Maths Standard and Advanced are either/or: " + enrolled);
+    t.ok(JSON.stringify(enrolled) === JSON.stringify(["chem", "madv", "mext"]), "Maths Standard and Advanced are either/or; Extension 1 rides with Advanced: " + enrolled);
     t.ok(await page.evaluate(() => SQ.Store.data.settings.onboarded), "onboarded flag set");
     t.ok(!page.errors.length, "no console errors on first run: " + page.errors.join(" | "));
     await page.close();

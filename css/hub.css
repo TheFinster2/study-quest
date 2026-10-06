@@ -10,6 +10,7 @@ html[data-subject="econ"]{ --hero-glyph:"$"; --subject:#ffcc55; }
 html[data-subject="eng"] { --hero-glyph:"❦"; --subject:#e8b86b; }
 html[data-subject="mstd"]{ --hero-glyph:"%"; --subject:#ff9a6b; }
 html[data-subject="madv"]{ --hero-glyph:"∫"; --subject:#7c5cff; }
+html[data-subject="mext"]{ --hero-glyph:"∑"; --subject:#ff5fa2; }
 
 /* ── topbar additions ─────────────────────────────────────── */
 .ctx-btn{

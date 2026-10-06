@@ -806,24 +806,18 @@ section("Legacy import");
 /* ── 16. the live Extension 1 toggle ──────────────────────────
    The upgrade: the build-time constant is a subject setting now. Flip it on a
    live context and assert everything re-filters, then flip it back. */
-section("Live tier toggle");
+section("Pinned tier");
 {
+  /* Advanced and Extension 1 are separate StudyQuest subjects; this one holds the
+     MA tier and nothing else, with no toggle that could leak the other in. */
   const c = makeContext(null);
-  const S = c.MA.State;
-  ok(S.studiesExt() === true, "Extension 1 is ON by default");
-  const fullQ = c.MA.Bank.all().length, fullCards = c.MA.Cards.all().length, fullAch = c.MA.DATA.enabledAchievements().length;
-  S.setStudiesExt(false);
-  ok(c.MA.DATA.TIERS.join() === "MA", "switching it off drops the ME tier");
-  ok(c.MA.Bank.all().every(q => q.topic.startsWith("MA-")) && c.MA.Bank.all().length < fullQ, "questions re-filter live");
-  ok(c.MA.Cards.all().every(x => x.topic.startsWith("MA-")) && c.MA.Cards.all().length < fullCards, "flashcards re-filter live");
-  ok(c.MA.Formulas.all().every(f => f.tier === "MA"), "formulas re-filter live");
-  ok(c.MA.Gen.enabled().every(g => g.topic.startsWith("MA-")), "generators re-filter live");
-  ok(c.MA.DATA.enabledAchievements().length < fullAch, "Extension achievements hide live");
-  ok(S.dailySpec().mode !== "vector", "the daily never picks an Extension-only mode");
-  ok(S.data.settings.hidden.ME === true, "the choice is saved in the subject slot");
-  S.setStudiesExt(true);
-  ok(c.MA.Bank.all().length === fullQ && c.MA.Cards.all().length === fullCards, "switching it back restores everything");
-  pass("Extension 1 is a live subject setting");
+  ok(c.MA.DATA.TIERS.join() === "MA", "TIERS is pinned to MA");
+  ok(c.MA.Bank.all().length > 0 && c.MA.Bank.all().every(q => q.topic.startsWith("MA-")), "every question is MA");
+  ok(c.MA.Cards.all().length > 0 && c.MA.Cards.all().every(x => x.topic.startsWith("MA-")), "every flashcard is MA");
+  ok(c.MA.Formulas.all().every(f => f.tier === "MA"), "every sheet formula is MA");
+  ok(c.MA.Gen.enabled().every(g => g.topic.startsWith("MA-")), "every generator is MA");
+  ok(typeof c.MA.State.setStudiesExt !== "function" || c.MA.DATA.TIERS.join() === "MA", "no toggle changes the tier");
+  pass("Maths Advanced holds the MA tier only");
 }
 
 /* ── result ───────────────────────────────────────────────── */

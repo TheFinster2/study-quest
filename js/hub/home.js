@@ -151,8 +151,15 @@ SQ.Hub = SQ.Hub || {};
         const on = chosen.has(m.id);
         list.appendChild(U.el("button", { class: "pick card" + (on ? " on" : ""), "aria-pressed": on ? "true" : "false", style: { "--sc": m.color },
           on: { click: () => {
-            if (on) chosen.delete(m.id);
-            else { chosen.add(m.id); (m.excludes || []).forEach(x => chosen.delete(x)); }
+            if (on) {
+              chosen.delete(m.id);
+              /* Dropping a subject drops anything that requires it (Advanced → Ext 1). */
+              SQ.Subjects.LIST.forEach(o => { if ((o.requires || []).includes(m.id)) chosen.delete(o.id); });
+            } else {
+              chosen.add(m.id);
+              (m.excludes || []).forEach(x => chosen.delete(x));
+              (m.requires || []).forEach(x => chosen.add(x));
+            }
             SQ.Sound.tap(); draw();
           } } }, [
           U.el("span", { class: "subject-ico sm", text: m.icon }),
@@ -179,7 +186,7 @@ SQ.Hub = SQ.Hub || {};
         "Everything you earn also builds your <b>overall level</b> and <b>Stars ⭐</b> for the arcade and the general shop." }),
       name,
       U.el("h3", { class: "shop-h", text: "Which subjects do you study?" }),
-      U.el("p", { class: "tiny muted", text: "Maths Standard and Maths Advanced are either/or. You can change this any time." }),
+      U.el("p", { class: "tiny muted", text: "Maths Standard and Maths Advanced are either/or; Extension 1 comes with Advanced. You can change this any time." }),
       list, go
     ]), { sticky: true, wide: true });
   };

@@ -136,5 +136,4 @@ MA.devActions = [
   { label: "Maths Adv: jump to level 60 (Ascension)", run() { const d = MA.State.data; d.level = 60; d.xpIntoLevel = 0; MA.State.emit(); } },
   { label: "Maths Adv: beat every boss", run() { MA.Games.boss.BOSSES.forEach(b => (MA.State.data.bossesBeaten[b.id] = Date.now())); MA.State.emit(); } },
   { label: "Maths Adv: make every card due", run() { MA.State.data.srs = {}; MA.State.emit(); } },
-  { label: "Maths Adv: toggle Extension 1", run() { MA.State.setStudiesExt(!MA.State.studiesExt()); } }
 ];

@@ -22,7 +22,7 @@ MA.Screens.play = (function () {
       desc:"Endless generated problems across every topic. Type exact forms — pi/4, sqrt(2), ln(3)." },
     { id:"panic", icon:"⏱️", name:"Table Panic", colour:"#8fd0ff", tag:"Timed", minLevel:3,
       desc:"Fill the unit circle, the derivative table or the log laws before the clock runs out." },
-    { id:"lab", icon:"📐", name:"Calculus Lab", colour:"#ff6a4d", tag:"Simulation", minLevel:4,
+    { id:"lab", icon:"📐", name:"Calculus Lab", colour:"#ff6a4d", tag:"Simulation", minLevel:4, tier:"MA",
       desc:"Drag a tangent onto a curve, or the bounds of a shaded area — then do it exactly." },
     { id:"proof", icon:"🪜", name:"Proof Builder", colour:"#b8f03a", tag:"Reasoning", minLevel:5,
       desc:"Assemble a proof or derivation from shuffled step cards. Some cards are wrong." },
@@ -126,8 +126,10 @@ MA.Screens.play = (function () {
        link lands on an explanation, not a broken screen. */
     const g = GAMES.find(x => x.id === id);
     if (g && g.tier && MA.DATA.TIERS.indexOf(g.tier) < 0) {
-      return emptyState(view, "🧩", "Extension 1 is switched off",
-        g.name + " is an Extension 1 mode. Turn Extension 1 on in Options to play it.");
+      const home = g.tier === "ME" ? "mext" : "madv";
+      const where = g.tier === "ME" ? "Maths Extension 1" : "Maths Advanced";
+      return emptyState(view, "🧩", "That mode lives in " + where,
+        g.name + " is a " + where + " mode — open it from that subject. <a href=\"#/s/" + home + "/game/" + id + "\">Go there →</a>");
     }
 
     switch (id) {
@@ -180,7 +182,7 @@ MA.Screens.play = (function () {
     view.appendChild(U.el("div", { class: "empty" }, [
       U.el("div", { class: "empty-ico", text: icon }),
       U.el("h2", { style: "justify-content:center", text: title }),
-      U.el("p", { text: body }),
+      U.el("p", { html: body }),
       U.el("button", { class: "btn btn-primary", text: "Back to games",
         on: { click: () => UI.go("/play") } })
     ]));

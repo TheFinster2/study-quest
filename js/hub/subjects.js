@@ -31,12 +31,15 @@ SQ.Hub = SQ.Hub || {};
             U.el("button", { class: "btn btn-sm " + (on ? "btn-ghost" : "btn-primary"), text: on ? "✓ Studying" : "Add",
               "aria-pressed": on ? "true" : "false",
               on: { click: () => {
-                if (on) d.enrolled = d.enrolled.filter(x => x !== m.id);
-                else {
+                if (on) {
+                  const dependants = SQ.Subjects.LIST.filter(o => (o.requires || []).includes(m.id)).map(o => o.id);
+                  d.enrolled = d.enrolled.filter(x => x !== m.id && dependants.indexOf(x) < 0);
+                } else {
                   (m.excludes || []).forEach(x => {
                     if (d.enrolled.includes(x)) UI.toast({ icon: "ℹ️", text: `Removed ${SQ.Subjects.get(x).name} — you can only take one of the two.` });
                   });
-                  d.enrolled = d.enrolled.filter(x => (m.excludes || []).indexOf(x) < 0).concat([m.id]);
+                  d.enrolled = d.enrolled.filter(x => (m.excludes || []).indexOf(x) < 0);
+                  (m.requires || []).concat([m.id]).forEach(x => { if (!d.enrolled.includes(x)) d.enrolled.push(x); });
                 }
                 SQ.Store.emit(); SQ.Sound.tap(); UI.go("/subjects");
               } } }),

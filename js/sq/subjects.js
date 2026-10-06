@@ -7,7 +7,7 @@
    dependency order; the loader (loader.js) reads it.
 
    `ns` is the global the subject's code hangs off. Both maths apps were `MQ` in
-   their own repos; here Standard is `MS` and Advanced is `MA`.
+   their own repos; here Standard is `MS`, Advanced `MA` and Extension 1 `MX`.
    `legacyKey` is the localStorage key the stand-alone app used, so migrate.js can
    find a student's existing progress on the same origin. */
 window.SQ = window.SQ || {};
@@ -36,12 +36,20 @@ SQ.Subjects = (function () {
       blurb: "Quotes, techniques, marking, thesis and essay craft for your prescribed texts." },
     { id: "mstd", ns: "MS", name: "Maths Standard", short: "Maths Std", icon: "📐", app: "NumberCrunch",
       color: "#ff9a6b", currency: { name: "Credits", one: "Credit", icon: "💳" },
-      legacyKey: "numbercrunch.save.v1", group: "Mathematics", excludes: ["madv"],
+      legacyKey: "numbercrunch.save.v1", group: "Mathematics", excludes: ["madv", "mext"],
       blurb: "Financial maths, networks, measurement, statistics — Standard 2." },
     { id: "madv", ns: "MA", name: "Maths Advanced", short: "Maths Adv", icon: "∫", app: "MathQuest",
       color: "#7c5cff", currency: { name: "Primes", one: "Prime", icon: "🔢" },
       legacyKey: "mathquest.save.v1", group: "Mathematics", excludes: ["mstd"],
-      blurb: "Calculus, functions, trigonometry, statistics — with Extension 1." }
+      blurb: "Calculus, functions, trigonometry, financial maths, statistics." },
+    /* Extension 1 was a tier inside MathQuest; here it is its own subject with its own
+       levels, coins and shop. Every Extension 1 student also sits Advanced, so choosing
+       it enrols Advanced too (`requires`). MathQuest's old save imports into Advanced
+       only (one save, one import) — so no legacyKey here. */
+    { id: "mext", ns: "MX", name: "Maths Extension 1", short: "Maths Ext 1", icon: "∑", app: "MathQuest (Ext 1)",
+      color: "#ff5fa2", currency: { name: "Lemmas", one: "Lemma", icon: "📜" },
+      legacyKey: null, group: "Mathematics", excludes: ["mstd"], requires: ["madv"],
+      blurb: "Proof by induction, vectors, projectiles, further calculus, combinatorics." }
   ];
 
   const byId = {};

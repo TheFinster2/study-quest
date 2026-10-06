@@ -11,10 +11,10 @@ const ROUTES = [
   "home", "play", "study", "study/deck/all", "study/leeches", "reference", "reference/ref-derivs",
   "formulas", "progress", "achievements", "shop", "options",
   "game/rapid", "game/drill", "game/drill/MA-C2", "game/drill/ME-V1", "game/equiv", "game/match",
-  "game/curve", "game/crunch", "game/panic", "game/lab", "game/proof", "game/induction", "game/vector",
+  "game/curve", "game/crunch", "game/panic", "game/lab", "game/proof",
   "game/survival", "game/mistakes", "game/starred",
   "game/boss/asymptote", "game/boss/radian", "game/boss/leibniz", "game/boss/integrator",
-  "game/boss/sigma", "game/boss/inductor", "game/boss/final"
+  "game/boss/sigma", "game/boss/final"
 ];
 
 /* Each mode with a selector proving it actually rendered (from MathQuest's smoke). */
@@ -115,29 +115,20 @@ const clean = errs => errs.filter(e => !/Failed to load resource/.test(e));
     return { n: items.length, free: items.filter(i => i.free).length, learn: items.filter(i => !i.free).length,
              rendered: typeof s.render === "function" && /class="frac"/.test(s.render("\\frac{1}{2}")) };
   });
-  t.ok(sheet && sheet.n === 124 && sheet.free >= 40 && sheet.learn >= 40 && sheet.rendered,
+  t.ok(sheet && sheet.n >= 30 && sheet.free >= 10 && sheet.learn >= 10 && sheet.rendered,
     "the formula sheet is registered with SQ.Tools (✅ free, 🧠 not) and renders maths", JSON.stringify(sheet));
 
-  /* The live Extension 1 toggle on the Options screen. */
-  await go("options");
-  await page.click("#view .switch");
-  await page.waitForTimeout(250);
-  const off = await page.evaluate(() => ({
-    tiers: MA.DATA.TIERS.join(), ext: MA.Bank.all().filter(q => q.topic.startsWith("ME-")).length,
-    sheet: [].concat(...SQ.Tools.getSheet("madv").sections.map(x => x.items)).filter(i => i.tier === "ME").length
-  }));
-  t.ok(off.tiers === "MA" && off.ext === 0, "Options → Extension 1 off hides every ME- question", JSON.stringify(off));
-  t.ok(off.sheet === 0, "and the tool tray's sheet drops the Extension formulas");
+  /* Advanced and Extension 1 are separate subjects: this one holds the MA tier only. */
+  const pinned = await page.evaluate(() => ({ tiers: MA.DATA.TIERS.join(),
+    other: MA.Bank.all().filter(q => !q.topic.startsWith("MA-")).length,
+    sheet: [].concat(...SQ.Tools.getSheet("madv").sections.map(x => x.items)).filter(i => i.tier && i.tier !== "MA").length }));
+  t.ok(pinned.tiers === "MA" && pinned.other === 0 && pinned.sheet === 0, "only MA questions and formulas", JSON.stringify(pinned));
   await go("play");
-  const playOff = await page.evaluate(() => document.querySelector("#view").innerText);
-  t.ok(!/Vector Lab|Induction Builder|The Inductor/.test(playOff), "Extension-only modes and the sixth boss disappear from Play");
-  await go("game/vector");
-  t.ok(await page.evaluate(() => /Extension 1 is switched off/.test(document.querySelector("#view").innerText)),
-    "a stale link to an Extension mode explains itself");
+  const playText = await page.evaluate(() => document.querySelector("#view").innerText);
+  t.ok(!/Vector Lab|Induction Builder|The Inductor/.test(playText), "Extension-only modes and The Inductor are not in Maths Advanced (they are in Extension 1)");
   await go("options");
-  await page.click("#view .switch");
-  await page.waitForTimeout(250);
-  t.ok(await page.evaluate(() => MA.DATA.hasExt() && MA.Bank.all().length === 629), "switching it back restores all 629 questions");
+  t.ok(await page.evaluate(() => !document.querySelector("#view .switch") && /Open (Maths|Extension)/.test(document.querySelector("#view").innerText)),
+    "Options links to the other maths subject instead of a toggle");
 
   /* The shared shop with MathQuest's catalogue. */
   await go("shop");

@@ -27,7 +27,7 @@ refs.forEach(r => ok(exists(r), "index.html references a missing file: " + r));
 /* ── subjects: registry ↔ folders ↔ manifests ─────────────── */
 const ctx = load(["js/sq/util.js", "js/sq/economy.js", "js/sq/subjects.js"]);
 const ids = ctx.SQ.Subjects.ids();
-ok(ids.length === 7, "seven subjects registered");
+ok(ids.length === 8, "eight subjects registered (Maths Advanced and Extension 1 are separate)");
 for (const id of ids) {
   const dir = "subjects/" + id;
   if (!exists(dir + "/manifest.js")) { console.log("  · " + id + ": not ported yet (no manifest.js)"); continue; }
@@ -60,7 +60,7 @@ for (const id of ids) {
   });
 
   /* The two maths apps were both MQ — a stray one collides. */
-  if (id === "mstd" || id === "madv") {
+  if (id === "mstd" || id === "madv" || id === "mext") {
     const hits = walkJs(dir).filter(f => /\bMQ\s*[.=]|window\.MQ\b/.test(read(f)));
     ok(!hits.length, `${id}: still references MQ in ${hits.slice(0, 3).join(", ")}`);
   }

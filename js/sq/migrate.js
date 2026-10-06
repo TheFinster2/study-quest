@@ -19,6 +19,7 @@ SQ.Migrate = (function () {
   const D = () => SQ.Store.data;
 
   function readLegacy(meta) {
+    if (!meta.legacyKey) return null;
     try {
       const raw = localStorage.getItem(meta.legacyKey);
       if (!raw) return null;

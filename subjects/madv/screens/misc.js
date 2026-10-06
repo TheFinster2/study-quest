@@ -11,7 +11,7 @@ MA.Screens.achievements = function (view) {
   view.appendChild(U.el("h1", { text: "Achievements" }));
   view.appendChild(U.el("p", { html:
     `<b>${done.length}</b> of <b>${all.length}</b> unlocked. ` +
-    (MA.DATA.hasExt() ? "" : "Extension 1 achievements are hidden while Extension 1 is switched off in Options.") }));
+    "" }));
   view.appendChild(U.el("div", { class: "bar", style: "margin-bottom:16px" },
     [U.el("i", { style: `width:${U.pct(done.length, all.length)}%` })]));
 
@@ -52,29 +52,11 @@ MA.Screens.options = function (view) {
     document.createTextNode("Syllabus"),
     U.el("span", { class: "h2-sub", text: "what you study, not how hard it scores" })
   ]));
-  const on = S.studiesExt();
-  const sw = U.el("button", { class: "switch" + (on ? " on" : ""), type: "button", role: "switch",
-    "aria-checked": on ? "true" : "false", "aria-label": "I study Extension 1" });
-  sw.addEventListener("click", () => {
-    const next = !S.studiesExt();
-    S.setStudiesExt(next);
-    MA.Sound.equip();
-    UI.toast({ icon: next ? "🧩" : "📘", text: next
-      ? "<b>Extension 1 on.</b> Vector Lab, the Induction Builder and The Inductor are back."
-      : "<b>Advanced only.</b> Extension 1 content is hidden — your progress in it is kept." });
-    UI.handleRoute();
-  });
+  /* Advanced and Extension 1 are separate subjects now, each with its own levels,
+     coins and shop; this subject holds one tier only. */
   view.appendChild(U.el("div", { class: "card" }, [
-    U.el("div", { class: "srow" }, [
-      U.el("div", { class: "srow-body" }, [
-        U.el("div", { style: "font-weight:700; font-size:13.5px", text: "I study Extension 1" }),
-        U.el("div", { class: "tiny muted", text:
-          "On: Advanced + Extension 1. Off: the ME- questions, flashcards, formulas, proofs, generators and " +
-          "reference sheets drop out, along with Vector Lab, the Induction Builder, The Inductor and the " +
-          "Extension achievements. Nothing you have earned is lost, and nothing pays differently." })
-      ]),
-      sw
-    ])
+    U.el("p", { class: "muted", html: "This subject is <b>Mathematics Advanced</b>. Extension 1 is its own subject — its questions, cards, proofs, Vector Lab, the Induction Builder and The Inductor live there." }),
+    U.el("a", { class: "btn btn-sm btn-ghost", href: "#/s/mext/home", text: "Open Extension 1 →" })
   ]));
 
   view.appendChild(U.el("h2", { text: "What you are studying" }));

@@ -11,7 +11,7 @@ No build step, no dependencies, no account, no network. **Open `index.html` and 
 ## How it fits together
 
 - **Subjects stay separate.** Each has its own levels (60, with Ascension), its own
-  coins (Moles, Joules, Biocredits, Dollars, Marks, Credits, Primes), modes, bosses,
+  coins (Moles, Joules, Biocredits, Dollars, Marks, Credits, Primes, Lemmas), modes, bosses,
   flashcards, mistakes, achievements, daily challenge, weekly quests, difficulty and
   shop. Only the subjects you pick appear on your hub.
 - **The whole has a level too.** Every XP you earn in any subject also builds your
@@ -53,7 +53,8 @@ inside English.)
 | 📊 Economics | 182 MCQs, 113 cards, 14 calc templates | Shift It, diagrams, **new** HP-duel bosses (5 + Final Paper) |
 | 🖋️ English Advanced | 403 MCQs, 324 quotes, 62 free-text prompts | Marking Desk, Quote Vault, optional offline AI marking |
 | 📐 Maths Standard | 534 MCQs, 105 cards, 75 generators | **New:** calculator, reference sheet, working pad |
-| ∫ Maths Advanced + Ext 1 | 629 MCQs, 137 cards, 75 generators, 20 proofs | Extension 1 is now an on/off setting |
+| ∫ Maths Advanced | 424 MCQs, Advanced cards, 55 generators | Calculus Lab, Equivalence Engine, 5 bosses |
+| ∑ Maths Extension 1 | 205 MCQs, Ext 1 cards, 20 generators, 11 proofs | Vector Lab, Induction Builder, The Inductor — its own subject; choosing it enrols Advanced too |
 
 Every subject has: four difficulties (Gentle → Nightmare), Ascension at level 60, a
 daily challenge and weekly quests, graded flashcards (again/hard/good/easy) with

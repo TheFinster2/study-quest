@@ -30,9 +30,8 @@ Object.defineProperty(MA.DATA, "TIERS", {
   configurable: true, enumerable: true,
   get() {
     if (MA.DATA.__forceTiers) return MA.DATA.__forceTiers.slice();
-    const S = MA.State;
-    const ext = !(S && S.tagHidden && S.tagHidden("ME"));
-    return ext ? ["MA", "ME"] : ["MA"];
+    /* Advanced and Extension 1 are separate StudyQuest subjects: this one is pinned. */
+    return ["MA"];
   },
   /* Kept assignable so a test (or a console) can pin a configuration. */
   set(v) { MA.DATA.__forceTiers = Array.isArray(v) ? v.slice() : null; }

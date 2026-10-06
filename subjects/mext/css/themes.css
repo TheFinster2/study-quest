@@ -1,0 +1,48 @@
+/* Maths Extension 1's subject themes, sold in its shop for Primes.
+   Unscoped on purpose: an owned theme can dress any subject (theme ids are
+   prefixed mext- so they never collide). All on the core tokens. */
+[data-theme="mext-graphpaper"]{
+  --bg-0:#0b1a12; --bg-1:#10251a; --bg-2:#163222;
+  --glow-a:#5fe39a; --glow-b:#c8f5a0;
+  --ink:#eafbef; --ink-dim:#a6cdb3; --ink-faint:#6f9a7d;
+  --card:rgba(220,255,230,.045); --card-2:rgba(220,255,230,.085);
+  --line:rgba(140,240,170,.16);
+  --accent:#5fe39a; --accent-ink:#032113;
+  --good:#8ff0a8; --bad:#ff7a86; --warn:#ffd36b; --info:#7fd6ff;
+}
+[data-theme="mext-blackboard"]{
+  --bg-0:#14191c; --bg-1:#1b2226; --bg-2:#232c31;
+  --glow-a:#f2f0e6; --glow-b:#ffd866;
+  --ink:#f4f2ea; --ink-dim:#bdbcb2; --ink-faint:#85877f;
+  --card:rgba(255,255,245,.045); --card-2:rgba(255,255,245,.085);
+  --line:rgba(255,255,240,.13);
+  --accent:#ffd866; --accent-ink:#231a00;
+  --good:#9be58a; --bad:#ff8a7a; --warn:#ffd866; --info:#9fd0ff;
+}
+[data-theme="mext-blueprint"]{
+  --bg-0:#0d1030; --bg-1:#131845; --bg-2:#1a2058;
+  --glow-a:#8f7bff; --glow-b:#5ad1ff;
+  --ink:#eef0ff; --ink-dim:#aab0e0; --ink-faint:#7178aa;
+  --card:rgba(200,210,255,.05); --card-2:rgba(200,210,255,.09);
+  --line:rgba(120,190,255,.18);
+  --accent:#8f7bff; --accent-ink:#0b0826;
+  --good:#6ff0b2; --bad:#ff7a9c; --warn:#ffd36b; --info:#5ad1ff;
+}
+[data-theme="mext-parchment"]{
+  --bg-0:#f6efe0; --bg-1:#efe4cf; --bg-2:#e6d7bb;
+  --glow-a:#b86a2c; --glow-b:#c2412d;
+  --ink:#2e1d10; --ink-dim:#6b4f38; --ink-faint:#94785e;
+  --card:rgba(80,45,15,.05); --card-2:rgba(80,45,15,.09);
+  --line:rgba(80,45,15,.16);
+  --accent:#9a4a1c; --accent-ink:#fff8ec;
+  --good:#2f8a3e; --bad:#c2412d; --warn:#b07a10; --info:#2d6aa8;
+}
+[data-theme="mext-contour"]{
+  --bg-0:#061418; --bg-1:#0a1e24; --bg-2:#0f2a31;
+  --glow-a:#2fd1b8; --glow-b:#ffb347;
+  --ink:#e8fbf8; --ink-dim:#9fc9c3; --ink-faint:#6a938d;
+  --card:rgba(200,255,245,.045); --card-2:rgba(200,255,245,.085);
+  --line:rgba(80,220,200,.15);
+  --accent:#2fd1b8; --accent-ink:#021a16;
+  --good:#6ff09a; --bad:#ff7a6b; --warn:#ffb347; --info:#7fc8ff;
+}

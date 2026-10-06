@@ -1,3 +1,5 @@
+> **Split:** Extension 1 is now its own subject, `subjects/mext`. This subject is pinned to the Advanced (MA) tier; the "I study Extension 1" toggle is gone.
+
 # Maths Advanced + Extension 1 (`madv`, namespace `MA`)
 
 Port of the stand-alone **MathQuest** (`Maths-advanced-app`). Every `MQ` reference is renamed to `MA`,
