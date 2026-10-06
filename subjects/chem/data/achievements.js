@@ -76,6 +76,10 @@ CHEM.DATA.achievements = [
     desc:"Land a titration end point on the exact drop.",
     check:s => s.perfectTitrations >= 1 },
 
+  { id:"titrate_concordant", icon:"📏", name:"Concordant", reward:200,
+    desc:"Finish 5 titrations with three concordant titres (within 0.10 mL) and an accurate mean.",
+    check:s => (s.concordantSets || 0) >= 5, goal:s => [Math.min(s.concordantSets || 0, 5), 5] },
+
   { id:"path5", icon:"🔗", name:"Synthetic Route", reward:120,
     desc:"Solve 5 pathway puzzles.",
     check:s => s.pathways >= 5, goal:s => [Math.min(s.pathways,5), 5] },

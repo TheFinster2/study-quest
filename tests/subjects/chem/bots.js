@@ -118,22 +118,42 @@ async function titration(page, honest) {
   await go(page, "game/titration");
   const btn = label => page.evaluate(l => {
     const b = [...document.querySelectorAll("#view .btn")].find(x => x.textContent.trim().startsWith(l));
-    if (b && !b.disabled) b.click();
+    if (b && !b.disabled && !b.hidden) { b.click(); return true; } return false;
   }, label);
-  if (honest) {
-    const vEq = await page.evaluate(() => CHEM.__current.vEq);
-    let vb = 0;
+  /* Deliver titrant in descending steps up to `target` mL of this run. */
+  async function deliver(target) {
+    let vb = await page.evaluate(() => 0);
     for (const [step, label] of [[5, "+5.00"], [1, "+1.00"], [0.1, "+0.10"], [0.05, "+1 drop"]]) {
-      while (vb + step <= vEq + 0.025) { await btn(label); vb = +(vb + step).toFixed(2); }
+      while (vb + step <= target + 0.025) { await btn(label); vb = +(vb + step).toFixed(2); }
     }
-    await page.waitForTimeout(800);
   }
-  await btn("Declare");
+  /* The prac: a rough run, then accurate runs until three are concordant. The honest
+     bot overshoots the rough run by about a millilitre (as a real one does), then
+     fast-fills and goes dropwise to the end point. The random bot records every run
+     the instant it starts — three "concordant" zeros — and types junk. */
+  const vEq = await page.evaluate(() => CHEM.__current.vEq);
+  if (honest) { await deliver(Math.floor(vEq) + 1); await page.waitForTimeout(400); }
+  await btn("Record end point");
+  for (let i = 0; i < 6; i++) {
+    if (await page.evaluate(() => [...document.querySelectorAll("#view .btn")].some(b => /^Calculate/.test(b.textContent.trim())))) break;
+    await btn("Next accurate titration");
+    await page.waitForTimeout(80);
+    if (honest) {
+      await btn("⏩ Fast to");
+      const fromHere = await page.evaluate(() => { const r = CHEM.__current; return r.rough - 1; });
+      await deliver(vEq - Math.max(0, fromHere));
+      await page.waitForTimeout(300);
+    }
+    await btn("Record end point");
+    await page.waitForTimeout(80);
+  }
+  await btn("Calculate");
   await page.waitForTimeout(150);
   if (honest) await page.waitForTimeout(1500);
   await page.evaluate(h => {
-    const inp = document.querySelector("#view .numin:not([disabled])");
-    inp.value = h ? String(CHEM.__current.answer) : "0";
+    const [m, c] = [...document.querySelectorAll("#view .numin:not([disabled])")];
+    m.value = h ? CHEM.__current.mean.toFixed(2) : "0";
+    c.value = h ? String(CHEM.__current.answer) : "0";
     const sub = [...document.querySelectorAll("#view .btn-primary")].find(b => /Submit/.test(b.textContent));
     sub.click();
   }, honest);

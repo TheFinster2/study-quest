@@ -10,7 +10,7 @@
        leave one compound by the same reagent; every edge names real nodes/reagents
      every flashcard has an id, front and back
      coverage packs name real topics/cards/families; no achievement unlocks on a fresh save
-     counts match the ported totals (1,091 MCQs, 263 cards, 44 puzzles, 65 achievements)
+     counts match the ported totals (1,091 MCQs, 263 cards, 44 puzzles, 66 achievements)
 
    node tests/subjects/chem/validate.js */
 "use strict";
@@ -147,7 +147,7 @@ D.coverage.forEach(p => {
 Object.values(N).concat(R).forEach(x => { if (x.tag) ok(tags.has(x.tag), `pathway tag ${x.tag} is a coverage pack`); });
 
 /* ── achievements ──────────────────────────────────────────── */
-ok(D.achievements.length === 65, `65 achievements (found ${D.achievements.length})`);
+ok(D.achievements.length === 66, `66 achievements (65 ported + Concordant) (found ${D.achievements.length})`);
 const fresh = { answered: 0, correct: 0, bestStreak: 0, level: 1, longestDayStreak: 0, modules: {}, modesPlayed: {},
   themesOwned: 1, avatarsOwned: 2, pathwaysSolvedUnique: 0, bossesBeaten: 0, cardsMastered: 0, prestige: 0,
   questsDone: 0, masteryOf: () => 0, peakCoins: 100 };

@@ -42,7 +42,7 @@ CHEM.State = (function () {
   const S = SQ.SubjectState.create("chem", {
     defaults: () => ({
       stats: {
-        equationsBalanced: 0, ionsMatched: 0, titrations: 0, perfectTitrations: 0,
+        equationsBalanced: 0, ionsMatched: 0, titrations: 0, perfectTitrations: 0, concordantSets: 0,
         pathways: 0, namingCorrect: 0, calcsCorrect: 0, perfectPrecipitation: 0,
         nightOwl: false, earlyBird: false
       },
