@@ -124,11 +124,12 @@ body{
 body::before{
   content:""; position:fixed; inset:-20vmax; z-index:-2;
   background:
-    radial-gradient(45vmax 45vmax at 12% 8%,  color-mix(in srgb,var(--glow-a) 26%, transparent), transparent 62%),
-    radial-gradient(50vmax 50vmax at 88% 12%, color-mix(in srgb,var(--glow-b) 24%, transparent), transparent 62%),
-    radial-gradient(60vmax 40vmax at 50% 108%,color-mix(in srgb,var(--glow-a) 16%, transparent), transparent 64%),
+    radial-gradient(45vmax 45vmax at 12% 8%,  color-mix(in srgb,var(--glow-a) 40%, transparent), transparent 62%),
+    radial-gradient(50vmax 50vmax at 88% 12%, color-mix(in srgb,var(--glow-b) 38%, transparent), transparent 62%),
+    radial-gradient(60vmax 45vmax at 50% 108%,color-mix(in srgb,var(--glow-a) 26%, transparent), transparent 64%),
+    radial-gradient(40vmax 40vmax at 8% 70%, color-mix(in srgb,var(--glow-b) 16%, transparent), transparent 62%),
     linear-gradient(160deg,var(--bg-1),var(--bg-0) 55%,var(--bg-2));
-  filter:saturate(1.05);
+  filter:saturate(1.2);
   animation:drift 34s ease-in-out infinite alternate;
 }
 body::after{ /* graph paper */
@@ -955,3 +956,20 @@ input[type=range]{ flex:1; min-width:0; accent-color:var(--accent); height:26px;
   .nav-item{ padding:8px 6px; }
   .navbar{ gap:0; padding:5px; }
 }
+
+/* ── a palette you can see ──────────────────────────────────────
+   The themes' colours were there, but cards, the hero and the chrome were mostly
+   neutral glass, so a theme read as "dark blue with a hint". Every surface now takes
+   a little of the theme's glow, so switching theme (or subject) is obvious. */
+.card{ background:linear-gradient(160deg,color-mix(in srgb,var(--glow-a) 7%,var(--card)),color-mix(in srgb,var(--glow-b) 6%,var(--card)));
+  border-color:color-mix(in srgb,var(--accent) 16%,var(--line)); }
+.hero{ background:linear-gradient(125deg,color-mix(in srgb,var(--glow-a) 34%,transparent),color-mix(in srgb,var(--glow-b) 36%,transparent));
+  border-color:color-mix(in srgb,var(--accent) 35%,var(--line)); }
+.topbar{ background:color-mix(in srgb,color-mix(in srgb,var(--glow-b) 12%,var(--bg-0)) 82%,transparent);
+  border-bottom-color:color-mix(in srgb,var(--accent) 25%,var(--line)); }
+.navbar{ background:color-mix(in srgb,color-mix(in srgb,var(--glow-b) 14%,var(--bg-1)) 88%,transparent);
+  border-color:color-mix(in srgb,var(--accent) 28%,var(--line)); }
+.nav-item.on{ background:color-mix(in srgb,var(--accent) 22%,transparent); color:var(--accent); }
+.nav-item.on .nav-ico{ filter:none; }
+.xpbar{ background:color-mix(in srgb,var(--accent) 14%,var(--card-2)); }
+.xpbar-fill{ box-shadow:0 0 12px color-mix(in srgb,var(--glow-a) 60%,transparent); }

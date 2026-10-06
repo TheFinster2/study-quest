@@ -135,20 +135,32 @@ SQ.UI = (function () {
     applyTheme();
     if (changed) buildNav();
     syncHeader();
-    if (id) { D().settings.lastSubject = id; Store().save(); }
+    if (id) {
+      D().settings.lastSubject = id;
+      const meta = SQ.Subjects.get(id);
+      if (meta && meta.defaultTheme && !D().owned.themes.includes(meta.defaultTheme)) D().owned.themes.push(meta.defaultTheme);
+      Store().save();
+    }
   }
   const context = () => current;
 
   /* ── theme ───────────────────────────────────────────────── */
+  /* Inside a subject: the theme the student set there, else "app" (follow the app
+     theme), else the subject's own SIGNATURE theme — free, and the reason each subject
+     looks like itself rather than seven copies of the hub. */
   function themeFor(id) {
     const d = D();
     const owned = d.owned.themes;
+    const appTheme = owned.includes(d.profile.theme) ? d.profile.theme : "midnight";
     if (id) {
       const slot = d.subjects[id];
       const t = slot && slot.settings && slot.settings.theme;
+      if (t === "app") return appTheme;
       if (t && owned.includes(t)) return t;
+      const meta = SQ.Subjects.get(id);
+      if (meta && meta.defaultTheme) return meta.defaultTheme;
     }
-    return owned.includes(d.profile.theme) ? d.profile.theme : "midnight";
+    return appTheme;
   }
   function applyTheme(themeId) {
     if (themeId) { D().profile.theme = themeId; Store().save(); }

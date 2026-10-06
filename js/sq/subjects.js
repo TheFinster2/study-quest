@@ -14,31 +14,31 @@ window.SQ = window.SQ || {};
 
 SQ.Subjects = (function () {
   const LIST = [
-    { id: "chem", ns: "CHEM", name: "Chemistry", short: "Chem", icon: "⚗️", app: "MoleQuest",
+    { id: "chem", ns: "CHEM", defaultTheme: "chem-lab", name: "Chemistry", short: "Chem", icon: "⚗️", app: "MoleQuest",
       color: "#39d6c8", currency: { name: "Moles", one: "Mole", icon: "🪙" },
       legacyKey: "molequest.save.v1", group: "Science",
       blurb: "Equilibrium, acids and bases, quantitative analysis, organic chemistry." },
-    { id: "phys", ns: "PHYS", name: "Physics", short: "Phys", icon: "🔭", app: "Newton's Notebook",
+    { id: "phys", ns: "PHYS", defaultTheme: "phys-graphite", name: "Physics", short: "Phys", icon: "🔭", app: "Newton's Notebook",
       color: "#6fa8ff", currency: { name: "Joules", one: "Joule", icon: "⚡" },
       legacyKey: "newtonsnotebook.save.v1", group: "Science",
       blurb: "Motion, fields, electromagnetism, light, the nature of matter." },
-    { id: "bio", ns: "BIO", name: "Biology", short: "Bio", icon: "🧬", app: "Biosphere",
+    { id: "bio", ns: "BIO", defaultTheme: "bio-verdant", name: "Biology", short: "Bio", icon: "🧬", app: "Biosphere",
       color: "#3fe08a", currency: { name: "Biocredits", one: "Biocredit", icon: "◉" },
       legacyKey: "biosphere.save.v1", group: "Science",
       blurb: "Heredity, genetic change, infectious and non-infectious disease." },
-    { id: "econ", ns: "ECON", name: "Economics", short: "Econ", icon: "📊", app: "Equilibrium",
+    { id: "econ", ns: "ECON", defaultTheme: "econ-ledger", name: "Economics", short: "Econ", icon: "📊", app: "Equilibrium",
       color: "#ffcc55", currency: { name: "Dollars", one: "Dollar", icon: "💲" },
       legacyKey: "equilibrium.save.v1", group: "HSIE",
       blurb: "The global economy, Australia's place in it, issues and policy." },
-    { id: "eng", ns: "EN", name: "English Advanced", short: "English", icon: "🖋️", app: "Close Reading",
+    { id: "eng", ns: "EN", defaultTheme: "eng-marginalia", name: "English Advanced", short: "English", icon: "🖋️", app: "Close Reading",
       color: "#e8b86b", currency: { name: "Marks", one: "Mark", icon: "✒️" },
       legacyKey: "closereading.save.v1", group: "English",
       blurb: "Quotes, techniques, marking, thesis and essay craft for your prescribed texts." },
-    { id: "mstd", ns: "MS", name: "Maths Standard", short: "Maths Std", icon: "📐", app: "NumberCrunch",
+    { id: "mstd", ns: "MS", defaultTheme: "mstd-ledger", name: "Maths Standard", short: "Maths Std", icon: "📐", app: "NumberCrunch",
       color: "#ff9a6b", currency: { name: "Credits", one: "Credit", icon: "💳" },
       legacyKey: "numbercrunch.save.v1", group: "Mathematics", excludes: ["madv", "mext"],
       blurb: "Financial maths, networks, measurement, statistics — Standard 2." },
-    { id: "madv", ns: "MA", name: "Maths Advanced", short: "Maths Adv", icon: "∫", app: "MathQuest",
+    { id: "madv", ns: "MA", defaultTheme: "madv-graphpaper", name: "Maths Advanced", short: "Maths Adv", icon: "∫", app: "MathQuest",
       color: "#7c5cff", currency: { name: "Primes", one: "Prime", icon: "🔢" },
       legacyKey: "mathquest.save.v1", group: "Mathematics", excludes: ["mstd"],
       blurb: "Calculus, functions, trigonometry, financial maths, statistics." },
@@ -46,7 +46,7 @@ SQ.Subjects = (function () {
        levels, coins and shop. Every Extension 1 student also sits Advanced, so choosing
        it enrols Advanced too (`requires`). MathQuest's old save imports into Advanced
        only (one save, one import) — so no legacyKey here. */
-    { id: "mext", ns: "MX", name: "Maths Extension 1", short: "Maths Ext 1", icon: "∑", app: "MathQuest (Ext 1)",
+    { id: "mext", ns: "MX", defaultTheme: "mext-contour", name: "Maths Extension 1", short: "Maths Ext 1", icon: "∑", app: "MathQuest (Ext 1)",
       color: "#ff5fa2", currency: { name: "Lemmas", one: "Lemma", icon: "📜" },
       legacyKey: null, group: "Mathematics", excludes: ["mstd"], requires: ["madv"],
       blurb: "Proof by induction, vectors, projectiles, further calculus, combinatorics." }

@@ -116,7 +116,7 @@ SQ.Shop = (function () {
     return list.map(t => item(w, {
       swatch: t.swatch, name: t.name, price: t.price, level: t.level, desc: t.desc,
       owned: d.owned.themes.includes(t.id),
-      equipped: subjectId ? (d.subjects[subjectId] && d.subjects[subjectId].settings.theme) === t.id : d.profile.theme === t.id,
+      equipped: subjectId ? UI.themeFor(subjectId) === t.id && (d.subjects[subjectId] && d.subjects[subjectId].settings.theme) !== "app" : d.profile.theme === t.id,
       useLabel: subjectId ? "Use here" : "Wear",
       onUse: () => subjectId ? UI.setSubjectTheme(subjectId, t.id) : UI.applyTheme(t.id),
       onBuy: () => { d.owned.themes.push(t.id); subjectId ? UI.setSubjectTheme(subjectId, t.id) : UI.applyTheme(t.id); }
@@ -234,9 +234,10 @@ SQ.Shop = (function () {
         owned: x.owned ? x.owned() : false, onBuy: () => x.buy() }, render))));
     }
     if (cat.themes && cat.themes.length) {
-      const follow = item(w, { icon: "↩️", name: "Follow app theme", desc: "Use your app-wide theme here.", owned: true,
-        equipped: !(d.subjects[subjectId] && d.subjects[subjectId].settings.theme), useLabel: "Use",
-        onUse: () => UI.setSubjectTheme(subjectId, null) }, render);
+      const cur = d.subjects[subjectId] && d.subjects[subjectId].settings.theme;
+      const follow = item(w, { icon: "↩️", name: "Follow app theme", desc: "Use your app-wide theme here instead of " + meta.name + "'s.", owned: true,
+        equipped: cur === "app", useLabel: "Use",
+        onUse: () => UI.setSubjectTheme(subjectId, "app") }, render);
       view.appendChild(section(meta.name + " themes", "Used here by default; wear one app-wide from the general shop.",
         [follow].concat(themeItems(w, cat.themes, render, subjectId))));
     }
