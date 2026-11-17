@@ -211,10 +211,11 @@ EN.Screens.play = (function () {
       case "rehab": {
         const qs = EN.Bank.mistakeQuestions();
         if (!qs.length) {
-          view.appendChild(U.el("div", { class: "empty" }, [
+          view.appendChild(U.el("div", { class: "card empty" }, [
             U.el("div", { class: "empty-ico", text: "🩹" }),
-            U.el("p", { text: "Nothing to rehabilitate — you have not got anything wrong yet." }),
-            U.el("button", { class: "btn btn-primary btn-sm", text: "Go and make some mistakes",
+            U.el("h2", { text: "Nothing to rehabilitate" }),
+            U.el("p", { text: "Every question you miss in any mode lands here, so you can win it back for XP. Your pool is clear right now." }),
+            U.el("button", { class: "btn btn-primary", text: "Choose a mode",
                              on: { click: () => UI.go("/play") } })
           ]));
           return;

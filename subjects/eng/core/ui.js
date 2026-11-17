@@ -225,12 +225,12 @@ window.EN = window.EN || {};
       }
       const why = state === "blocked" ? EN.Mark.blockedReason() : state;
       const msg = why === "file"
-        ? "Sentence marking needs the app served over http — it works on your phone install and on the published site, just not by double-clicking the file. You can still write and compare against the model answers."
+        ? "Auto-marking runs in the installed app. Here, write your answer and compare it with the model answers."
         : state === "notDownloaded"
           ? "Sentence marking is switched off. Enable it in Settings — 23 MB, one time, then it works offline forever."
-          : "Sentence marking is unavailable on this device. You can still write and compare against the model answers.";
-      node.appendChild(U.el("div", { class: "lc-verdict unavailable" }, [
-        U.el("div", { class: "lc-word", text: "Marking unavailable" }),
+          : "Auto-marking isn't available on this device. Write your answer and compare it with the model answers.";
+      node.appendChild(U.el("div", { class: "lc-verdict unavailable" + (state === "notDownloaded" ? "" : " quiet") }, [
+        U.el("div", { class: "lc-word", text: state === "notDownloaded" ? "Sentence marking is off" : "✍️ Self-check mode" }),
         U.el("p", { class: "tiny", text: msg }),
         state === "notDownloaded"
           ? U.el("button", { class: "btn btn-sm btn-primary", text: "⬇ Turn on sentence marking",

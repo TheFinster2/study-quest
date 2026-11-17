@@ -93,7 +93,7 @@ PHYS.Games.formula = (function () {
         const raw = key === "quantity" ? t.quantity : key === "formula" ? t.formula : t.unit;
         const cell = U.el("button", {
           class: "tri-cell",
-          html: key === "quantity" ? U.escapeHtml(raw) : U.math(raw),
+          html: "<span>" + (key === "quantity" ? U.escapeHtml(raw) : U.math(raw)) + "</span>",
           on: { click: () => tap(key, t, cell) }
         });
         cols[key].push({ triple: t, node: cell });

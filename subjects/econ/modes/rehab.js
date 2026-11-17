@@ -16,15 +16,15 @@
 
     if (!qs.length) {
       UI.hideTabs(false);
-      view.appendChild(U.el("div", { class:"card center" }, [
-        U.el("div", { style:"font-size:40px", text:"🩹" }),
-        U.el("h1", { text:"Nothing to rehabilitate", style:"margin:8px 0 2px" }),
+      view.appendChild(U.el("div", { class:"card empty" }, [
+        U.el("div", { class:"empty-ico", text:"🩹" }),
+        U.el("h2", { text:"Nothing to rehabilitate" }),
         U.el("p", { class:"muted", text: missed.length
           ? "Everything in your rehab pool is currently hidden by a coverage pack."
-          : "You have not missed anything yet — or you have already cleared them all. Play a mode and come back." }),
+          : "Every question you miss in any mode lands here, so you can win it back for XP. Your pool is clear right now." }),
         U.el("div", { class:"row", style:"margin-top:12px;justify-content:center" }, [
           U.el("button", { class:"btn btn-primary", onclick: function () { UI.go("/play/rapidfire"); } }, "Rapid Fire"),
-          U.el("button", { class:"btn", onclick: function () { UI.go("/play"); } }, "Home")
+          U.el("button", { class:"btn", onclick: function () { UI.go("/play"); } }, "All modes")
         ])
       ]));
       return;

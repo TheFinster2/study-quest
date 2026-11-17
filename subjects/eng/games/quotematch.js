@@ -116,6 +116,14 @@ EN.Games.quotematch = (function () {
     const timeChip = U.el("span", { class: "timer-ring", "aria-live": "off", role: "timer", text: "0:00" });
     [kindChip, moveChip, timeChip].forEach(n => shell.meta.appendChild(n));
 
+    const sides = kind.name.split(" → ");
+    const cap = w => w.charAt(0).toUpperCase() + w.slice(1);
+    const icons = { quote: "❝", technique: "🔍", speaker: "🎭", "what it does": "💡", concept: "🧭" };
+    const backOf = side => { const w = sides[side === "a" ? 0 : 1] || ""; return { ic: icons[w.toLowerCase()] || "❔", label: cap(w) }; };
+    shell.body.appendChild(U.el("p", { class: "mhelp" }, [
+      "Flip two cards. Match each ", U.el("b", { text: sides[0] || "card" }), " to its ", U.el("b", { text: sides[1] || "partner" }),
+      " — fewer moves, more XP."
+    ]));
     const grid = U.el("div", { class: "mgrid" });
     shell.body.appendChild(grid);
 
@@ -131,7 +139,10 @@ EN.Games.quotematch = (function () {
       ]);
       const btn = U.el("button", { class: "mcard", type: "button", "aria-label": "card " + (i + 1) }, [
         U.el("div", { class: "mcard-inner" }, [
-          U.el("div", { class: "mface mface-back", text: cd.side === "a" ? "❝" : "🔍" }),
+          U.el("div", { class: "mface mface-back side-" + cd.side }, [
+            U.el("span", { class: "mback-ic", text: backOf(cd.side).ic }),
+            U.el("span", { class: "mback-lbl", text: backOf(cd.side).label })
+          ]),
           front
         ])
       ]);

@@ -141,10 +141,10 @@ CHEM.Screens.play = (function () {
       case "mistakes": {
         const qs = CHEM.Bank.mistakeQuestions();
         if (!qs.length) {
-          view.appendChild(U.el("div", { class: "empty" }, [
+          view.appendChild(U.el("div", { class: "card empty" }, [
             U.el("div", { class: "empty-ico", text: "🎉" }),
             U.el("h2", { text: "Nothing to fix", style: "justify-content:center" }),
-            U.el("p", { text: "You have no outstanding mistakes. Go make some." }),
+            U.el("p", { text: "Every question you miss in any game lands here, so you can win it back for XP. Your list is clear right now." }),
             U.el("button", { class: "btn btn-primary", text: "Back to games",
               on: { click: () => UI.go("/play") } })
           ]));

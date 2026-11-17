@@ -41,12 +41,25 @@ PHYS.Games.boss = (function () {
   function screen(view, args) {
     const boss = BOSSES.find(b => b.id === (args && args.id)) || BOSSES[0];
     if (!isUnlocked(boss)) {
-      view.appendChild(U.el("div", { class: "empty" }, [
-        U.el("div", { class: "empty-ico", text: "🔒" }),
-        U.el("h3", { text: boss.name + " is locked" }),
-        U.el("p", { text: lockReason(boss) }),
-        U.el("button", { class: "btn btn-primary", text: "Back to games",
-                         on: { click: () => UI.go("/play") } })
+      const mods = boss.needAll ? B.MODULES.filter(m => m.year === 12).map(m => m.id) : [boss.mod];
+      view.appendChild(U.el("div", { class: "card empty" }, [
+        U.el("div", { class: "empty-ico", text: boss.icon }),
+        U.el("div", { class: "tiny muted", text: "🔒 Boss locked" }),
+        U.el("h2", { text: boss.name }),
+        U.el("p", { text: boss.blurb }),
+        U.el("div", { style: "width:100%; max-width:300px; text-align:left; margin-bottom:16px" }, mods.map(id => {
+          const have = S.mastery(id);
+          return U.el("div", { style: "margin:8px 0" }, [
+            U.el("div", { class: "spread tiny", style: "display:flex; justify-content:space-between" }, [
+              U.el("span", { text: B.moduleName(id) }), U.el("b", { text: have + "% / " + boss.needMastery + "%" })]),
+            U.el("div", { class: "bar" }, [U.el("i", { style: "width:" + U.clamp(have / boss.needMastery * 100, 0, 100) + "%" })])
+          ]);
+        })),
+        U.el("div", { class: "row" }, [
+          U.el("button", { class: "btn btn-primary", text: "🎯 Train " + (boss.needAll ? "modules" : boss.mod),
+                           on: { click: () => UI.go("/game/drill" + (boss.needAll ? "" : "/" + boss.mod)) } }),
+          U.el("button", { class: "btn btn-ghost", text: "All games", on: { click: () => UI.go("/play") } })
+        ])
       ]));
       return;
     }

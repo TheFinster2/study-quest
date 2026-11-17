@@ -18,14 +18,14 @@ SQ.DATA.themes = [
 ];
 
 SQ.DATA.avatars = [
-  { emoji: "🎓", price: 0, level: 1 }, { emoji: "📚", price: 0, level: 1 },
-  { emoji: "✏️", price: 60, level: 1 }, { emoji: "🦉", price: 90, level: 2 },
-  { emoji: "🐢", price: 120, level: 3 }, { emoji: "🦊", price: 160, level: 4 },
-  { emoji: "🐙", price: 220, level: 6 }, { emoji: "🚀", price: 300, level: 8 },
-  { emoji: "🧠", price: 380, level: 10 }, { emoji: "🦄", price: 480, level: 13 },
-  { emoji: "🐉", price: 620, level: 17 }, { emoji: "🌌", price: 800, level: 22 },
-  { emoji: "🏆", price: 1100, level: 30 }, { emoji: "👑", price: 1600, level: 40 },
-  { emoji: "🌟", price: 2400, level: 55 }, { emoji: "🪐", price: 3600, level: 75 }
+  { emoji: "🎓", name: "Graduate", price: 0, level: 1 }, { emoji: "📚", name: "Bookworm", price: 0, level: 1 },
+  { emoji: "✏️", name: "Pencil", price: 60, level: 1 }, { emoji: "🦉", name: "Night Owl", price: 90, level: 2 },
+  { emoji: "🐢", name: "Steady Tortoise", price: 120, level: 3 }, { emoji: "🦊", name: "Fox", price: 160, level: 4 },
+  { emoji: "🐙", name: "Octopus", price: 220, level: 6 }, { emoji: "🚀", name: "Rocket", price: 300, level: 8 },
+  { emoji: "🧠", name: "Big Brain", price: 380, level: 10 }, { emoji: "🦄", name: "Unicorn", price: 480, level: 13 },
+  { emoji: "🐉", name: "Dragon", price: 620, level: 17 }, { emoji: "🌌", name: "Galaxy", price: 800, level: 22 },
+  { emoji: "🏆", name: "Champion", price: 1100, level: 30 }, { emoji: "👑", name: "Crown", price: 1600, level: 40 },
+  { emoji: "🌟", name: "Superstar", price: 2400, level: 55 }, { emoji: "🪐", name: "Saturn", price: 3600, level: 75 }
 ];
 
 /* Rare avatars — only from The Vault crate. */

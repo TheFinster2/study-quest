@@ -57,7 +57,8 @@ EN.Screens.progress = function (view) {
     text: "What kind of question it was, not which text it came from. Grey means you have " +
           "not answered enough of them yet to say anything." }));
   const sk = U.el("div", { class: "card" });
-  skills.slice().sort((a, b) => b.seen - a.seen).forEach(t => {
+  const untried = skills.filter(t => !t.seen);
+  skills.filter(t => t.seen).sort((a, b) => b.seen - a.seen).forEach(t => {
     const thin = t.seen < EVIDENCE;
     const tier = S.masteryTier(t.mastery);
     const row = U.el("button", { class: "mastery-item mastery-pick", type: "button" }, [
@@ -75,6 +76,15 @@ EN.Screens.progress = function (view) {
     row.addEventListener("click", () => UI.go(t.route));
     sk.appendChild(row);
   });
+  if (untried.length) {
+    sk.appendChild(U.el("div", { class: "untried" }, [
+      U.el("div", { class: "tiny muted", text: untried.length === skills.length
+        ? "Answer a few questions in any mode and your skills appear here. Start with one:"
+        : "Not tried yet — tap one to start:" }),
+      U.el("div", { class: "untried-chips" }, untried.map(t =>
+        U.el("button", { class: "chip chip-btn", type: "button", text: t.name, on: { click: () => UI.go(t.route) } })))
+    ]));
+  }
   view.appendChild(sk);
 
   /* Per-module AND per-text mastery, because a student can be strong on the Common

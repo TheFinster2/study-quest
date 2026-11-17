@@ -17,8 +17,8 @@ SQ.Hub = SQ.Hub || {};
       U.el("button", { class: v === value ? "on" : "", "aria-pressed": v === value ? "true" : "false", text: l,
         on: { click: () => onPick(v) } })));
   }
-  function row(title, desc, control) {
-    return U.el("div", { class: "set-row" }, [
+  function row(title, desc, control, stack) {
+    return U.el("div", { class: "set-row" + (stack ? " stack" : "") }, [
       U.el("div", {}, [U.el("div", { class: "shop-name", text: title }), desc ? U.el("div", { class: "tiny muted", html: desc }) : null]),
       control
     ]);
@@ -56,7 +56,7 @@ SQ.Hub = SQ.Hub || {};
     const name = U.el("input", { class: "text-in", value: d.profile.name, maxlength: 24, "aria-label": "Your name" });
     name.addEventListener("change", () => { d.profile.name = name.value.trim().slice(0, 24) || "Student"; SQ.Store.emit(); });
     view.appendChild(card("Profile", [
-      row("Name", null, name),
+      row("Name", "Shown on your profile and results.", name, true),
       row("Avatar and theme", "Change from your profile, or buy more in the shops.",
         U.el("button", { class: "btn btn-sm btn-ghost", text: d.profile.avatar + " Profile", on: { click: () => Hub.profileSheet() } }))
     ]));
@@ -67,7 +67,7 @@ SQ.Hub = SQ.Hub || {};
       row("Your subjects", ids.map(i => SQ.Subjects.get(i).icon + " " + SQ.Subjects.get(i).short).join(" · ") || "None chosen",
         U.el("a", { class: "btn btn-sm btn-primary", href: "#/subjects", text: "Change" }))
     ].concat(SQ.Subjects.LIST.filter(m => ids.includes(m.id) || SQ.Store.rawSlot(m.id)).map(m =>
-      row(m.icon + " " + m.name, "Difficulty, coverage and other options for this subject.",
+      row(m.icon + " " + m.name, (() => { const sl = SQ.Store.rawSlot(m.id); return sl && sl.level ? "Level " + sl.level : "Not started yet"; })(),
         U.el("div", { class: "row", style: "gap:6px" }, [
           U.el("a", { class: "btn btn-sm btn-ghost", href: "#/s/" + m.id + "/options", text: "Options" }),
           U.el("button", { class: "btn btn-sm btn-ghost", text: "Reset", title: "Reset " + m.name + " progress",
@@ -111,9 +111,9 @@ SQ.Hub = SQ.Hub || {};
         U.el("button", { class: "btn btn-sm btn-ghost", text: "Look", on: { click: () => SQ.Migrate.offer(true) } })),
       row("Import an old app's export", "A JSON file exported from one of the old apps' Settings.",
         (() => {
-          const sel = U.el("select", { class: "text-in", style: "max-width:170px; margin:0", "aria-label": "Which app" },
+          const sel = U.el("select", { class: "text-in", style: "flex:1; min-width:0; margin:0", "aria-label": "Which app" },
             SQ.Subjects.LIST.map(m => U.el("option", { value: m.id, text: m.app })));
-          return U.el("div", { class: "row", style: "gap:6px" }, [sel, U.el("button", { class: "btn btn-sm btn-ghost", text: "File…",
+          return U.el("div", { class: "row", style: "gap:8px" }, [sel, U.el("button", { class: "btn btn-sm btn-ghost", text: "Choose file…",
             on: { click: () => pickFile(text => {
               const meta = SQ.Subjects.get(sel.value);
               SQ.Migrate.importFile(meta, text).then(r => {
@@ -121,7 +121,7 @@ SQ.Hub = SQ.Hub || {};
                 setTimeout(() => location.reload(), 1500);
               }).catch(e => UI.toast({ icon: "⚠", kind: "bad", text: U.escapeHtml(e.message) }));
             }) } })]);
-        })()),
+        })(), true),
       row("Reset everything", "Every subject, your overall level, Stars and cosmetics.",
         U.el("button", { class: "btn btn-sm btn-danger", text: "Reset", on: { click: () => UI.confirmDialog("Reset everything?",
           "All progress in every subject is deleted. Export first if you might want it back. <b>This can't be undone.</b>",
