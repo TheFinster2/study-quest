@@ -85,9 +85,19 @@ EN.Screens.play = (function () {
       ])
     ]));
 
-    view.appendChild(U.el("h2", { text: "Modes" }));
+    const GROUPS = [
+      { name: "Writing", sub: "build and mark sentences, paragraphs and essays", ids: ["marking", "thesis", "sayit", "essay", "rewrite", "paper"] },
+      { name: "Reading", sub: "techniques, quotes and questions", ids: ["technique", "cloze", "quotematch", "deconstruct", "bandgrid"] },
+      { name: "Quick-fire", sub: "short runs against the clock", ids: ["rapid", "drill", "survival", "rehab"] }
+    ];
+    const placed = new Set();
+    GROUPS.forEach(g => g.ids.forEach(id => placed.add(id)));
+    const rest = MODES.filter(m => !placed.has(m.id)).map(m => m.id);
+    if (rest.length) GROUPS[2].ids = GROUPS[2].ids.concat(rest);
+    GROUPS.forEach(g => {
+    view.appendChild(U.el("h2", { class: "h2-row" }, [document.createTextNode(g.name), U.el("span", { class: "h2-sub", text: g.sub })]));
     const grid = U.el("div", { class: "grid g2" });
-    MODES.forEach(m => {
+    g.ids.map(id => MODES.find(m => m.id === id)).filter(Boolean).forEach(m => {
       const locked = S.data.level < m.level;
       const played = S.data.modesPlayed[m.id] || 0;
       const card = U.el("button", {
@@ -111,6 +121,7 @@ EN.Screens.play = (function () {
       grid.appendChild(card);
     });
     view.appendChild(grid);
+    });
 
     view.appendChild(U.el("h2", { text: "Bosses" }));
     const beaten = Object.keys(S.data.bossesBeaten).length;

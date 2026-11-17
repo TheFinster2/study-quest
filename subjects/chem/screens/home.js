@@ -95,11 +95,14 @@ CHEM.Screens.home = function (view) {
       U.el("div", { class: "daily-ico", text: entry.claimed ? "✅" : q.icon }),
       U.el("div", { class: "daily-body" }, [
         U.el("h3", { text: q.name }),
+        U.el("div", { class: "tiny muted", style: "margin-top:2px", text: q.desc }),
         U.el("div", { class: "bar", style: "margin:8px 0 6px" }, [
           U.el("i", { style: `width:${U.clamp((entry.done / entry.target) * 100, 0, 100)}%` })
         ]),
-        U.el("div", { class: "tiny muted", text:
-          `${q.desc} — ${entry.done} / ${entry.target} · ${q.coins} 🪙 + ${q.xp} XP` })
+        U.el("div", { class: "quest-foot" }, [
+          U.el("span", { class: "tiny", text: `${U.fmtInt ? U.fmtInt(entry.done) : entry.done} / ${entry.target}` }),
+          U.el("span", { class: "reward-chip", text: `+${q.coins} 🪙 · +${q.xp} XP` })
+        ])
       ]),
       entry.claimed
         ? U.el("span", { class: "chip on", text: "Claimed" })
@@ -117,7 +120,7 @@ CHEM.Screens.home = function (view) {
                 }
               } }
             })
-          : U.el("span", { class: "chip", text: Math.round((entry.done / entry.target) * 100) + "%" })
+          : null
     ]);
   })));
 

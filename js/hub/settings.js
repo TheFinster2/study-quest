@@ -68,19 +68,23 @@ SQ.Hub = SQ.Hub || {};
         U.el("a", { class: "btn btn-sm btn-primary", href: "#/subjects", text: "Change" }))
     ].concat(SQ.Subjects.LIST.filter(m => ids.includes(m.id) || SQ.Store.rawSlot(m.id)).map(m =>
       row(m.icon + " " + m.name, (() => { const sl = SQ.Store.rawSlot(m.id); return sl && sl.level ? "Level " + sl.level : "Not started yet"; })(),
-        U.el("div", { class: "row", style: "gap:6px" }, [
-          U.el("a", { class: "btn btn-sm btn-ghost", href: "#/s/" + m.id + "/options", text: "Options" }),
-          U.el("button", { class: "btn btn-sm btn-ghost", text: "Reset", title: "Reset " + m.name + " progress",
-            on: { click: () => UI.confirmDialog("Reset " + m.name + "?",
-              "This wipes your " + U.escapeHtml(m.name) + " level, coins, cards and stats. Your overall level, Stars and other subjects are untouched. <b>This can't be undone.</b>",
-              () => { SQ.Store.resetSubject(m.id); location.reload(); }, "Reset", { danger: true }) } })
-        ]))))));
+        U.el("a", { class: "btn btn-sm btn-ghost", href: "#/s/" + m.id + "/options", text: "Options ›" })))).concat([
+      row("Reset one subject", "Wipes that subject's level, coins, cards and stats. Everything else is kept.", (() => {
+        const pickable = SQ.Subjects.LIST.filter(m => ids.includes(m.id) || SQ.Store.rawSlot(m.id));
+        const sel = U.el("select", { class: "text-in", style: "flex:1; min-width:0; margin:0", "aria-label": "Subject to reset" },
+          pickable.map(m => U.el("option", { value: m.id, text: m.icon + " " + m.name })));
+        return U.el("div", { class: "row", style: "gap:8px" }, [sel, U.el("button", { class: "btn btn-sm btn-danger", text: "Reset…",
+          on: { click: () => { const m = SQ.Subjects.get(sel.value); if (!m) return; UI.confirmDialog("Reset " + m.name + "?",
+            "This wipes your " + U.escapeHtml(m.name) + " level, coins, cards and stats. Your overall level, Stars and other subjects are untouched. <b>This can't be undone.</b>",
+            () => { SQ.Store.resetSubject(m.id); location.reload(); }, "Reset", { danger: true }); } } })]);
+      })(), true)
+    ])));
 
     /* ── sound, motion, reading ── */
     view.appendChild(card("Sound & display", [
-      row("Sound", null, toggle(s.sound, v => { s.sound = v; SQ.Loader.applySoundSettings(); SQ.Store.emit(); if (v) SQ.Sound.click(); }, "Sound")),
+      row("Sound", null, toggle(s.sound, v => { s.sound = v; SQ.Loader.applySoundSettings(); SQ.Store.emit(); if (v) SQ.Sound.click(); rerender(); }, "Sound")),
       row("Volume", null, (() => {
-        const r = U.el("input", { type: "range", min: 0, max: 1, step: 0.05, value: s.volume, "aria-label": "Volume", style: "max-width:160px" });
+        const r = U.el("input", { type: "range", min: 0, max: 1, step: 0.05, value: s.volume, "aria-label": "Volume", style: "max-width:160px", disabled: !s.sound });
         r.addEventListener("change", () => { s.volume = +r.value; SQ.Loader.applySoundSettings(); SQ.Store.emit(); SQ.Sound.click(); });
         return r;
       })()),

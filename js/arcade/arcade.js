@@ -223,8 +223,9 @@ SQ.Arcade = (function () {
         ]),
         U.el("div", { class: "tiny muted arc-skin-lbl", text: "Skin" }),
         picker,
-        more.length ? U.el("div", { class: "tiny muted arc-more", html: "More skins in subject shops: " +
-          more.map(s => { const m = SQ.Subjects.get(s.subject); return U.escapeHtml((m ? m.icon + " " : "") + s.name); }).join(" · ") }) : null
+        more.length ? U.el("div", { class: "tiny muted arc-more", title: more.map(s => s.name).join(", "),
+          text: "+" + more.length + " more skin" + (more.length === 1 ? "" : "s") + " in the subject shops " +
+            Array.from(new Set(more.map(s => { const m = SQ.Subjects.get(s.subject); return m ? m.icon : ""; }))).join(" ") }) : null
       ]);
       grid.appendChild(card);
     });
@@ -292,8 +293,8 @@ SQ.Arcade = (function () {
     const sk = skinFor(g.id);
     const title = sk.title || g.name;
 
-    const scoreChip = U.el("span", { class: "chip arc-score", text: "0" });
-    const bestChip = U.el("span", { class: "chip", text: "🏆 " + U.fmtInt(best(g.id)) });
+    const scoreChip = U.el("span", { class: "chip arc-score", text: "Score 0" });
+    const bestChip = U.el("span", { class: "chip", text: "Best " + U.fmtInt(best(g.id)) });
     const timeChip = U.el("span", { class: "timer-ring arc-clock", role: "timer", "aria-live": "off", text: timeLabel() });
     const head = U.el("div", { class: "ghead arc-head" }, [
       U.el("a", { class: "btn btn-sm btn-ghost", href: "#/arcade", text: "← Arcade" }),
@@ -318,7 +319,7 @@ SQ.Arcade = (function () {
       get best() { return best(g.id); },
       setScore(n) {
         score = Math.max(0, Math.round(n || 0));
-        scoreChip.textContent = U.fmtInt(score);
+        scoreChip.textContent = "Score " + U.fmtInt(score);
       },
       addScore(n) { session.setScore(score + (n || 0)); },
       isOver: () => over || dead,
@@ -406,7 +407,7 @@ SQ.Arcade = (function () {
       over = true;
       if (gameApi && gameApi.pause) { try { gameApi.pause(); } catch (e) { /* ignore */ } }
       const isBest = recordScore(g.id, score);
-      bestChip.textContent = "🏆 " + U.fmtInt(best(g.id));
+      bestChip.textContent = "Best " + U.fmtInt(best(g.id));
       if (isBest && score > 0) { sfx("rankUp"); if (!session.reduced && SQ.FX) SQ.FX.confetti(50); } else sfx("lose");
       const again = hasTime();
       UI().modal(U.el("div", { class: "modal-center arc-over" }, [
@@ -435,7 +436,7 @@ SQ.Arcade = (function () {
       over = true;
       if (gameApi && gameApi.pause) { try { gameApi.pause(); } catch (e) { /* ignore */ } }
       recordScore(g.id, score);
-      bestChip.textContent = "🏆 " + U.fmtInt(best(g.id));
+      bestChip.textContent = "Best " + U.fmtInt(best(g.id));
       SQ.Store.flush();
       sfx("timeout");
       UI().modal(U.el("div", { class: "modal-center arc-expired" }, [

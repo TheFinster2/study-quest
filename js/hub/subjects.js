@@ -27,8 +27,8 @@ SQ.Hub = SQ.Hub || {};
             U.el("div", { class: "tiny muted", text: m.blurb }),
             U.el("div", { class: "tiny muted", text: sm.started ? `Level ${sm.level} · ${U.fmtInt(sm.xp)} XP` : "Not started" })
           ]),
-          U.el("div", { class: "col", style: "gap:6px" }, [
-            U.el("button", { class: "btn btn-sm " + (on ? "btn-ghost" : "btn-primary"), text: on ? "✓ Studying" : "Add",
+          U.el("div", { class: "subject-actions" }, [
+            U.el("button", { class: "btn btn-sm " + (on ? "btn-ghost subj-on" : "btn-ghost"), text: on ? "✓ Studying" : "+ Add to my subjects",
               "aria-pressed": on ? "true" : "false",
               on: { click: () => {
                 if (on) {
@@ -43,7 +43,7 @@ SQ.Hub = SQ.Hub || {};
                 }
                 SQ.Store.emit(); SQ.Sound.tap(); UI.go("/subjects");
               } } }),
-            U.el("a", { class: "btn btn-sm btn-ghost", href: "#/s/" + m.id + "/home", text: "Open" })
+            U.el("a", { class: "btn btn-sm " + (on ? "btn-primary" : "btn-ghost"), href: "#/s/" + m.id + "/home", text: on ? "Open ›" : "Preview" })
           ])
         ]);
       })));

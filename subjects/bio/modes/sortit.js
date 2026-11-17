@@ -53,9 +53,9 @@
         U.el("span", { class:"badge badge-accent", text: set.mod }),
         U.el("span", { class:"badge", text: set.title })
       ]));
-      host.appendChild(U.el("div", { class:"qtext", style:"font-size:20px;text-align:center;padding:20px 8px", text: it[0] }));
+      host.appendChild(U.el("div", { class:"card sort-card" }, [U.el("div", { class:"qtext sort-prompt", text: it[0] })]));
 
-      var box = U.el("div", { class:"opts" });
+      var box = U.el("div", { class:"opts sort-bins" });
       var answered = false, btns = [];
       set.bins.forEach(function (bin) {
         var b = U.el("button", { class:"opt", type:"button", style:"justify-content:center" }, [

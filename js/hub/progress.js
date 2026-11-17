@@ -68,18 +68,26 @@ SQ.Hub = SQ.Hub || {};
   Hub.achievements = function (view) {
     const d = D();
     const list = SQ.DATA.achievements || [];
+    const have = list.filter(a => d.achievements[a.id]).length;
     view.appendChild(U.el("div", { class: "hero" }, [U.el("h1", { text: "App achievements" }),
-      U.el("p", { class: "muted", text: `${Object.keys(d.achievements).length} of ${list.length} · they pay Stars. Each subject has its own set on its Progress screen.` })]));
+      U.el("p", { class: "muted", text: "They pay Stars ⭐. Each subject has its own set on its Progress screen." }),
+      U.el("div", { class: "row", style: "align-items:baseline; gap:8px; margin-top:12px" }, [
+        U.el("b", { style: "font-size:26px", text: `${have} / ${list.length}` }), U.el("span", { class: "muted", text: "unlocked" })]),
+      U.el("div", { class: "bar" }, [U.el("i", { style: { width: U.pct(have, list.length) + "%" } })])
+    ]));
     const groups = {};
     list.forEach(a => (groups[a.group || "General"] = groups[a.group || "General"] || []).push(a));
     Object.keys(groups).forEach(g => {
-      view.appendChild(U.el("h2", { class: "sec-h", text: g }));
-      view.appendChild(U.el("div", { class: "grid" }, groups[g].map(a => {
-        const got = !!d.achievements[a.id];
-        return U.el("div", { class: "card ach" + (got ? " got" : "") }, [
-          U.el("span", { class: "shop-ico", text: got ? a.icon : "🔒" }),
-          U.el("div", { style: "flex:1" }, [U.el("b", { text: a.name }), U.el("div", { class: "tiny muted", text: a.desc })]),
-          a.reward ? U.el("span", { class: "chip" + (got ? " on" : ""), text: "+" + a.reward + " ⭐" }) : null
+      const items = groups[g].slice().sort((a, b) => (!!d.achievements[b.id]) - (!!d.achievements[a.id]));
+      const got = items.filter(a => d.achievements[a.id]).length;
+      view.appendChild(U.el("h2", { class: "sec-h", style: "display:flex; justify-content:space-between; align-items:baseline" },
+        [U.el("span", { text: g }), U.el("span", { class: "tiny muted", text: `${got} / ${items.length}` })]));
+      view.appendChild(U.el("div", { class: "grid" }, items.map(a => {
+        const has = !!d.achievements[a.id];
+        return U.el("div", { class: "card ach" + (has ? " got" : "") }, [
+          U.el("span", { class: "shop-ico", text: a.icon || "🏆" }),
+          U.el("div", { style: "flex:1; min-width:0" }, [U.el("b", { text: a.name }), U.el("div", { class: "tiny muted", text: a.desc })]),
+          has ? U.el("span", { class: "chip on", text: "✓" }) : a.reward ? U.el("span", { class: "chip", text: "+" + a.reward + " ⭐" }) : null
         ]);
       })));
     });

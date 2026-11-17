@@ -125,3 +125,14 @@
   .sqt-fab-btn, .calc-key{ transition:none; }
 }
 :root[data-motion="off"] .sqt-sheet{ animation:none; }
+/* In the game header: a compact segmented group at the right of the stats row */
+.ghead .gbreak{ flex-basis:100%; height:0; }
+.ghead .gmeta{ flex:1 1 auto !important; min-width:0; }
+.ghead .gtools{ margin-left:auto; display:flex; }
+.ghead .gtools:empty{ display:none; }
+.sqt-fab.sqt-inline{ position:static; inset:auto; z-index:auto; box-shadow:none; backdrop-filter:none; padding:3px; border-radius:14px;
+  background:var(--card-2); border:1px solid var(--line); }
+.sqt-fab.sqt-inline .sqt-fab-btn{ width:auto; min-width:44px; height:40px; padding:0 8px; border-radius:11px; flex-direction:row; gap:5px; }
+.sqt-fab.sqt-inline .sqt-fab-ic{ font-size:16px; }
+.sqt-fab.sqt-inline .sqt-fab-lbl{ font-size:11px; }
+@media(max-width:430px){ .sqt-fab.sqt-inline .sqt-fab-lbl{ display:none; } .sqt-fab.sqt-inline .sqt-fab-btn{ min-width:40px; padding:0 6px; } }

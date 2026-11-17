@@ -172,3 +172,6 @@
   :root:not([data-motion="on"]) .crush-cell,
   :root:not([data-motion="on"]) .crush-face{ transition:none !important; animation:none !important; }
 }
+/* one set of instructions: the game's own line under the controls wins on touch-first layouts */
+.arc-shell:has(.arcade-stage > p.tiny) .arc-how{ display:none; }
+.arc-shell .arcade-stage > p.tiny{ font-size:13px; color:var(--ink-dim); margin-top:10px !important; }

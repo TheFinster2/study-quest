@@ -20,8 +20,13 @@ SQ.Hub = SQ.Hub || {};
       U.el("button", { class: "chip chip-btn" + (d.profile.avatar === a ? " on" : ""), style: "font-size:20px; min-width:44px; min-height:44px",
         "aria-label": "Wear " + a, text: a, on: { click: () => { d.profile.avatar = a; SQ.Store.emit(); SQ.Sound.equip(); UI.closeModal(); Hub.profileSheet(); } } })));
     const themes = U.el("div", { class: "row wrap", style: "gap:6px" }, ownedThemes.map(t =>
-      U.el("button", { class: "chip chip-btn" + (d.profile.theme === t ? " on" : ""), text: themeName(t),
-        on: { click: () => { UI.applyTheme(t); SQ.Sound.equip(); UI.closeModal(); Hub.profileSheet(); } } })));
+      U.el("button", { class: "chip chip-btn theme-chip" + (d.profile.theme === t ? " on" : ""),
+        on: { click: () => { UI.applyTheme(t); SQ.Sound.equip(); UI.closeModal(); Hub.profileSheet(); } } }, [
+        (() => { const td = SQ.DATA.themes.find(x => x.id === t); return td && td.swatch
+          ? U.el("span", { class: "swatch mini" }, td.swatch.map(c => U.el("i", { style: { background: c } })))
+          : U.el("span", { class: "swatch mini", style: { background: "var(--card-2)" } }); })(),
+        U.el("span", { text: themeName(t) })
+      ])));
 
     const o = d.overall;
     UI.modal(U.el("div", {}, [

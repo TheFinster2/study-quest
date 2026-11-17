@@ -154,12 +154,11 @@ SQ.Shop = (function () {
     const tabs = [["powerups", "Power-ups"], ["cosmetics", "Themes & avatars"], ["arcade", "Arcade"]];
     view.appendChild(U.el("div", { class: "hero" }, [
       U.el("h1", { text: "General shop" }),
-      U.el("p", { class: "muted", html: "Paid in <b>Stars ⭐</b>, earned by studying any subject. Power-ups work in every subject. " +
-        "Each subject also has its own shop, paid in that subject's coins." }),
-      balances(null),
-      U.el("div", { class: "row wrap", style: "gap:6px; margin-top:12px" }, tabs.map(([k, l]) =>
-        U.el("a", { class: "chip chip-btn" + (k === tab ? " on" : ""), href: "#/shop/" + k, text: l })))
+      U.el("p", { class: "muted", html: "Spend <b>Stars ⭐</b> from any subject. Each subject also has its own shop." }),
+      balances(null)
     ]));
+    view.appendChild(U.el("nav", { class: "shop-tabs", "aria-label": "Shop sections" }, tabs.map(([k, l]) =>
+      U.el("a", { class: "shop-tab" + (k === tab ? " on" : ""), href: "#/shop/" + k, "aria-current": k === tab ? "page" : null, text: l }))));
 
     if (tab === "powerups") {
       view.appendChild(section("Power-ups", "Bought once, usable in any subject. Nightmare difficulty bans 50/50 and Skip.",

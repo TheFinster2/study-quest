@@ -96,14 +96,14 @@ const resultText = page => page.evaluate(() => document.querySelector(".sqt-calc
       window.scrollTo(0, document.documentElement.scrollHeight);
       await new Promise(r => setTimeout(r, 100));
       const f = document.querySelector(".sqt-fab").getBoundingClientRect();
-      const hits = [...document.querySelectorAll("#view button, #view input")].filter(b => {
+      const hits = [...document.querySelectorAll("#view button, #view input")].filter(b => !b.closest(".sqt-fab")).filter(b => {
         const r = b.getBoundingClientRect();
         return r.width && !(r.right <= f.left || r.left >= f.right || r.bottom <= f.top || r.top >= f.bottom);
       }).map(b => b.textContent.trim() || b.className);
       window.scrollTo(0, 0);
       return { hits, h: Math.round(f.height), bottom: Math.round(innerHeight - f.bottom) };
     });
-    T.ok(clear.hits.length === 0, "the FAB row covers no answer control when scrolled to the bottom (" + clear.hits.join(", ") + ")");
+    T.ok(clear.hits.length === 0, "the tool row covers no answer control when scrolled to the bottom (" + clear.hits.join(", ") + ")");
     T.ok(clear.h <= 56, "the FAB is a single row (" + clear.h + " px tall)");
 
     /* ── the keyboard never rises ── */

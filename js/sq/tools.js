@@ -226,8 +226,16 @@ SQ.Tools = (function () {
         b.addEventListener("pointerdown", e => e.preventDefault());
         return b;
       }));
-    document.body.appendChild(fabEl);
-    document.documentElement.dataset.tools = "on";
+    /* In the game header when the shell gives us one; floating only as a fallback
+       (a subject that builds its own header and drops ours). */
+    const host = o.host || null;
+    if (host) { fabEl.classList.add("sqt-inline"); host.appendChild(fabEl); }
+    else document.body.appendChild(fabEl);
+    const el0 = fabEl;
+    if (host) setTimeout(() => {
+      if (fabEl === el0 && !document.contains(host)) { el0.classList.remove("sqt-inline"); document.body.appendChild(el0); document.documentElement.dataset.tools = "on"; }
+    }, 0);
+    if (!host) document.documentElement.dataset.tools = "on";
     window.addEventListener("keydown", onKeyCapture, true);
     window.addEventListener("keydown", onKeyShortcut);
     document.addEventListener("focusin", onFocusIn);

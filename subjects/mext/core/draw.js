@@ -93,8 +93,8 @@ MX.Draw = (function () {
     ctx.stroke();
 
     if (o.labels !== false && stepX > 0) {
-      ctx.fillStyle = P.faint;
-      ctx.font = "10px system-ui, sans-serif";
+      ctx.fillStyle = P.dim || P.faint;
+      ctx.font = "600 12px system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.textBaseline = "top";
       const y0 = U.clamp(f.Y(0), 4, f.H - 14);
@@ -312,7 +312,7 @@ MX.Draw = (function () {
 
     const { ctx, P } = f;
     ctx.fillStyle = P.faint;
-    ctx.font = "10px system-ui, sans-serif";
+    ctx.font = "600 12px system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     for (let z = -3; z <= 3; z++) {

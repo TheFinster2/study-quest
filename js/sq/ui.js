@@ -120,6 +120,7 @@ SQ.UI = (function () {
       highlightNav(r.subject, r.name);
     } else {
       setContext(null);
+      if (caughtUp !== "hub") { caughtUp = "hub"; try { announceAchievements(null, null); } catch (e) { /* never block a page */ } }
       const fn = routes[r.name] || routes.home;
       const res = fn(view, r.args);
       if (typeof res === "function") cleanups.push(res);
@@ -503,7 +504,9 @@ SQ.UI = (function () {
         else leave();
       } }
     });
-    const head = U.el("div", { class: "ghead" }, [back, U.el("div", { class: "gtitle", text: title }), meta]);
+    const brk = U.el("div", { class: "gbreak", "aria-hidden": "true" });
+    const toolHost = U.el("div", { class: "gtools" });
+    const head = U.el("div", { class: "ghead" }, [back, U.el("div", { class: "gtitle", text: title }), brk, meta, toolHost]);
     if (o.help) {
       head.insertBefore(U.el("button", {
         class: "btn btn-sm btn-ghost", text: "?", title: "How this mode works", "aria-label": "How this mode works",
@@ -512,11 +515,11 @@ SQ.UI = (function () {
           U.el("p", { html: o.help }),
           U.el("button", { class: "btn btn-primary btn-block", text: "Got it", on: { click: () => closeModal() } })
         ]), { stack: modalOpen() }) }
-      }), meta);
+      }), brk);
     }
     const tools = o.tools === undefined ? (subjectCfg[subjectId] || {}).tools : o.tools;
     if (SQ.Tools && tools !== false) {
-      SQ.Tools.mount(Object.assign({ subject: subjectId, scored: o.scored !== false }, typeof tools === "object" ? tools : {}, o.toolOpts || {}));
+      SQ.Tools.mount(Object.assign({ subject: subjectId, scored: o.scored !== false, host: toolHost }, typeof tools === "object" ? tools : {}, o.toolOpts || {}));
     }
     return { root: U.el("div", { class: "gshell" }, [head, body]), body, meta, head };
   }

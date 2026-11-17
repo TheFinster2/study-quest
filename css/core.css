@@ -1002,7 +1002,7 @@ a.btn{ text-decoration:none; display:inline-flex; align-items:center; justify-co
 .ghead > .btn-sm{ min-height:40px; }
 /* hero actions: one full-width primary, the rest as an even row under it */
 .hero > .row:has(> .btn-primary){ display:flex; flex-wrap:wrap; gap:8px; position:relative; z-index:1; }
-.hero > .row:has(> .btn-primary) > .btn{ flex:1 1 0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hero > .row:has(> .btn-primary) > .btn{ flex:1 1 0; min-width:0; white-space:normal; line-height:1.2; padding-left:10px; padding-right:10px; }
 .hero > .row:has(> .btn-primary) > .btn-primary:first-child{ flex:1 0 100%; padding:13px 18px; font-size:15px; }
 .hero > .row:has(> .btn-primary) > .btn:not(.btn-primary){ background:color-mix(in srgb,var(--bg-0) 45%,transparent); border-color:color-mix(in srgb,var(--ink) 18%,transparent); }
 /* disabled buttons read as "not yet", not as broken */
@@ -1025,3 +1025,16 @@ input[type="search"]:not([class]):focus, input[type="text"]:not([class]):focus{ 
 .symbol-pad > *{ min-height:44px; }
 /* stat tiles stay three across on a phone */
 .grid.g3:has(> .stat-tile){ grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+/* Sort-it style two-bin games: the statement is the hero, the bins are big targets */
+.sort-card{ min-height:150px; display:grid; place-items:center; text-align:center; padding:26px 18px; margin:6px 0 4px; }
+.sort-prompt{ font-size:21px !important; font-weight:700; line-height:1.4; }
+.sort-bins{ display:grid !important; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+.sort-bins > .opt{ min-height:84px; font-size:17px; }
+.quest-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.reward-chip{ font-size:12px; font-weight:800; padding:3px 9px; border-radius:99px; white-space:nowrap;
+  color:var(--accent); background:color-mix(in srgb,var(--accent) 14%,transparent); border:1px solid color-mix(in srgb,var(--accent) 30%,transparent); }
+/* answer keys read as keys; empty power-ups shrink to a quiet icon */
+.choice-key{ background:color-mix(in srgb,var(--accent) 16%,var(--card-2)); color:var(--accent); border:1px solid color-mix(in srgb,var(--accent) 30%,transparent); font-size:12.5px; }
+.pu:disabled{ opacity:.45; padding:7px 9px; }
+.pu:disabled .pu-name, .pu:disabled > span:nth-child(2):not(.pu-n){ display:none; }
+.card.empty{ min-height:min(46vh,380px); }
