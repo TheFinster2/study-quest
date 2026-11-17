@@ -56,6 +56,13 @@ window.SQ = window.SQ || {};
       blobs.push({ x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, r: host ? 14 : 10 + Math.random() * 3,
                    host, wob: Math.random() * 6.28, life: 0 });
     }
+    /* Open with a few already on the field, so the first frame shows the game rather
+       than an empty dish. */
+    for (let i = 0; i < 4; i++) {
+      spawn();
+      const b = blobs[blobs.length - 1];
+      b.x = 30 + Math.random() * (W - 60); b.y = 24 + Math.random() * (H * 0.45);
+    }
     function burst(x, y, colour, n) {
       if (reduced) return;
       for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = 30 + Math.random() * 90; parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.5, colour }); }

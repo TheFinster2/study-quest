@@ -741,8 +741,7 @@ SQ.Tools = (function () {
     wrap.appendChild(search);
     wrap.appendChild(filters);
     wrap.appendChild(U.el("p", { class: "tiny muted tb-disclaimer", html: scored
-      ? "✅ entries are on the exam's own sheet — free. 🔒 entries are not given in the exam: showing one costs " +
-        "<b>10% of this run's XP</b> (capped at 30%), and closing the sheet does not refund it."
+      ? "✅ On the exam sheet: free. 🔒 Not in the exam: <b>−10% XP</b> each (max 30%)."
       : "Practice screen — every entry is open and nothing is charged." }));
     wrap.appendChild(list);
 

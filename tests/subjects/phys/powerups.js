@@ -15,11 +15,18 @@ function installSpy() {
   window.__correct = () => {
     const stem = document.querySelector("#view .qtext");
     if (!stem) return -1;
+    /* Compare as the browser serialises it: a raw U.math() string and the rendered
+       innerHTML are not always byte-identical. The bank shuffles choices into a copy,
+       so match the stem, then look for that question's correct text among the options. */
+    const norm = h => { const d = document.createElement("div"); d.innerHTML = h; return d.innerHTML; };
     const opts = [...document.querySelectorAll("#view .choice .choice-txt")].map(n => n.innerHTML);
-    const q = PHYS.Bank.all().concat(__seen).find(x => x.choices && PHYS.U.math(x.q) === stem.innerHTML);
-    if (!q) return -1;
-    const key = PHYS.U.math(q.choices[q.a]);
-    return opts.indexOf(key);
+    const cands = __seen.slice().reverse().concat(PHYS.Bank.all())
+      .filter(x => x.choices && norm(PHYS.U.math(x.q)) === stem.innerHTML);
+    for (const q of cands) {
+      const i = opts.indexOf(norm(PHYS.U.math(q.choices[q.a])));
+      if (i >= 0) return i;
+    }
+    return -1;
   };
   window.__awards = [];
   const award = SQ.UI.award;

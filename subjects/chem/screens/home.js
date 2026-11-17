@@ -197,8 +197,10 @@ CHEM.Screens.home = function (view) {
     ]));
   }
 
-  view.appendChild(U.el("div", { class: "row wrap", style: "margin-top:20px; gap:8px" }, [
-    U.el("button", { class: "btn btn-sm btn-ghost", text: "🏆 Achievements", on: { click: () => UI.go("/achievements") } }),
-    U.el("button", { class: "btn btn-sm btn-ghost", text: "🧭 Course coverage & options", on: { click: () => UI.go("/options") } })
+  view.appendChild(U.el("div", { class: "card link-list", style: "margin-top:20px" }, [
+    U.el("button", { class: "link-row", on: { click: () => UI.go("/achievements") } }, [
+      U.el("span", { text: "🏆" }), U.el("span", { class: "grow", text: "Achievements" }), U.el("span", { class: "chev", text: "›" })]),
+    U.el("button", { class: "link-row", on: { click: () => UI.go("/options") } }, [
+      U.el("span", { text: "🧭" }), U.el("span", { class: "grow", text: "Course coverage & options" }), U.el("span", { class: "chev", text: "›" })])
   ]));
 };

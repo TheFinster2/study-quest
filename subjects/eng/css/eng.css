@@ -604,3 +604,8 @@ html[data-subject="eng"] .bq{ margin-bottom:14px; }
 html[data-subject="eng"] .bg-table th{ font-size:12px; color:var(--ink-dim); }
 html[data-subject="eng"] .bg-stmt{ font-size:13.5px; }
 html[data-subject="eng"] .bg-cell{ min-height:44px; min-width:40px; font-size:13px; }
+/* filter rows scroll sideways instead of stacking six rows of chips */
+html[data-subject="eng"] .vault-filters{ display:flex; flex-wrap:nowrap; overflow-x:auto; gap:6px; padding-bottom:4px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch; mask-image:linear-gradient(90deg,#000 88%,transparent); }
+html[data-subject="eng"] .vault-filters::-webkit-scrollbar{ display:none; }
+html[data-subject="eng"] .vault-filters > *{ flex:none; white-space:nowrap; }
