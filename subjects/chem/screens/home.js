@@ -7,7 +7,7 @@ CHEM.Screens.home = function (view) {
   const d = S.data;
 
   const hour = new Date().getHours();
-  const greet = hour < 5 ? "Still up?" : hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const greet = hour < 5 ? "Still up" : hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   /* hero */
   const hero = U.el("div", { class: "hero" }, [

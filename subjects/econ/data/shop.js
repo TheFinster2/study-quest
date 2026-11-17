@@ -143,7 +143,7 @@ ECON.DATA.levelTitles = [
 
 /* Per-topic mastery tiers, measured against State.mastery(). */
 ECON.DATA.masteryTiers = [
-  { at:0,  name:"Unranked", icon:"▪️" },
+  { at:0,  name:"Unranked", icon:"🌱" },
   { at:25, name:"Bronze",   icon:"🥉" },
   { at:45, name:"Silver",   icon:"🥈" },
   { at:65, name:"Gold",     icon:"🥇" },

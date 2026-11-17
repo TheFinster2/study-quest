@@ -222,7 +222,7 @@ SQ.Tools = (function () {
         const d = TABS[id];
         const b = U.el("button", { type: "button", class: "tb-fab-btn sqt-fab-btn", dataset: { tab: id },
           title: d.long + " (" + d.key.toUpperCase() + ")", "aria-label": "Open the " + d.long.toLowerCase(),
-          on: { click: () => toggle(id) } }, [U.el("span", { text: d.icon })]);
+          on: { click: () => toggle(id) } }, [U.el("span", { class: "sqt-fab-ic", text: d.icon }), U.el("span", { class: "sqt-fab-lbl", text: d.short })]);
         b.addEventListener("pointerdown", e => e.preventDefault());
         return b;
       }));

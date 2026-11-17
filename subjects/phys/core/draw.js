@@ -370,7 +370,7 @@ PHYS.Draw = (function () {
     const p = palette();
     const Rs = o.resistors || [10, 20];
     const W = 300, H = o.series ? 150 : 60 + Rs.length * 42;
-    const L = 34, Rt = W - 34, top = 30, bot = H - 26;
+    const L = 50, Rt = W - 30, top = 30, bot = H - 26;
     let body = "";
     const wire = (x1, y1, x2, y2) =>
       `<line x1="${n(x1)}" y1="${n(y1)}" x2="${n(x2)}" y2="${n(y2)}" stroke="${p.dim}" stroke-width="2"/>`;

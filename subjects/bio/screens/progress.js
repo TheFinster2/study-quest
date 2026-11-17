@@ -54,7 +54,7 @@
     var mlist = U.el("div", { class:"list" });
     U.MODULES.forEach(function (m) {
       var pct = S.mastery(m.id);
-      var tier = S.masteryTier(pct) || { icon:"▪️", name:"Unranked" };
+      var tier = S.masteryTier(pct) || { icon:"🌱", name:"Unranked" };
       mlist.appendChild(U.el("div", { class:"li" }, [
         U.el("span", { style:"font-size:18px;width:26px;text-align:center", text: tier.icon }),
         U.el("div", { class:"grow" }, [

@@ -107,7 +107,8 @@ button.pill{ cursor:pointer; color:var(--ink); font-family:inherit; }
 
 /* ── achievements / progress / settings ───────────────────── */
 .card.ach{ display:flex; gap:12px; align-items:center; }
-.card.ach:not(.got){ opacity:.62; }
+.card.ach:not(.got){ opacity:.85; }
+.card.ach:not(.got) .shop-ico, .card.ach:not(.got) > span:first-child{ filter:grayscale(1); opacity:.6; }
 .set-row{ display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); }
 .set-row:last-child{ border-bottom:0; }
 .set-row > div:first-child{ flex:1; min-width:0; }
@@ -166,3 +167,4 @@ button.pill{ cursor:pointer; color:var(--ink); font-family:inherit; }
 .set-row.stack > div:first-child{ flex:none; }
 .set-row .tiny.muted{ color:var(--ink-dim); }
 .shop-body + .btn-block, .shop-sec + .btn-block, a.btn-block{ margin-top:18px; }
+.field-lbl{ display:block; font-weight:700; font-size:13.5px; margin:14px 0 6px; color:var(--ink); }

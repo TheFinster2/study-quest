@@ -147,10 +147,10 @@ html[data-subject="phys"] .tri-cell.miss{ animation:phys-sshake .35s; border-col
 html[data-subject="phys"] .tri-cell{ font-size:11.5px; padding:9px 5px; min-height:48px; }
 }
 html[data-subject="phys"] .ugrid{ width:100%; border-collapse:separate; border-spacing:4px; font-size:12.5px; }
-html[data-subject="phys"] .ugrid th{ color:var(--ink-faint); font-size:10.5px; font-weight:800; padding:4px 2px; line-height:1.3; }
+html[data-subject="phys"] .ugrid th{ color:var(--ink-dim); font-size:12px; font-weight:800; padding:4px 2px; line-height:1.3; }
 html[data-subject="phys"] .ugrid th.rowh{ text-align:right; padding-right:6px; white-space:nowrap; }
 html[data-subject="phys"] .ucell{ padding:9px 4px; border-radius:10px; border:1px solid var(--line); background:var(--card-2);
-  color:var(--ink); font:inherit; font-size:12px; font-weight:700; cursor:pointer; width:100%; transition:.12s; }
+  color:var(--ink); font:inherit; font-size:12.5px; font-weight:700; min-height:44px; cursor:pointer; width:100%; transition:.12s; }
 html[data-subject="phys"] .ucell:hover:not(:disabled){ border-color:var(--accent); }
 html[data-subject="phys"] .ucell.on{ background:color-mix(in srgb,var(--accent) 22%,transparent); border-color:var(--accent); }
 html[data-subject="phys"] .ucell.right{ box-shadow:0 0 0 2px var(--good) inset; }

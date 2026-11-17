@@ -91,7 +91,7 @@ html[data-subject="mstd"] .ms-root .tile:active { transform: scale(.98); }
 html[data-subject="mstd"] .ms-root .tile .ic { font-size: 22px; line-height: 1; }
 html[data-subject="mstd"] .ms-root .tile .nm { font-weight: 800; font-size: 14px; }
 html[data-subject="mstd"] .ms-root .tile .ds { font-size: 11.5px; color: var(--dim); line-height: 1.35; }
-html[data-subject="mstd"] .ms-root .tile.lock { opacity: .55; }
+html[data-subject="mstd"] .ms-root .tile.lock { opacity: .72; }
 html[data-subject="mstd"] .ms-root .tile.star { border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); }
 html[data-subject="mstd"] .ms-root .gshell { display: grid; gap: 10px; padding-top: 6px; }
 html[data-subject="mstd"] .ms-root .gshell > * { min-width: 0; max-width: 100%; }
@@ -226,7 +226,7 @@ html[data-subject="mstd"] .ms-root .shopitem .ds { font-size: 11.5px; color: var
 html[data-subject="mstd"] .ms-root .owned { color: var(--good); font-size: 11.5px; font-weight: 800; }
 html[data-subject="mstd"] .ms-root .ach { display: grid; grid-template-columns: 30px 1fr auto; gap: 9px; align-items: center; padding: 8px 10px; border-radius: 11px; background: var(--panel2); border: 1px solid var(--line); font-size: 12.5px; }
 html[data-subject="mstd"] .ms-root .ach > * { min-width: 0; }
-html[data-subject="mstd"] .ms-root .ach.locked { opacity: .48; }
+html[data-subject="mstd"] .ms-root .ach.locked { opacity: .78; }
 html[data-subject="mstd"] .ms-root .ach .ic { font-size: 17px; text-align: center; }
 html[data-subject="mstd"] .ms-root .ach .nm { font-weight: 750; }
 html[data-subject="mstd"] .ms-root .ach .ds { color: var(--dim); font-size: 11px; }
@@ -261,3 +261,9 @@ html[data-subject="mstd"] .ms-reopen { position: fixed; right: 14px; z-index: 60
 /* the core game head holds NumberCrunch's meta chips; let them wrap on phones */
 html[data-subject="mstd"] .ms-root .gmeta { flex-wrap: wrap; }
 html[data-subject="mstd"] .ms-root .gshell .ghead { flex-wrap: wrap; }
+/* review polish: readable small text, chips and a lighter game header */
+html[data-subject="mstd"] .ms-root .tiny { font-size: 12px; }
+html[data-subject="mstd"] .ms-root .chip { font-size: 12.5px; padding: 4px 10px; }
+html[data-subject="mstd"] .ms-root .gmeta .chip { font-size: 13px; padding: 5px 11px; }
+html[data-subject="mstd"] .ms-root .ghead > .btn { min-height: 40px; padding: 8px 14px; font-size: 13.5px; }
+html[data-subject="mstd"] .ms-root .ghead .gtitle { flex: 1 1 0; }

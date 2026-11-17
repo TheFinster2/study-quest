@@ -8,9 +8,15 @@
    One ROW above the navbar, not a column: a column of three is ~170 px tall and
    lands on the answer buttons. A 48 px row at bottom:92px tops out at ~140 px,
    inside the .view's bottom padding (148 px on a phone, raised below for wider). */
-.sqt-fab{ grid-auto-flow:column; gap:8px; }
-.sqt-fab-btn{ width:48px; height:48px; font-size:20px; border-radius:15px; }
-.sqt-fab-btn.on{ border-color:var(--accent); color:var(--accent); }
+.sqt-fab{ grid-auto-flow:column; gap:2px; padding:4px; border-radius:18px; border:1px solid color-mix(in srgb,var(--accent) 22%,var(--line));
+  background:color-mix(in srgb,var(--bg-2) 90%,transparent); backdrop-filter:blur(14px) saturate(1.3); box-shadow:0 10px 28px rgba(0,0,0,.4); }
+.sqt-fab .sqt-fab-btn{ width:52px; height:46px; border-radius:14px; border:0; background:transparent; box-shadow:none; backdrop-filter:none;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; }
+.sqt-fab-ic{ font-size:18px; line-height:1; }
+.sqt-fab-lbl{ font-size:10px; font-weight:800; letter-spacing:.02em; color:var(--ink-dim); line-height:1; }
+.sqt-fab .sqt-fab-btn:hover{ transform:none; background:var(--card-2); }
+.sqt-fab .sqt-fab-btn.on{ background:color-mix(in srgb,var(--accent) 20%,transparent); }
+.sqt-fab .sqt-fab-btn.on .sqt-fab-lbl{ color:var(--accent); }
 :root[data-tools="on"] .view{ padding-bottom:calc(160px + env(safe-area-inset-bottom)); }
 :root[data-tools="on"][data-sheet="on"] .view{ padding-bottom:calc(var(--sheet-h,0px) + 28px); }
 :root[data-sheet="on"] .sqt-fab{ display:none; }

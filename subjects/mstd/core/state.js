@@ -261,7 +261,7 @@ window.MS = window.MS || {};
       if (m >= 0.7) return { nm: 'Strong', cls: 'good', ic: '★★☆' };
       if (m >= 0.45) return { nm: 'Developing', cls: 'warn', ic: '★☆☆' };
       if (m > 0) return { nm: 'Shaky', cls: 'bad', ic: '☆☆☆' };
-      return { nm: 'Untouched', cls: 'dim', ic: '—' };
+      return { nm: 'Untouched', cls: 'acc', ic: 'New' };
     },
     weakestTopics: function (codes, n) {
       return codes.slice().sort(function (a, b) { return masteryFrac(a) - masteryFrac(b); }).slice(0, n || 3);

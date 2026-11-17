@@ -70,8 +70,7 @@ MA.Games.crunch = (function () {
         U.el("div", { class: "qtag" }, [
           U.el("span", { class: "chip", text: MA.Bank.topicName(item.topic) }),
           UI.tierChip(item.topic),
-          U.el("span", { class: "chip", text: "★".repeat(item.diff) }),
-          U.el("span", { class: "chip", text: "generated" })
+          U.el("span", { class: "chip", text: "★".repeat(item.diff) })
         ]),
         U.el("div", { class: "qtext math", html: U.math(item.prompt) }),
         item.hint ? U.el("div", { class: "qsub", text: item.hint }) : null
@@ -82,7 +81,7 @@ MA.Games.crunch = (function () {
         autocomplete: "off", autocapitalize: "off", spellcheck: "false",
         placeholder: item.answerType === "money" ? "e.g. 1234.56" : "your answer"
       });
-      const preview = U.el("div", { class: "live-preview", text: " " });
+      const preview = U.el("div", { class: "live-preview" });
       const unit = item.unit
         ? U.el("div", { class: "unit-hint", html: "Answer in " + U.math(item.unit) })
         : null;
@@ -95,7 +94,7 @@ MA.Games.crunch = (function () {
       function updatePreview() {
         const raw = input.value.trim();
         preview.className = "live-preview";
-        if (!raw) { preview.textContent = " "; return; }
+        if (!raw) { preview.textContent = ""; return; }
         const r = E.tryParse(raw);
         if (!r.ok) {
           preview.classList.add("bad");

@@ -305,7 +305,7 @@
       } else {
         s += "<circle class='" + cls + "' cx='" + p.x + "' cy='" + p.y + "' r='" + (size / 2) + "'/>";
       }
-      s += "<text class='ped-id' x='" + p.x + "' y='" + (p.y + size / 2 + 13) + "'>" + i.id + "</text>";
+      s += "<text class='ped-id' x='" + p.x + "' y='" + (p.y + size / 2 + 16) + "'>" + i.id + "</text>";
     });
 
     s += "</svg>";

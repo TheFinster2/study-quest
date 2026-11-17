@@ -84,7 +84,7 @@
     view.appendChild(list);
 
     view.appendChild(U.el("h2", { text:"Browse" }));
-    var search = U.el("input", { class:"calc-disp", type:"search", placeholder:"Search cards…", style:"text-align:left;font-size:15px;font-weight:500" });
+    var search = U.el("input", { class:"text-in search-in", type:"search", placeholder:"Search cards…", style:"text-align:left;font-size:15px;font-weight:500" });
     view.appendChild(search);
     var results = U.el("div", { class:"list", style:"margin-top:8px" });
     view.appendChild(results);

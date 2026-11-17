@@ -11,7 +11,7 @@
     view.appendChild(U.el("div", { class:"honesty",
       text:"Free here, because you are not being scored. Revealing a term from the tool tray inside a scored run costs XP for that run and the charge latches, and it is withheld entirely from Term Match and Label It, where it is the answer key." }));
 
-    var search = U.el("input", { class:"calc-disp", type:"search", placeholder:"Search a term…", style:"text-align:left;font-size:15px;font-weight:500" });
+    var search = U.el("input", { class:"text-in search-in", type:"search", placeholder:"Search a term…", style:"text-align:left;font-size:15px;font-weight:500" });
     view.appendChild(search);
 
     var filter = U.el("div", { class:"seg", style:"margin-top:8px" });

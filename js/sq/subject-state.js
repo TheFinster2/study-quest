@@ -47,7 +47,7 @@ SQ.SubjectState = (function () {
   ];
 
   const MASTERY_TIERS = [
-    { at: 0,  name: "Unranked", icon: "▫️", cls: "m0" },
+    { at: 0,  name: "Unranked", icon: "🌱", cls: "m0" },
     { at: 25, name: "Bronze",   icon: "🥉", cls: "m1" },
     { at: 45, name: "Silver",   icon: "🥈", cls: "m2" },
     { at: 65, name: "Gold",     icon: "🥇", cls: "m3" },

@@ -35,7 +35,7 @@ window.MS.Games = window.MS.Games || {};
           U.el('.spread', [
             U.el('div', [
               U.el('.nm', t.ic + ' ' + t.nm),
-              U.el('.ds', t.code + ' · ' + Bank.tierCount(t.code) + ' of ' + Bank.totalCount(t.code) + ' questions at this level')
+              U.el('.ds', Bank.tierCount(t.code) + ' questions · ' + (m > 0 ? Math.round(m * 100) + '% mastered' : 'not started'))
             ]),
             U.el('.chip.' + tier.cls, tier.ic)
           ]),

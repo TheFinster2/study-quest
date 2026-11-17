@@ -109,6 +109,12 @@ SQ.UI = (function () {
       const table = subjectRoutes[r.subject] || {};
       const fn = table[r.name] || table.home;
       if (!fn) { go("/home"); return; }
+      /* An unknown subject page shows that subject's home — say so in the address too. */
+      if (!table[r.name] && history.replaceState) history.replaceState(null, "", "#/s/" + r.subject + "/home");
+      if (caughtUp !== r.subject && subjectCfg[r.subject]) {
+        caughtUp = r.subject;
+        try { announceAchievements(subjectState(r.subject), SQ.Subjects.get(r.subject)); } catch (e) { /* never block a page */ }
+      }
       const res = fn(view, r.args);
       if (typeof res === "function") cleanups.push(res);
       highlightNav(r.subject, r.name);
@@ -127,6 +133,7 @@ SQ.UI = (function () {
   function onLeave(fn) { if (typeof fn === "function") cleanups.push(fn); }
 
   /* ── context: which subject is on screen ─────────────────── */
+  let caughtUp = null;
   function setContext(id) {
     const changed = current !== id;
     current = id;
@@ -447,7 +454,15 @@ SQ.UI = (function () {
           text: `<b>Overall level ${ov.newLevel}!</b> ${U.escapeHtml(SQ.Overall.title(ov.newLevel))} &middot; +${ov.stars} ⭐` });
       }, res.levelsGained ? 900 : 0);
     }
-    const unlocked = (S.checkAchievements() || []).map(a => ({ a, cur: meta.currency.icon }))
+    announceAchievements(S, meta);
+  }
+
+  /** Unlock anything already earned and toast it. Also run on entering a subject, so a
+      target met outside a run (an import, a migration) never sits at 100% but locked. */
+  function announceAchievements(S, meta) {
+    let subj = [];
+    try { subj = (S && S.checkAchievements && S.checkAchievements()) || []; } catch (e) { subj = []; }
+    const unlocked = subj.map(a => ({ a, cur: meta ? meta.currency.icon : "" }))
       .concat(SQ.Overall.checkAchievements().map(a => ({ a, cur: "⭐" })));
     unlocked.forEach((u, i) => setTimeout(() => {
       if (SQ.Sound) SQ.Sound.achievement();

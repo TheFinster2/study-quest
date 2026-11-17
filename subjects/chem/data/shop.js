@@ -155,7 +155,7 @@ CHEM.DATA.difficulties = [
 
 /* Module mastery tiers, checked against State.mastery(). */
 CHEM.DATA.masteryTiers = [
-  { at: 0,  name: "Unranked", icon: "▪️", colour: "var(--ink-faint)" },
+  { at: 0,  name: "Unranked", icon: "🌱", colour: "var(--ink-faint)" },
   { at: 25, name: "Bronze",   icon: "🥉", colour: "#cd7f32" },
   { at: 45, name: "Silver",   icon: "🥈", colour: "#c0c0c0" },
   { at: 65, name: "Gold",     icon: "🥇", colour: "#ffd24a" },

@@ -89,7 +89,7 @@ SQ.Hub = SQ.Hub || {};
       ]));
     } else {
       view.appendChild(U.el("div", { class: "subject-grid" }, enrolled.map(subjectCard)));
-      view.appendChild(U.el("a", { class: "tiny muted", href: "#/subjects", text: "Add or remove subjects →" }));
+      view.appendChild(U.el("a", { class: "btn btn-ghost btn-block", style: "margin-top:12px", href: "#/subjects", text: "➕ Add or remove subjects" }));
     }
 
     const qs = SQ.Overall.weeklyQuests();
@@ -182,8 +182,9 @@ SQ.Hub = SQ.Hub || {};
     UI.modal(U.el("div", {}, [
       U.el("div", { class: "modal-big", text: "★" }),
       U.el("h2", { text: "Welcome to StudyQuest" }),
-      U.el("p", { html: "Seven HSC study games in one app. Each subject has its own levels, modes, coins and shop. " +
+      U.el("p", { html: "Eight HSC subjects in one app. Each subject has its own levels, modes, coins and shop. " +
         "Everything you earn also builds your <b>overall level</b> and <b>Stars ⭐</b> for the arcade and the general shop." }),
+      U.el("label", { class: "field-lbl", text: "What should we call you?" }),
       name,
       U.el("h3", { class: "shop-h", text: "Which subjects do you study?" }),
       U.el("p", { class: "tiny muted", text: "Maths Standard and Maths Advanced are either/or; Extension 1 comes with Advanced. You can change this any time." }),

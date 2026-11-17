@@ -84,7 +84,7 @@
         (b.id === "final" ? "defeat the other five" : seenIn(b) + "/" + UNLOCK_SEEN + " questions seen"));
       if (hidden) sub += " · hidden by coverage";
       var row = U.el("button", { class: "li li-btn js-boss", dataset: { boss: b.id } }, [
-        U.el("span", { style: "font-size:24px", text: open ? b.icon : "🔒" }),
+        U.el("span", { class: "boss-ico", style: "font-size:26px; position:relative", text: b.icon }, open ? [] : [U.el("span", { class: "boss-lock", text: "🔒" })]),
         U.el("div", { class: "grow" }, [
           U.el("b", { text: b.name }),
           U.el("small", { text: sub }),

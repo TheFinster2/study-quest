@@ -8,7 +8,12 @@ SQ.Hub = SQ.Hub || {};
   Hub.profileSheet = function () {
     const d = SQ.Store.data;
     const allThemes = SQ.DATA.themes.map(t => t.id);
-    const themeName = id => { const t = SQ.DATA.themes.find(x => x.id === id); return t ? t.name : id.replace(/^[a-z]+-/, "").replace(/-/g, " "); };
+    const themeName = id => {
+      const t = SQ.DATA.themes.find(x => x.id === id); if (t) return t.name;
+      const m = /^([a-z]+)-(.+)$/.exec(id), sub = m && SQ.Subjects.get(m[1]);
+      const nice = (m ? m[2] : id).replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      return sub ? nice + " · " + sub.short : nice;
+    };
     const ownedThemes = d.owned.themes.slice().sort((a, b) => (allThemes.indexOf(a) + 1 || 99) - (allThemes.indexOf(b) + 1 || 99));
 
     const avatars = U.el("div", { class: "row wrap", style: "gap:6px" }, d.owned.avatars.map(a =>

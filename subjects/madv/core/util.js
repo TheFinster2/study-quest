@@ -304,7 +304,9 @@ MA.U = (function () {
   /** Render a maths string to HTML. Safe to hand any user- or content-supplied text. */
   function math(str) {
     if (str === null || str === undefined) return "";
-    return render(derivPrepass(escapeHtml(String(str))));
+    /* Generators join terms with " + ", so a negative coefficient reads "+ -2x": tidy it to "− 2x". */
+    const tidy = String(str).replace(/\+\s*-\s*(?=[\d(a-zA-Zπ√])/g, "- ").replace(/-\s*-\s*(?=[\d(a-zA-Zπ√])/g, "+ ");
+    return render(derivPrepass(escapeHtml(tidy)));
   }
 
   /** Render into a fresh <span>. Use where you want a node rather than a string. */

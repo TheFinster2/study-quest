@@ -35,8 +35,8 @@ window.MS.Games = window.MS.Games || {};
 
     var timerChip = UI.chip(seconds ? U.fmtTime(seconds) : '∞');
     timerChip.classList.add('timer');
-    var scoreChip = UI.chip('0');
-    var multChip = UI.chip('×1');
+    var scoreChip = UI.chip('✓ 0');
+    var multChip = UI.chip('Combo ×1');
     var livesChip = opts.lives ? UI.chip('❤️'.repeat(opts.lives)) : null;
 
     var meta = [timerChip, scoreChip, multChip];
@@ -197,8 +197,8 @@ window.MS.Games = window.MS.Games || {};
       }
       State.answer(currentQ.id, right, currentQ.mod, ms);
       State.noteStreak(pool.bestStreak);
-      scoreChip.textContent = String(pool.correct);
-      multChip.textContent = '×' + pool.stepMult();
+      scoreChip.textContent = '✓ ' + pool.correct;
+      multChip.textContent = 'Combo ×' + pool.stepMult();
       if (livesChip) livesChip.textContent = '❤️'.repeat(Math.max(0, opts.lives - wrongCount)) || '💀';
 
       U.add(qHost, UI.whyBlock(currentQ));

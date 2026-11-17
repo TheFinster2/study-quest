@@ -53,6 +53,12 @@ window.SQ = window.SQ || {};
         { face: "e⁻", colour: "#7fd4ff" }, { face: "p⁺", colour: "#ff8a9c" }, { face: "n", colour: "#c8b6ff" },
         { face: "γ", colour: "#ffd76b" }, { face: "ν", colour: "#7dffa6" }, { face: "μ", colour: "#ffa06b" }] } }),
 
+    sub("crush", "mext", "mext", { name: "Binomial Crush", title: "Binomial Crush", icon: "∑",
+      desc: "Pascal's triangle tiles — the central coefficients score double.",
+      data: { tiles: [
+        { face: "1", colour: "#6fa8ff" }, { face: "4", colour: "#39d6c8" }, { face: "6", colour: "#ffcc55", bonus: 2 },
+        { face: "10", colour: "#ff6b81", bonus: 2 }, { face: "15", colour: "#a86bff" }, { face: "20", colour: "#3fe08a", bonus: 2 }] } }),
+
     sub("crush", "madv", "madv", { name: "Prime Crush", title: "Prime Crush", icon: "∫",
       desc: "Number tiles — prime tiles score double.",
       data: { tiles: [
@@ -113,6 +119,12 @@ window.SQ = window.SQ || {};
       data: { runner: "photon", glyphs: { ground: "▮", hang: "≋", strike: "⚡", pickup: "✦", shield: "⊕" },
         labels: { ground: "barriers", hang: "fields", pickup: "photons", shield: "a shield" },
         chapters: ["Radio", "Microwave", "Infrared", "Visible", "Ultraviolet", "Gamma"], death: "Absorbed" } }),
+
+    sub("runner", "mext", "mext", { name: "Induction Runner", title: "Induction Runner", icon: "∑",
+      desc: "Each step proves the next. Jump the counterexamples, collect the base cases.",
+      data: { runner: "arrow", glyphs: { ground: "ⁿCᵣ", hang: "⊥", strike: "✗", pickup: "n", shield: "∀" },
+        labels: { ground: "counterexamples", hang: "contradictions", pickup: "base cases", shield: "a for-all" },
+        chapters: ["Polynomials", "Inverse trig", "Induction", "Vectors", "Projectiles", "Differential equations"], death: "Not proven" } }),
 
     sub("runner", "madv", "madv", { name: "Vector Runner", title: "Vector Runner", icon: "∫",
       desc: "Jump the asymptotes, duck the ceilings, collect π.",
@@ -220,6 +232,9 @@ window.SQ = window.SQ || {};
     sub("pairs", "madv", "madv", { name: "Symbol Pairs", title: "Symbol Pairs", icon: "∫",
       desc: "Pair the notation.",
       data: { text: true, symbols: ["∑", "π", "∞", "√", "∫", "Δ", "θ", "≈", "∂", "±"] } }),
+    sub("pairs", "mext", "mext", { name: "Proof Pairs", title: "Proof Pairs", icon: "∑",
+      desc: "Pair the Extension 1 notation.",
+      data: { text: true, symbols: ["∀", "∃", "⇒", "⇔", "∴", "ⁿCᵣ", "sin⁻¹", "→", "λ", "∈"] } }),
     sub("pairs", "mstd", "mstd", { name: "Budget Pairs", title: "Budget Pairs", icon: "📐",
       desc: "Pair the household ledger.",
       data: { symbols: ["💳", "🏠", "🚗", "🛒", "💡", "📱", "🍎", "⛽", "🎓", "🧮"] } })
