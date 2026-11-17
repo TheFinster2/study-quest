@@ -197,7 +197,7 @@ window.MS.Games = window.MS.Games || {};
         U.add(tb, tr);
       });
       U.add(tbl, tb);
-      return U.el('.tblwrap.tall', tbl);
+      return U.el('div', [U.el('.tiny.dim', { style: { textAlign: 'right', margin: '0 2px 4px' } }, 'Swipe for more rates →'), U.el('.tblwrap.tall', tbl)]);
     }
 
     /* ------------------------------------------------------ scenario text */

@@ -30,7 +30,7 @@
       { key: "atlas",    icon: "🔬", label: "Atlas" },
       { key: "progress", icon: "📈", label: "Progress" }
     ],
-    navMap: { game: "play", boss: "play", reference: "study", options: "progress", shop: "progress" },
+    navMap: { game: "play", boss: "play", reference: "study", options: "progress", shop: "home" },
     coinRate: S.COIN_RATE,
     tools: { calc: true, sheet: true, pad: true }
   });

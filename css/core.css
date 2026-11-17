@@ -1038,3 +1038,8 @@ input[type="search"]:not([class]):focus, input[type="text"]:not([class]):focus{ 
 .pu:disabled{ opacity:.45; padding:7px 9px; }
 .pu:disabled .pu-name, .pu:disabled > span:nth-child(2):not(.pu-n){ display:none; }
 .card.empty{ min-height:min(46vh,380px); }
+.slot-empty{ border:1.5px dashed color-mix(in srgb,var(--accent) 35%,var(--line)) !important; background:transparent !important; min-height:44px; }
+@media(max-width:520px){
+  .mgrid:has(> :nth-child(8):last-child), .mgrid:has(> :nth-child(6):last-child){ grid-template-columns:repeat(2,1fr); gap:10px; }
+  .mgrid:has(> :nth-child(8):last-child) > *, .mgrid:has(> :nth-child(6):last-child) > *{ min-height:96px; }
+}

@@ -159,7 +159,7 @@ EN.Games.layerc = (function () {
         refreshLive();
         const ready = U.words(ta.value) >= 4 && !submitted;
         submit.disabled = !ready;
-        submitBar.classList.toggle("stuck", ready);
+        submitBar.classList.toggle("stuck", ready); EN.UI.revealBar && EN.UI.revealBar(submitBar, ready);
       });
 
       /* Sticky once there is something to mark. At 360px this button landed underneath

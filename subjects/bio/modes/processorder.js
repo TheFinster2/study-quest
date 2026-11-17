@@ -103,7 +103,13 @@
           });
           slotHost.appendChild(row);
         });
-        if (!chosen.length) slotHost.appendChild(U.el("div", { class:"muted2 small", text:"Your order will appear here." }));
+        /* Empty numbered slots for the steps still to place, so the target is visible. */
+        for (var k = chosen.length; k < seq.steps.length; k++) {
+          slotHost.appendChild(U.el("div", { class:"li slot-empty" }, [
+            U.el("span", { class:"badge", text: String(k + 1) }),
+            U.el("span", { class:"grow muted2 small", text: k === chosen.length ? "Tap the next step below" : "" })
+          ]));
+        }
 
         shuffled.forEach(function (item) {
           if (chosen.indexOf(item) >= 0) return;

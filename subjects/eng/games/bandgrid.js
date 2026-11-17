@@ -98,7 +98,7 @@ EN.Games.bandgrid = (function () {
           filledChip.textContent = picks.filter(Boolean).length + " / " + rows.length;
           const ready = !picks.some(p => p === null);
           submit.disabled = !ready;
-          submitBar.classList.toggle("stuck", ready);
+          submitBar.classList.toggle("stuck", ready); EN.UI.revealBar && EN.UI.revealBar(submitBar, ready);
         });
         td.appendChild(btn);
         tr.appendChild(td);

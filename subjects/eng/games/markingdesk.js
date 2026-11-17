@@ -205,7 +205,7 @@ EN.Games.marking = (function () {
       function sync() {
         const ready = chosenBand !== null && !revealed;
         submit.disabled = !ready;
-        submitBar.classList.toggle("stuck", ready);
+        submitBar.classList.toggle("stuck", ready); EN.UI.revealBar && EN.UI.revealBar(submitBar, ready);
       }
 
       submit.addEventListener("click", () => {

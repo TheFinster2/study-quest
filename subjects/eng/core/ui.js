@@ -506,5 +506,18 @@ window.EN = window.EN || {};
       MIN_BONUS_ACCURACY, READ_BASE_MS, READ_PER_WORD_MS, READ_CAP_MS
     }
   });
+  /* A pinned action bar can only rise as far as its own container allows; on a short
+     phone the container may start below the nav. The moment the action becomes
+     available, scroll just enough to show it above the nav — once per bar. */
+  UI.revealBar = function (bar, ready) {
+    if (!ready || !bar || bar.dataset.revealed) return;
+    bar.dataset.revealed = "1";
+    requestAnimationFrame(() => {
+      const nav = document.querySelector(".navbar");
+      const limit = (nav ? nav.getBoundingClientRect().top : window.innerHeight) - 10;
+      const r = bar.getBoundingClientRect();
+      if (r.bottom > limit) window.scrollBy({ top: r.bottom - limit, behavior: "auto" });
+    });
+  };
   EN.UI = UI;
 })();

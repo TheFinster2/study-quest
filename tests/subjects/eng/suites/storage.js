@@ -59,7 +59,7 @@ module.exports = {
         EN.State.flush();
         return {
           failing: EN.State.storageFailing(),
-          toast: (document.querySelector("#toasts .toast") || {}).textContent || ""
+          toast: Array.from(document.querySelectorAll("#toasts .toast")).map(n => n.textContent).join(" | ")
         };
       });
       t.ok(!!after.failing, "a refused write is detected rather than swallowed");

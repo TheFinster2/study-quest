@@ -35,10 +35,24 @@ window.MS.Games = window.MS.Games || {};
     var boss = MS.Games.bossById(params.id);
     if (!boss) { UI.go('/bosses'); return; }
     if (!MS.Games.bossUnlocked(boss)) {
-      U.add(root, U.el('.card', [
-        U.el('strong', '🔒 ' + boss.nm + ' is locked'),
-        U.el('.sub', boss.final ? 'Beat all five bosses to unlock The Final Paper.' : 'Beat the previous boss and reach level ' + boss.lv + '.'),
-        U.el('button.btn.pri.wide', { onclick: function () { UI.go('/bosses'); } }, 'Back to the ladder')
+      var list = MS.BOSSES.filter(function (b) { return !b.final; });
+      var prev = boss.final ? null : list[list.indexOf(boss) - 1];
+      var needs = [];
+      if (!boss.final && State.level() < boss.lv) needs.push('Reach level ' + boss.lv + ' (you are level ' + State.level() + ')');
+      if (prev && !State.bossBeaten(prev.id)) needs.push('Beat ' + prev.nm);
+      if (boss.final) needs.push('Beat all five topic bosses');
+      U.add(root, U.el('.card.empty', [
+        U.el('.empty-ico', boss.face || '👾'),
+        U.el('.tiny.dim', '🔒 Boss locked'),
+        U.el('h2', boss.nm),
+        U.el('p', boss.ds || ''),
+        U.el('.stack', { style: { width: '100%', maxWidth: '320px', textAlign: 'left', marginBottom: '16px' } }, needs.map(function (n) {
+          return U.el('.spread', [U.el('span', '○ ' + n)]);
+        })),
+        U.el('.row', [
+          U.el('button.btn.pri', { onclick: function () { UI.go('/game/drill/' + (boss.mods && boss.mods[0] || '')); } }, '🎯 Train ' + (boss.mods && boss.mods[0] || 'topics')),
+          U.el('button.btn.ghost', { onclick: function () { UI.go('/bosses'); } }, 'Boss ladder')
+        ])
       ]));
       return;
     }

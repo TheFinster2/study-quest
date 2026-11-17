@@ -143,7 +143,7 @@ EN.Games.essay = (function () {
         });
         const ready = placed.length === dealt.length && !done;
         submitBtn.disabled = !ready;
-        controls.classList.toggle("stuck", ready);
+        controls.classList.toggle("stuck", ready); EN.UI.revealBar && EN.UI.revealBar(controls, ready);
         /* The pool collapses as it empties rather than holding a column of greyed-out
            cards, which is what pushed the button off screen in the first place. */
         const spent = placed.length === dealt.length;

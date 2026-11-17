@@ -183,3 +183,7 @@ html[data-subject="econ"] .econ-app .pu .pu-name{ white-space: normal; }
 html[data-subject="econ"] .econ-app .scroll-x{ max-width: 100%; }
 html[data-subject="econ"] .econ-app .seg{ flex-wrap: wrap; overflow-x: visible; }
 html[data-subject="econ"] .econ-app .seg button{ flex: 1 0 auto; }
+html[data-subject="econ"] .econ-app .js-boss b{ font-size: 15.5px; display:block; margin-bottom:2px; }
+html[data-subject="econ"] .econ-app .js-boss small{ display:block; line-height:1.4; }
+html[data-subject="econ"] .econ-app .js-boss .boss-ability{ margin-top:6px; padding:6px 9px; border-radius:9px; color:var(--ink);
+  background:color-mix(in srgb,var(--warn) 10%,transparent); border-left:3px solid color-mix(in srgb,var(--warn) 60%,transparent); }

@@ -136,3 +136,7 @@
 .sqt-fab.sqt-inline .sqt-fab-ic{ font-size:16px; }
 .sqt-fab.sqt-inline .sqt-fab-lbl{ font-size:11px; }
 @media(max-width:430px){ .sqt-fab.sqt-inline .sqt-fab-lbl{ display:none; } .sqt-fab.sqt-inline .sqt-fab-btn{ min-width:40px; padding:0 6px; } }
+/* lighter: three quiet icon buttons, not a boxed control competing with the title */
+.sqt-fab.sqt-inline{ background:transparent; border:0; padding:0; gap:4px; }
+.sqt-fab.sqt-inline .sqt-fab-btn{ background:transparent; border:1px solid var(--line); min-width:38px; height:36px; border-radius:10px; opacity:.9; }
+.sqt-fab.sqt-inline .sqt-fab-btn:hover{ opacity:1; border-color:var(--accent); }

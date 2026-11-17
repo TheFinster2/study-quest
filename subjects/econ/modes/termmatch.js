@@ -44,8 +44,9 @@
       st.shownAt = Date.now();
       var host = shell.clear();
       host.appendChild(U.el("div", { class:"qmeta" }, [
-        U.el("span", { class:"badge badge-accent", text: card.mod }),
-        U.el("span", { class:"badge", text: U.trunc(card.topic || "", 28) })
+        /* "Which module…" questions must not print the module (or its topic) above them. */
+        kind === "toModule" ? U.el("span", { class:"badge", text: "Which module?" }) : U.el("span", { class:"badge badge-accent", text: card.mod }),
+        kind === "toModule" ? null : U.el("span", { class:"badge", text: U.trunc(card.topic || "", 28) })
       ]));
       host.appendChild(U.el("div", { class:"qtext", text: qa.q }));
 

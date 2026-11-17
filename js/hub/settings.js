@@ -64,7 +64,7 @@ SQ.Hub = SQ.Hub || {};
     /* ── subjects ── */
     const ids = d.enrolled.length ? d.enrolled : [];
     view.appendChild(card("Subjects", [
-      row("Your subjects", ids.map(i => SQ.Subjects.get(i).icon + " " + SQ.Subjects.get(i).short).join(" · ") || "None chosen",
+      row("Your subjects", ids.length ? ids.length + " subject" + (ids.length === 1 ? "" : "s") + " — options for each below" : "None chosen",
         U.el("a", { class: "btn btn-sm btn-primary", href: "#/subjects", text: "Change" }))
     ].concat(SQ.Subjects.LIST.filter(m => ids.includes(m.id) || SQ.Store.rawSlot(m.id)).map(m =>
       row(m.icon + " " + m.name, (() => { const sl = SQ.Store.rawSlot(m.id); return sl && sl.level ? "Level " + sl.level : "Not started yet"; })(),
